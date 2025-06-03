@@ -25,7 +25,7 @@ export const McpConfigButton = () => {
     <div className="absolute top-2 right-2 z-10">
       <Link
         href="/mcp-config"
-        className="flex items-center gap-1 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-700"
+        className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded-full hover:bg-primary/90"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +43,7 @@ export const McpConfigButton = () => {
         </svg>
         <span>MCP Config</span>
         {mcpServerCount > 0 && (
-          <span className="flex items-center justify-center bg-green-500 text-white text-xs rounded-full w-5 h-5 ml-1">
+          <span className="flex items-center justify-center bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 ml-1">
             {mcpServerCount}
           </span>
         )}

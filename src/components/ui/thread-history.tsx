@@ -260,7 +260,7 @@ const ThreadHistoryNewButton = React.forwardRef<
       title="New thread"
       {...props}
     >
-      <PlusIcon className="h-4 w-4 bg-green-600 rounded-full text-white" />
+      <PlusIcon className="h-4 w-4 bg-accent rounded-full text-accent-foreground" />
       {!isCollapsed && <span className="text-sm font-medium">New thread</span>}
     </button>
   );
@@ -303,17 +303,17 @@ const ThreadHistorySearch = React.forwardRef<
           className="p-1 hover:bg-backdrop rounded-md cursor-pointer transition-colors"
           title="Search threads"
         >
-          <SearchIcon className="h-4 w-4 text-gray-400" />
+          <SearchIcon className="h-4 w-4 text-muted-foreground" />
         </button>
       ) : (
         <>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <SearchIcon className="h-4 w-4 text-gray-400" />
+            <SearchIcon className="h-4 w-4 text-muted-foreground" />
           </div>
           <input
             ref={searchInputRef}
             type="text"
-            className="pl-10 pr-4 py-2 w-full text-sm rounded-md bg-container focus:outline-none"
+            className="pl-10 pr-4 py-2 w-full text-sm rounded-md bg-container border border-border focus:outline-none focus:ring-1 focus:ring-primary"
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
