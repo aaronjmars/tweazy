@@ -191,7 +191,7 @@ const MessageInput = React.forwardRef<HTMLFormElement, MessageInputProps>(
           data-slot="message-input-form"
           {...props}
         >
-          <div className="flex flex-col border border-gray-200 rounded-xl bg-background shadow-md p-2 px-3">
+          <div className="flex flex-col border border-border rounded-xl bg-background shadow-md p-2 px-3">
             {children}
           </div>
         </form>
@@ -299,7 +299,7 @@ const MessageInputSubmitButton = React.forwardRef<
       type="submit"
       disabled={isPending}
       className={cn(
-        "w-10 h-10 bg-black/80 text-white rounded-lg hover:bg-black/70 disabled:opacity-50 flex items-center justify-center cursor-pointer",
+        "w-10 h-10 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 dark:hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center cursor-pointer",
         className,
       )}
       aria-label="Send message"

@@ -88,21 +88,21 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
     return (
       <div ref={ref} className={cn("w-full", className)} {...props}>
         {title && (
-          <h2 className="text-lg font-medium text-gray-700 mb-3">{title}</h2>
+          <h2 className="text-lg font-medium text-foreground/80 dark:text-foreground/80 mb-3">{title}</h2>
         )}
 
         <div className="space-y-2">
           {options?.map((card) => (
             <div
               key={card.id}
-              className="border-b border-gray-100 pb-2 last:border-0"
+              className="border-b border-border/50 dark:border-border/50 pb-2 last:border-0"
             >
               <div
                 className={cn(
                   "group flex items-start p-1.5 rounded-md transition-colors",
                   state &&
                     state.selectedValues.includes(card.value) &&
-                    "bg-gray-50"
+                    "bg-muted/50 dark:bg-muted/50"
                 )}
               >
                 <div
@@ -113,8 +113,8 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
                     className={cn(
                       "w-4 h-4 border rounded-sm flex items-center justify-center transition-colors",
                       state && state.selectedValues.includes(card.value)
-                        ? "bg-blue-500 border-blue-500 text-white"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "bg-blue-500 dark:bg-blue-600 border-blue-500 dark:border-blue-600 text-white dark:text-gray-100"
+                        : "border-border dark:border-border hover:border-foreground/30 dark:hover:border-foreground/30"
                     )}
                   >
                     {state && state.selectedValues.includes(card.value) && (
@@ -143,22 +143,22 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
                 >
                   <h3
                     className={cn(
-                      "text-blue-600 font-medium text-sm",
-                      "group-hover:text-blue-700",
+                      "text-blue-600 dark:text-blue-400 font-medium text-sm",
+                      "group-hover:text-blue-700 dark:group-hover:text-blue-500",
                       state &&
                         state.selectedValues.includes(card.value) &&
-                        "text-blue-700"
+                        "text-blue-700 dark:text-blue-500"
                     )}
                   >
                     {card.label}
                   </h3>
                   {card.description && (
-                    <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5 leading-relaxed">
                       {card.description}
                     </p>
                   )}
                   {card.url && (
-                    <span className="text-xs text-green-600 mt-1 block truncate opacity-80">
+                    <span className="text-xs text-green-600 dark:text-green-500 mt-1 block truncate opacity-80">
                       {card.url}
                     </span>
                   )}
