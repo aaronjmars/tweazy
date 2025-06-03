@@ -111,10 +111,7 @@ export const createMarkdownComponents = (): Components => ({
           <CodeHeader language={match[1]} code={content} />
           <div
             className={cn(
-              "overflow-x-auto rounded-b-md bg-background",
-              "[&::-webkit-scrollbar]:w-[6px]",
-              "[&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md",
-              "[&::-webkit-scrollbar:horizontal]:h-[4px]",
+              "overflow-x-auto rounded-b-md bg-background"
             )}
           >
             <pre className="p-4 whitespace-pre">
@@ -215,7 +212,7 @@ export const createMarkdownComponents = (): Components => ({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-primary font-medium px-1.5 py-0.5 rounded-md bg-primary/5 hover:bg-primary/10 hover:underline transition-colors inline-flex items-center gap-1.5"
+      className="text-primary dark:text-blue-400 font-medium px-1.5 py-0.5 rounded-md bg-primary/5 hover:bg-primary/10 dark:bg-transparent dark:hover:underline hover:underline transition-colors inline-flex items-center gap-1.5"
     >
       {children}
       <ExternalLink className="w-3 h-3" />

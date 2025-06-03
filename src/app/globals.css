@@ -79,6 +79,8 @@ body {
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    --container: 240 4% 10%;
+    --backdrop: 0 0% 100% / 0.1;
   }
 }
 
@@ -197,4 +199,30 @@ body {
   .hover\:text-secondary:hover {
     color: hsl(var(--secondary));
   }
+
+  /* Dark mode scrollbar styling */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: hsl(var(--secondary));
+    border-radius: 4px;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary-foreground));
+  }
+
+  /* Highlight.js Dark Theme Overrides */
+  .dark .hljs { color: #c9d1d9; background: #0d1117; }
+  .dark .hljs-comment, .dark .hljs-quote { color: #8b949e; font-style: italic; }
+  .dark .hljs-keyword, .dark .hljs-selector-tag, .dark .hljs-literal, .dark .hljs-meta { color: #ff7b72; }
+  .dark .hljs-string, .dark .hljs-regexp, .dark .hljs-attr, .dark .hljs-symbol { color: #a5d6ff; }
+  .dark .hljs-number { color: #79c0ff; }
+  .dark .hljs-variable, .dark .hljs-template-variable, .dark .hljs-title.function_ { color: #ffa657; }
+  .dark .hljs-title.class_, .dark .hljs-type { color: #ffa657; }
+  .dark .hljs-built_in { color: #79c0ff; }
 }
