@@ -5,7 +5,6 @@ import { useAccount } from 'wagmi';
 import { useTamboThreadInput } from '@tambo-ai/react';
 import { MessageInput, MessageInputTextarea, MessageInputSubmitButton, MessageInputError, MessageInputToolbar } from '@/components/ui/message-input';
 import { PaymentModal } from '@/components/PaymentModal';
-import { parseX402Response, handleX402Flow } from '@/lib/x402';
 import { PaymentDetails } from '@/lib/payment';
 
 export interface EnhancedMessageInputProps {
