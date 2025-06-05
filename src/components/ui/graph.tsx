@@ -340,13 +340,29 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
             );
 
           case "pie":
+            if (!data.datasets[0]) {
+              console.error("No dataset provided for pie chart", data);
+              return (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-destructive text-center">
+                    <p className="font-medium">Error loading chart</p>
+                    <p className="text-sm mt-1">Pie chart requires a dataset.</p>
+                  </div>
+                </div>
+              );
+            }
+
+            const pieDataset = data.datasets[0];
+
             return (
               <RechartsCore.PieChart>
                 <RechartsCore.Pie
-                  data={data.datasets[0].data.map((value, index) => ({
+                  data={pieDataset.data.map((value, index) => ({
                     name: data.labels[index],
                     value,
-                    fill: defaultColors[index % defaultColors.length],
+                    fill:
+                      pieDataset.color ??
+                      defaultColors[index % defaultColors.length],
                   }))}
                   dataKey="value"
                   nameKey="name"
