@@ -6,6 +6,7 @@ import { useTamboThreadInput } from '@tambo-ai/react';
 import { MessageInput, MessageInputTextarea, MessageInputSubmitButton, MessageInputError, MessageInputToolbar } from '@/components/ui/message-input';
 import { PaymentModal } from '@/components/PaymentModal';
 import { PaymentDetails } from '@/lib/payment';
+import { parseX402Response } from '@/lib/x402';
 
 export interface EnhancedMessageInputProps {
   contextKey?: string;
@@ -20,11 +21,6 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
-  const handlePaymentRequired = useCallback(async (details: PaymentDetails): Promise<boolean> => {
-    setPaymentDetails(details);
-    setShowPaymentModal(true);
-    return true; // We'll handle the payment flow through the modal
-  }, []);
 
   const handlePaymentSuccess = useCallback(async () => {
     setShowPaymentModal(false);
@@ -38,14 +34,12 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
           streamResponse: true,
         });
         setValue('');
-
-        // Clear the pending message
         setPendingMessage(null);
       } catch (error) {
         console.error('Error submitting message after payment:', error);
       }
     }
-  }, [pendingMessage, setValue, submit, contextKey]);
+  }, [pendingMessage, setValue, submit, contextKey, setPendingMessage]);
 
   const handlePaymentError = useCallback((error: string) => {
     setShowPaymentModal(false);
@@ -53,23 +47,30 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     console.error('Payment error:', error);
   }, []);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!value.trim() || !address) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!value.trim() || !address) return;
 
-    // Store the message for retry after payment
-    setPendingMessage(value);
-
-    // Always require payment for every LLM query
-    const paymentDetails: PaymentDetails = {
-      amount: '0.1',
-      recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '',
-      description: 'LLM Query Payment - Required for AI response',
-    };
-
-    // Show payment modal for every query
-    await handlePaymentRequired(paymentDetails);
-  }, [value, address, handlePaymentRequired]);
+      try {
+        await submit({
+          contextKey,
+          streamResponse: true,
+        });
+        setValue('');
+      } catch (error) {
+        const x402 = parseX402Response(error);
+        if (x402) {
+          setPendingMessage(value);
+          setPaymentDetails(x402.paymentRequired);
+          setShowPaymentModal(true);
+        } else {
+          console.error('Failed to submit message:', error);
+        }
+      }
+    },
+    [value, address, submit, contextKey, setValue]
+  );
 
   return (
     <>
