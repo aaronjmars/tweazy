@@ -1,10 +1,10 @@
-# x402 Implementation with Context7 MCP
+# x402 Implementation for LLM Requests
 
-This document describes the implementation of x402 (HTTP 402 Payment Required) for Context7 MCP search functionality using Sepolia testnet and USDC payments.
+This document describes the implementation of x402 (HTTP 402 Payment Required) for LLM requests using Sepolia testnet and USDC payments.
 
 ## Overview
 
-The implementation adds payment-gated Context7 MCP search functionality to the Tambo AI application. When users attempt to perform searches, they may encounter x402 responses requiring 0.1 USDC payment on Sepolia testnet before the search can proceed.
+The implementation adds payment-gated functionality to the Tambo AI application. When users send messages that trigger API calls requiring payment, they may encounter x402 responses requiring 0.1 USDC payment on Sepolia testnet before the request can proceed.
 
 ## Architecture
 
@@ -20,19 +20,14 @@ The implementation adds payment-gated Context7 MCP search functionality to the T
    - Payment flow orchestration
    - Request retry after successful payment
 
-3. **Context7 MCP Integration** (`src/lib/context7-mcp.ts`)
-   - Context7 MCP server communication
-   - Search request handling with payment support
-   - Result formatting
-
-4. **Payment UI** (`src/components/PaymentModal.tsx`)
+3. **Payment UI** (`src/components/PaymentModal.tsx`)
    - Payment confirmation modal
    - Transaction status display
    - Error handling
 
-5. **Enhanced Message Input** (`src/components/EnhancedMessageInput.tsx`)
+4. **Enhanced Message Input** (`src/components/EnhancedMessageInput.tsx`)
    - Integrated payment flow in chat interface
-   - Automatic Context7 search triggering
+   - x402 response handling
    - Payment modal integration
 
 ## Configuration

@@ -12,8 +12,6 @@ import { DataCard, dataCardSchema } from "@/components/ui/card-data";
 import { Graph, graphSchema } from "@/components/ui/graph";
 import type { TamboComponent } from "@tambo-ai/react";
 import { TamboTool } from "@tambo-ai/react";
-import { searchWithContext7 } from "@/lib/context7-mcp";
-import { z } from "zod";
 
 /**
  * tools
@@ -26,38 +24,6 @@ import { z } from "zod";
 export const tools: TamboTool[] = [
   // Set the MCP tools https://localhost:3000/mcp-config
   // Add non MCP tools here
-  {
-    name: "context7_search",
-    description: "Search using Context7 MCP with x402 payment (0.1 USDC on Sepolia). Requires wallet connection.",
-    propsSchema: z.object({
-      query: z.string().describe("Search query to execute"),
-      maxResults: z.number().optional().describe("Maximum number of results (default: 10)"),
-    }),
-    handler: async ({ query, maxResults = 10 }, { userAddress }) => {
-      if (!userAddress) {
-        throw new Error("Wallet connection required for Context7 search");
-      }
-
-      try {
-        const response = await searchWithContext7(
-          { query, maxResults },
-          userAddress
-        );
-
-        return {
-          success: true,
-          results: response.results,
-          totalResults: response.totalResults,
-          query: response.query,
-        };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : "Search failed",
-        };
-      }
-    },
-  },
 ];
 
 /**

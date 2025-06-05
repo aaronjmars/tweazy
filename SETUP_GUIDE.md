@@ -1,6 +1,6 @@
-# Setup Guide: x402 Context7 MCP with Sepolia USDC
+# Setup Guide: x402 Payment Implementation with Sepolia USDC
 
-This guide will help you set up and test the x402 implementation with Context7 MCP using Sepolia testnet and USDC payments.
+This guide will help you set up and test the x402 implementation using Sepolia testnet and USDC payments.
 
 ## Prerequisites
 
@@ -37,7 +37,6 @@ This guide will help you set up and test the x402 implementation with Context7 M
 2. **Update `.env.local`**:
    ```env
    NEXT_PUBLIC_TAMBO_API_KEY=your-tambo-api-key-here
-   NEXT_PUBLIC_CONTEXT7_MCP_URL=https://api.context7.com/mcp
    NEXT_PUBLIC_PAYMENT_RECIPIENT=0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6
    NEXT_PUBLIC_SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/your-infura-key
    ```
@@ -126,9 +125,9 @@ This guide will help you set up and test the x402 implementation with Context7 M
 - **Solution**: Ensure sufficient ETH for gas fees
 - **Check**: Network congestion, try higher gas limit
 
-#### "Context7 MCP not available"
+#### "x402 payment not available"
 - **Solution**: Check environment variables
-- **Check**: `NEXT_PUBLIC_CONTEXT7_MCP_URL` and `NEXT_PUBLIC_PAYMENT_RECIPIENT` are set
+- **Check**: `NEXT_PUBLIC_PAYMENT_RECIPIENT` is set
 
 ### Debug Mode
 

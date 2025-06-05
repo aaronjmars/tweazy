@@ -88,10 +88,10 @@ export function PaymentModal({
                 <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                 <div>
                   <h3 className="font-medium text-blue-900 dark:text-blue-100">
-                    Context7 MCP Search
+                    Payment Required (x402)
                   </h3>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    {paymentDetails.description || 'Payment required to access Context7 search functionality'}
+                    {paymentDetails.description || 'Payment required to continue with your request'}
                   </p>
                 </div>
               </div>
@@ -173,7 +173,7 @@ export function PaymentModal({
                 Payment Successful!
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Your Context7 search request is now being processed.
+                Your request is now being processed.
               </p>
             </div>
             <button

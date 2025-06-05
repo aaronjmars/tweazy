@@ -5,41 +5,24 @@
 
 import { parseX402Response, isX402Response, createX402PaymentHandler } from '@/lib/x402';
 import { formatUSDCAmount, validateSufficientBalance } from '@/lib/payment';
-import { searchWithContext7, formatContext7Results } from '@/lib/context7-mcp';
 
 // Mock test data
 const mockX402Error = {
   response: {
     status: 402,
     data: {
-      message: 'Payment required for Context7 MCP search',
+      message: 'Payment required to continue',
       amount: '0.1',
       recipient: '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6',
-      description: 'Context7 search payment',
+      description: 'x402 payment required',
     },
   },
 };
 
-const mockSearchResponse = {
-  results: [
-    {
-      id: '1',
-      title: 'Test Result 1',
-      url: 'https://example.com/1',
-      snippet: 'This is a test search result snippet',
-      relevanceScore: 0.95,
-    },
-    {
-      id: '2',
-      title: 'Test Result 2',
-      url: 'https://example.com/2',
-      snippet: 'Another test search result',
-      relevanceScore: 0.87,
-    },
-  ],
-  totalResults: 2,
-  query: 'test search',
-  processingTime: 150,
+const mockApiResponse = {
+  success: true,
+  data: 'Mock API response data',
+  timestamp: Date.now(),
 };
 
 /**
@@ -75,16 +58,14 @@ export function testUSDCFormatting() {
 }
 
 /**
- * Test search result formatting
+ * Test API response handling
  */
-export function testSearchResultFormatting() {
-  console.log('Testing search result formatting...');
-  
-  const formatted = formatContext7Results(mockSearchResponse);
-  console.log('Formatted results:');
-  console.log(formatted);
-  
-  console.log('✅ Search result formatting test completed');
+export function testApiResponseHandling() {
+  console.log('Testing API response handling...');
+
+  console.log('Mock API response:', mockApiResponse);
+
+  console.log('✅ API response handling test completed');
 }
 
 /**
@@ -115,12 +96,12 @@ export function runAllTests() {
   testUSDCFormatting();
   console.log('');
   
-  testSearchResultFormatting();
+  testApiResponseHandling();
   console.log('');
-  
+
   testPaymentHandlerCreation();
   console.log('');
-  
+
   console.log('🎉 All tests completed!');
 }
 
@@ -130,7 +111,7 @@ if (typeof window !== 'undefined') {
     runAllTests,
     testX402Parsing,
     testUSDCFormatting,
-    testSearchResultFormatting,
+    testApiResponseHandling,
     testPaymentHandlerCreation,
   };
 }
