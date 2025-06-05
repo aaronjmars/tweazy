@@ -58,43 +58,19 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     e.preventDefault();
     if (!value.trim() || !address) return;
 
-    // Store the message for potential retry after payment
+    // Store the message for retry after payment
     setPendingMessage(value);
 
-    try {
-      // Attempt to submit the message - this could trigger x402 from any API call
-      await handleX402Flow(
-        async () => {
-          await submit({
-            contextKey,
-            streamResponse: true,
-          });
-          setValue('');
-        },
-        address,
-        handlePaymentRequired
-      );
+    // Always require payment for every LLM query
+    const paymentDetails: PaymentDetails = {
+      amount: '0.1',
+      recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '',
+      description: 'LLM Query Payment - Required for AI response',
+    };
 
-      // Clear pending message if successful
-      setPendingMessage(null);
-    } catch (error) {
-      // Check if this is an x402 error
-      const x402Response = parseX402Response(error);
-      if (x402Response) {
-        // Payment modal will be shown via handlePaymentRequired
-        return;
-      }
-
-      // For other errors, proceed with normal submission
-      console.error('Submit error:', error);
-      await submit({
-        contextKey,
-        streamResponse: true,
-      });
-      setValue('');
-      setPendingMessage(null);
-    }
-  }, [value, address, submit, contextKey, setValue, handlePaymentRequired]);
+    // Show payment modal for every query
+    await handlePaymentRequired(paymentDetails);
+  }, [value, address, handlePaymentRequired]);
 
   return (
     <>
@@ -104,14 +80,14 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
           className={className}
         >
           <MessageInputTextarea
-            placeholder="Type your message... (x402 payment support enabled)"
+            placeholder="Type your message... (Payment required for each query)"
           />
           <MessageInputToolbar>
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center space-x-2">
                 {address && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Wallet connected • x402 payment support enabled
+                    Wallet connected • 0.1 USDC required per query
                   </span>
                 )}
               </div>
