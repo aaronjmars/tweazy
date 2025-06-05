@@ -1,6 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { WagmiProvider } from "wagmi";
+import { wagmiConfig } from "../lib/wagmiConfig";
+import WalletGate from "../components/WalletGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +26,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {children}
+          <WagmiProvider config={wagmiConfig}>
+            <WalletGate>
+              {children}
+            </WalletGate>
+          </WagmiProvider>
         </ThemeProvider>
       </body>
     </html>

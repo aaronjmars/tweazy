@@ -23,7 +23,9 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
-    "recharts": "^2.15.3"
+    "recharts": "^2.15.3",
+    "viem": "^2.30.6",
+    "wagmi": "^2.15.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
