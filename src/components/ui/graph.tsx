@@ -148,9 +148,9 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
 
     const dataIsValid =
       data?.labels &&
-      data.datasets &&
-      Array.isArray(data.labels) &&
-      Array.isArray(data.datasets);
+      data?.datasets &&
+      Array.isArray(data?.labels) &&
+      Array.isArray(data?.datasets);
 
     // For non-latest messages, show the graph immediately if data is valid
     // For latest message, only show loading state while generating
