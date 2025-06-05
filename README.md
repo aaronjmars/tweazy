@@ -6,7 +6,7 @@ This is a starter NextJS app with tambo-ai for generative UI and MCP.
 
 ## Get Started
 
-1. Run `npm create-tambo@latest my-tambo-app` for a new project
+1. Run `npm create tambo@latest my-tambo-app` for a new project
 
 2. `npm install`
 
