@@ -1,5 +1,5 @@
 import { parseUnits, formatUnits } from 'viem';
-import { writeContract, readContract, waitForTransactionReceipt } from 'wagmi/actions';
+import { writeContract, readContract, waitForTransactionReceipt, switchChain } from 'wagmi/actions';
 import { wagmiConfig, USDC_SEPOLIA_ADDRESS } from './wagmiConfig';
 import { sepolia } from 'wagmi/chains';
 
@@ -59,6 +59,13 @@ export interface PaymentResult {
  */
 export async function checkUSDCBalance(address: string): Promise<string> {
   try {
+    // Ensure we're on the correct chain for balance checking
+    try {
+      await switchChain(wagmiConfig, { chainId: sepolia.id });
+    } catch (switchError) {
+      console.log('Chain switch not needed or failed for balance check:', switchError);
+    }
+
     const balance = await readContract(wagmiConfig, {
       address: USDC_SEPOLIA_ADDRESS,
       abi: ERC20_ABI,
@@ -83,6 +90,14 @@ export async function transferUSDC(
   amount: string
 ): Promise<PaymentResult> {
   try {
+    // Ensure we're on the correct chain (Sepolia)
+    try {
+      await switchChain(wagmiConfig, { chainId: sepolia.id });
+    } catch (switchError) {
+      console.log('Chain switch not needed or failed:', switchError);
+      // Continue anyway - the writeContract call will handle chain switching
+    }
+
     // Convert amount to proper units (USDC has 6 decimals)
     const amountInUnits = parseUnits(amount, 6);
 
