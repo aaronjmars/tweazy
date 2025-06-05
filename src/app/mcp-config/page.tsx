@@ -20,10 +20,7 @@ const McpConfigPage = () => {
   );
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  // Load saved servers from localStorage on mount
-  // This useEffect can be removed since we initialize from localStorage directly
-
-  // Save servers to localStorage when updated
+  // Persist servers to localStorage whenever the list changes
   useEffect(() => {
     console.log("Saving to localStorage:", mcpServers);
     localStorage.setItem("mcp-servers", JSON.stringify(mcpServers));
