@@ -55,7 +55,12 @@ export function usePayment(): UsePaymentReturn {
 
       // Refresh balance after payment
       if (result.success) {
-        checkBalance();
+        // Refresh balance in the background
+        checkUSDCBalance(address).then(balance => {
+          setState(prev => ({ ...prev, balance }));
+        }).catch(() => {
+          // Ignore balance refresh errors
+        });
       }
 
       return result;
@@ -67,7 +72,7 @@ export function usePayment(): UsePaymentReturn {
         error: errorMessage,
         lastPayment: { success: false, error: errorMessage },
       }));
-      
+
       return { success: false, error: errorMessage };
     }
   }, [address]);

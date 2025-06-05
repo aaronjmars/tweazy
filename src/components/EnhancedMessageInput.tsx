@@ -5,7 +5,8 @@ import { useAccount } from 'wagmi';
 import { useTamboThreadInput } from '@tambo-ai/react';
 import { MessageInput, MessageInputTextarea, MessageInputSubmitButton, MessageInputError, MessageInputToolbar } from '@/components/ui/message-input';
 import { PaymentModal } from '@/components/PaymentModal';
-import { parseX402Response, PaymentDetails, handleX402Flow } from '@/lib/x402';
+import { parseX402Response, handleX402Flow } from '@/lib/x402';
+import { PaymentDetails } from '@/lib/payment';
 
 export interface EnhancedMessageInputProps {
   contextKey?: string;
@@ -14,7 +15,7 @@ export interface EnhancedMessageInputProps {
 
 export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageInputProps) {
   const { address } = useAccount();
-  const { value, setValue, submit, isPending, error } = useTamboThreadInput(contextKey);
+  const { value, setValue, submit } = useTamboThreadInput(contextKey);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
@@ -26,7 +27,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     return true; // We'll handle the payment flow through the modal
   }, []);
 
-  const handlePaymentSuccess = useCallback(async (transactionHash: string) => {
+  const handlePaymentSuccess = useCallback(async () => {
     setShowPaymentModal(false);
 
     if (pendingMessage) {

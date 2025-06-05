@@ -11,7 +11,7 @@ export interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   paymentDetails: PaymentDetails;
-  onPaymentSuccess: (transactionHash: string) => void;
+  onPaymentSuccess: () => void;
   onPaymentError: (error: string) => void;
 }
 
@@ -40,9 +40,9 @@ export function PaymentModal({
     try {
       const result = await processPayment(paymentDetails);
       
-      if (result.success && result.transactionHash) {
+      if (result.success) {
         setStep('success');
-        onPaymentSuccess(result.transactionHash);
+        onPaymentSuccess();
       } else {
         setStep('error');
         onPaymentError(result.error || 'Payment failed');

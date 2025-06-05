@@ -15,41 +15,57 @@ export interface X402PaymentHandler {
 /**
  * Check if a response is an x402 (Payment Required) response
  */
-export function isX402Response(response: any): response is X402Response {
-  return response && response.status === 402 && response.paymentRequired;
+export function isX402Response(response: unknown): response is X402Response {
+  return Boolean(response &&
+         typeof response === 'object' &&
+         response !== null &&
+         (response as Record<string, unknown>).status === 402 &&
+         (response as Record<string, unknown>).paymentRequired);
 }
 
 /**
  * Parse x402 response from API error
  */
-export function parseX402Response(error: any): X402Response | null {
+export function parseX402Response(error: unknown): X402Response | null {
   // Check if error response contains x402 information
-  if (error?.response?.status === 402) {
-    const data = error.response.data;
-    return {
-      status: 402,
-      message: data.message || 'Payment required to continue',
-      paymentRequired: {
-        amount: data.amount || '0.1',
-        recipient: data.recipient || process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT,
-        description: data.description || 'Context7 MCP Search Payment',
-        transactionId: data.transactionId,
-      },
-      retryUrl: data.retryUrl,
-    };
+  if (error && typeof error === 'object' && error !== null) {
+    const errorObj = error as Record<string, unknown>;
+    if (errorObj.response &&
+        typeof errorObj.response === 'object' &&
+        errorObj.response !== null &&
+        (errorObj.response as Record<string, unknown>).status === 402) {
+      const data = (errorObj.response as Record<string, unknown>).data;
+      const dataObj = data as Record<string, unknown>;
+      return {
+        status: 402,
+        message: (dataObj.message as string) || 'Payment required to continue',
+        paymentRequired: {
+          amount: (dataObj.amount as string) || '0.1',
+          recipient: (dataObj.recipient as string) || process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '',
+          description: (dataObj.description as string) || 'x402 Payment Required',
+          transactionId: dataObj.transactionId as string,
+        },
+        retryUrl: dataObj.retryUrl as string,
+      };
+    }
   }
 
   // Check if error message contains x402 information
-  if (error?.message?.includes('402') || error?.message?.includes('Payment Required')) {
-    return {
-      status: 402,
-      message: 'Payment required to access Context7 MCP search',
-      paymentRequired: {
-        amount: '0.1',
-        recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '',
-        description: 'Context7 MCP Search Payment',
-      },
-    };
+  if (error && typeof error === 'object' && error !== null) {
+    const errorObj = error as Record<string, unknown>;
+    if (errorObj.message &&
+        typeof errorObj.message === 'string' &&
+        (errorObj.message.includes('402') || errorObj.message.includes('Payment Required'))) {
+      return {
+        status: 402,
+        message: 'Payment required to continue',
+        paymentRequired: {
+          amount: '0.1',
+          recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '',
+          description: 'x402 Payment Required',
+        },
+      };
+    }
   }
 
   return null;
@@ -106,10 +122,10 @@ export function createX402PaymentHandler(userAddress: string): X402PaymentHandle
 /**
  * Retry request after successful payment
  */
-export async function retryAfterPayment(
-  originalRequest: () => Promise<any>,
+export async function retryAfterPayment<T>(
+  originalRequest: () => Promise<T>,
   paymentResult: PaymentResult
-): Promise<any> {
+): Promise<T> {
   if (!paymentResult.success || !paymentResult.transactionHash) {
     throw new Error('Payment was not successful');
   }

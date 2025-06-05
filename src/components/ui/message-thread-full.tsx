@@ -1,13 +1,6 @@
 "use client";
 
 import type { messageVariants } from "@/components/ui/message";
-import {
-  MessageInput,
-  MessageInputError,
-  MessageInputSubmitButton,
-  MessageInputTextarea,
-  MessageInputToolbar,
-} from "@/components/ui/message-input";
 import { EnhancedMessageInput } from "@/components/EnhancedMessageInput";
 import {
   MessageSuggestions,

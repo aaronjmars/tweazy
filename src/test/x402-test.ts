@@ -4,7 +4,7 @@
  */
 
 import { parseX402Response, isX402Response, createX402PaymentHandler } from '@/lib/x402';
-import { formatUSDCAmount, validateSufficientBalance } from '@/lib/payment';
+import { formatUSDCAmount } from '@/lib/payment';
 
 // Mock test data
 const mockX402Error = {
@@ -107,7 +107,7 @@ export function runAllTests() {
 
 // Export test functions for use in browser console
 if (typeof window !== 'undefined') {
-  (window as any).x402Tests = {
+  (window as unknown as Record<string, unknown>).x402Tests = {
     runAllTests,
     testX402Parsing,
     testUSDCFormatting,
