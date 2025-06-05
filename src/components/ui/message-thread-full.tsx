@@ -8,6 +8,7 @@ import {
   MessageInputTextarea,
   MessageInputToolbar,
 } from "@/components/ui/message-input";
+import { EnhancedMessageInput } from "@/components/EnhancedMessageInput";
 import {
   MessageSuggestions,
   MessageSuggestionsList,
@@ -107,15 +108,9 @@ export const MessageThreadFull = React.forwardRef<
           <MessageSuggestionsStatus />
         </MessageSuggestions>
 
-        {/* Message input */}
+        {/* Enhanced Message input with x402 support */}
         <div className="p-4">
-          <MessageInput contextKey={contextKey}>
-            <MessageInputTextarea />
-            <MessageInputToolbar>
-              <MessageInputSubmitButton />
-            </MessageInputToolbar>
-            <MessageInputError />
-          </MessageInput>
+          <EnhancedMessageInput contextKey={contextKey} />
         </div>
 
         {/* Message suggestions */}
