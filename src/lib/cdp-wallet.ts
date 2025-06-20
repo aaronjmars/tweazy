@@ -32,7 +32,6 @@ class CDPWalletServiceImpl implements CDPWalletService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error creating CDP wallet:', error);
       throw new Error(`Failed to create CDP wallet: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -54,7 +53,6 @@ class CDPWalletServiceImpl implements CDPWalletService {
       const { balance } = await response.json();
       return balance;
     } catch (error) {
-      console.error('Error getting CDP wallet balance:', error);
       return '0';
     }
   }
@@ -79,7 +77,6 @@ class CDPWalletServiceImpl implements CDPWalletService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error transferring USDC:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Transfer failed',
@@ -105,7 +102,6 @@ class CDPWalletStorage {
         try {
           return JSON.parse(stored);
         } catch (error) {
-          console.error('Error parsing stored wallet session:', error);
           this.clearWalletSession();
         }
       }
@@ -137,7 +133,6 @@ export async function fundTestnetWallet(walletAddress: string): Promise<boolean>
 
     return response.ok;
   } catch (error) {
-    console.error('Error funding testnet wallet:', error);
     return false;
   }
 }

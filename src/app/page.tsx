@@ -7,11 +7,12 @@ import { TamboProvider } from "@tambo-ai/react";
 import { TamboMcpProvider } from "@tambo-ai/react/mcp";
 import { WalletProvider, useWallet } from "@/components/WalletProvider";
 import { Button } from "@/components/ui/button";
-import { Wallet, LogOut, RefreshCw, DollarSign, Copy, Check, AlertTriangle } from "lucide-react";
+import { Wallet, LogOut, RefreshCw, DollarSign, Copy, Check, AlertTriangle, Zap } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useAccount, useBalance } from "wagmi";
 import { cdpWalletService } from "@/lib/cdp-wallet";
 import { smartWalletService } from "@/lib/smart-wallet";
+import { PaymasterExample } from "@/components/PaymasterExample";
 
 function WalletInfo() {
   const { walletType, cdpWalletInfo, smartWalletInfo, switchWallet, isOnCorrectChain, switchToCorrectChain } = useWallet();
@@ -32,16 +33,13 @@ function WalletInfo() {
       setIsRefreshing(true);
       try {
         if (smartWalletInfo) {
-          console.log('Fetching smart wallet balance for:', smartWalletInfo.address);
           const balance = await smartWalletService.getBalance(smartWalletInfo);
-          console.log('Smart wallet balance retrieved:', balance);
           setSmartBalance(balance);
         } else if (cdpWalletInfo) {
           const balance = await cdpWalletService.getBalance(cdpWalletInfo.id);
           setCdpBalance(balance);
         }
       } catch (error) {
-        console.error('Failed to refresh balance:', error);
       } finally {
         setIsRefreshing(false);
       }
@@ -65,7 +63,6 @@ function WalletInfo() {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
       } catch (err) {
-        console.error('Failed to copy address:', err);
       }
     }
   }, [walletType, metamaskAddress, cdpWalletInfo?.address, smartWalletInfo?.address]);
@@ -155,25 +152,49 @@ function WalletInfo() {
 function MainApp() {
   // Load MCP server configurations
   const mcpServers = loadMcpServers();
+  const [activeTab, setActiveTab] = useState<'chat' | 'paymaster'>('chat');
 
   return (
     <div className="h-screen flex flex-col overflow-hidden relative bg-background">
       <WalletInfo />
-      
-      <div className="absolute top-4 right-4 z-10">
+
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <Button
+          variant={activeTab === 'paymaster' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setActiveTab('paymaster')}
+        >
+          <Zap className="w-4 h-4 mr-2" />
+          Paymaster Demo
+        </Button>
+        <Button
+          variant={activeTab === 'chat' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setActiveTab('chat')}
+        >
+          Chat
+        </Button>
         <ThemeToggle />
       </div>
 
-      <TamboProvider
-        apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-        components={components}
-      >
-        <TamboMcpProvider mcpServers={mcpServers}>
-          <div className="w-full max-w-4xl mx-auto h-full">
-            <MessageThreadFull contextKey="tambo-template" />
+      {activeTab === 'chat' ? (
+        <TamboProvider
+          apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
+          components={components}
+        >
+          <TamboMcpProvider mcpServers={mcpServers}>
+            <div className="w-full max-w-4xl mx-auto h-full">
+              <MessageThreadFull contextKey="tambo-template" />
+            </div>
+          </TamboMcpProvider>
+        </TamboProvider>
+      ) : (
+        <div className="flex-1 overflow-auto">
+          <div className="w-full max-w-4xl mx-auto">
+            <PaymasterExample />
           </div>
-        </TamboMcpProvider>
-      </TamboProvider>
+        </div>
+      )}
     </div>
   );
 }

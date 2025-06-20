@@ -194,7 +194,6 @@ export function WalletProvider({ children }: WalletProviderProps) {
       await switchChain(wagmiConfig, { chainId: baseSepolia.id });
       return true;
     } catch (error) {
-      console.error('Failed to switch chain:', error);
       setError('Failed to switch to Base Sepolia network. Please switch manually in MetaMask.');
       return false;
     } finally {

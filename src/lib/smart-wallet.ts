@@ -19,6 +19,7 @@ export interface SmartWalletInfo {
 const SMART_WALLET_CONFIG = {
   appName: 'MCP x402 Payment System',
   appLogoUrl: 'https://your-app.com/logo.png', // You can update this with your actual logo
+  appChainIds: [84532], // Base Sepolia chain ID
   smartWallet: {
     enabled: true
   }
@@ -50,22 +51,17 @@ class SmartWalletService {
       if (!provider) {
         throw new Error('Failed to initialize smart wallet provider');
       }
-      
-      console.log('Requesting accounts from smart wallet provider...');
-      
+
       // Try to connect with passkey
-      const accounts = await provider.request({ 
+      const accounts = await provider.request({
         method: 'eth_requestAccounts'
       }) as string[];
-
-      console.log('Accounts returned from smart wallet:', accounts);
 
       if (!accounts || accounts.length === 0) {
         throw new Error('No accounts returned from smart wallet');
       }
 
-      let address = accounts[0];
-      console.log('Smart wallet address from provider:', address);
+      const address = accounts[0];
       
       // Validate the address
       if (!address || address.length !== 42 || !address.startsWith('0x')) {
@@ -75,8 +71,6 @@ class SmartWalletService {
       // Get network info
       const chainId = await provider.request({ method: 'eth_chainId' }) as string;
       const network = this.getNetworkName(chainId);
-      
-      console.log('Smart wallet connected to network:', network, 'chainId:', chainId);
 
       // Create wallet info
       const walletInfo: SmartWalletInfo = {
@@ -92,20 +86,17 @@ class SmartWalletService {
       
       return walletInfo;
     } catch (error) {
-      console.error('Error connecting smart wallet with passkey:', error);
       throw new Error(`Failed to connect smart wallet: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   async getBalance(walletInfo: SmartWalletInfo): Promise<string> {
     try {
-      console.log('Getting balance for smart wallet:', walletInfo.address);
-      
       // Check if the wallet address is the same as USDC contract (this shouldn't happen)
       const usdcContract = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
       if (walletInfo.address.toLowerCase() === usdcContract.toLowerCase()) {
-        console.error('ERROR: Smart wallet address is the same as USDC contract address!');
-        console.error('This indicates a problem with wallet creation/connection');
+        // ERROR: Smart wallet address is the same as USDC contract address!
+        // This indicates a problem with wallet creation/connection
         return '0';
       }
       
@@ -128,18 +119,16 @@ class SmartWalletService {
         });
 
         const data = await response.json();
-        console.log('Direct RPC balance response:', data);
 
         if (data.result && data.result !== '0x' && data.result !== '0x0') {
           const balanceWei = BigInt(data.result);
           const balanceUsdc = Number(balanceWei) / Math.pow(10, 6);
-          console.log('Balance from direct RPC:', balanceUsdc);
           return balanceUsdc.toString();
         } else {
-          console.log('Direct RPC returned zero balance or empty result:', data.result);
+          // Direct RPC returned zero balance or empty result
         }
       } catch (rpcError) {
-        console.error('Direct RPC call failed:', rpcError);
+        // Direct RPC call failed
       }
 
       // Fallback to wallet provider method
@@ -153,9 +142,6 @@ class SmartWalletService {
       const walletAddressHex = walletInfo.address.slice(2).toLowerCase().padStart(64, '0');
       const balanceOfData = '0x70a08231' + walletAddressHex;
       
-      console.log('Fallback: Calling balanceOf with data:', balanceOfData);
-      console.log('USDC contract:', usdcContract);
-      
       const balance = await provider.request({
         method: 'eth_call',
         params: [{
@@ -164,22 +150,16 @@ class SmartWalletService {
         }, 'latest']
       }) as string;
 
-      console.log('Raw balance response from provider:', balance);
-
       // Convert from wei to USDC (6 decimals)
       if (!balance || balance === '0x' || balance === '0x0') {
-        console.log('Balance is empty or zero, returning 0');
         return '0';
       }
-      
+
       const balanceWei = BigInt(balance);
       const balanceUsdc = Number(balanceWei) / Math.pow(10, 6);
       
-      console.log('Converted balance:', balanceUsdc);
-      
       return balanceUsdc.toString();
     } catch (error) {
-      console.error('Error getting smart wallet balance:', error);
       return '0';
     }
   }
@@ -219,7 +199,6 @@ class SmartWalletService {
         transactionHash: txHash
       };
     } catch (error) {
-      console.error('Error transferring USDC with smart wallet:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Transfer failed'
@@ -237,7 +216,6 @@ class SmartWalletService {
       }
       SmartWalletStorage.clearWalletSession();
     } catch (error) {
-      console.error('Error disconnecting smart wallet:', error);
     }
   }
 
@@ -279,7 +257,6 @@ class SmartWalletStorage {
         try {
           return JSON.parse(stored);
         } catch (error) {
-          console.error('Error parsing stored smart wallet session:', error);
           this.clearWalletSession();
         }
       }

@@ -35,27 +35,15 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     }
   }, [value]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('EnhancedMessageInput mounted', { 
-      address, 
-      contextKey, 
-      walletType,
-      isWalletReady,
-      cdpWalletInfo,
-      recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT 
-    });
-  }, [address, contextKey, walletType, isWalletReady, cdpWalletInfo]);
+  // Component mounted
 
   const handlePaymentRequired = useCallback(async (details: PaymentDetails): Promise<boolean> => {
-    console.log('Payment required:', details);
     setPaymentDetails(details);
     setShowPaymentModal(true);
     return true;
   }, []);
 
   const handlePaymentSuccess = useCallback(async () => {
-    console.log('Payment successful, submitting message:', pendingMessage);
     setShowPaymentModal(false);
 
     if (pendingMessage) {
@@ -71,7 +59,6 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
           textareaRef.current?.focus();
         }, 0);
       } catch (error) {
-        console.error('Error submitting message after payment:', error);
         setDisplayValue(pendingMessage);
         setSubmitError('Failed to send message after payment. Please try again.');
       }
@@ -79,30 +66,25 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
   }, [pendingMessage, setValue, submit, contextKey]);
 
   const handlePaymentError = useCallback((error: string) => {
-    console.log('Payment error:', error);
     setShowPaymentModal(false);
     setPendingMessage(null);
     setSubmitError(error);
   }, []);
 
   const handleEnhancedSubmit = useCallback(async (e: React.FormEvent) => {
-    console.log('Enhanced submit triggered', { value, walletType, isWalletReady });
     e.preventDefault();
-    
+
     if (!value.trim()) {
-      console.log('No message to submit');
       return;
     }
-    
+
     if (!isWalletReady) {
-      console.log('Wallet not ready - wallet must be connected');
       setSubmitError('Please connect your wallet to send messages');
       return;
     }
 
     // For MetaMask, ensure we're on the correct chain
     if (walletType === 'metamask' && !isOnCorrectChain) {
-      console.log('Wrong chain detected, attempting to switch');
       setSubmitError('Switching to Base Sepolia network...');
       
       const switched = await switchToCorrectChain();
@@ -113,9 +95,8 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     }
 
     const recipient = process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6';
-    
+
     if (!recipient) {
-      console.error('No payment recipient configured');
       setSubmitError('Payment system not configured. Please check environment variables.');
       return;
     }
@@ -128,9 +109,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     try {
       // Use getAddress to validate and normalize the address
       normalizedRecipient = getAddress(cleanRecipient);
-      console.log('Address validation successful:', normalizedRecipient);
     } catch (error) {
-      console.error('Invalid payment recipient address format:', cleanRecipient, error);
       setSubmitError('Payment recipient address is invalid. Please check configuration.');
       return;
     }
@@ -144,8 +123,6 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
       recipient: normalizedRecipient,
       description: 'LLM Query Payment - Required for AI response',
     };
-
-    console.log('Triggering payment modal with details:', paymentDetails);
     await handlePaymentRequired(paymentDetails);
   }, [value, isWalletReady, handlePaymentRequired, walletType, isOnCorrectChain, switchToCorrectChain]);
 
@@ -221,7 +198,6 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
         <PaymentModal
           isOpen={showPaymentModal}
           onClose={() => {
-            console.log('Payment modal closed');
             setShowPaymentModal(false);
             setPendingMessage(null);
           }}

@@ -76,7 +76,6 @@ export function usePayment(): UsePaymentReturn {
       const balance = await checkBalance(paymentContext);
       setState(prev => ({ ...prev, balance, isLoadingBalance: false }));
     } catch (error) {
-      console.error('Error checking balance:', error);
       setState(prev => ({
         ...prev,
         balance: null,
@@ -90,7 +89,6 @@ export function usePayment(): UsePaymentReturn {
     try {
       return await validateSufficientBalanceUniversal(paymentContext, requiredAmount);
     } catch (error) {
-      console.error('Error validating balance:', error);
       return false;
     }
   }, []);

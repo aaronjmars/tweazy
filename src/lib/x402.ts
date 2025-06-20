@@ -109,7 +109,6 @@ export function createX402PaymentHandler(): X402PaymentHandler {
         // For now, we'll assume the transaction hash indicates success
         return transactionHash.length > 0;
       } catch (error) {
-        console.error('Error validating payment:', error);
         return false;
       }
     },

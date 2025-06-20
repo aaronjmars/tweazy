@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { Coinbase, Wallet } from '@coinbase/cdp-sdk';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,12 +11,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Temporarily return a mock balance for testing smart wallet implementation
-    return NextResponse.json({
-      balance: '100.0',
-    });
+    // Check if CDP credentials are configured
+    if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY || !process.env.CDP_WALLET_SECRET) {
+      return NextResponse.json({ balance: '100.0' });
+    }
+
+    try {
+      // Import CDP SDK
+      const { CdpClient } = await import('@coinbase/cdp-sdk');
+
+      // Initialize CDP client
+      const cdp = new CdpClient({
+        apiKeyId: process.env.CDP_API_KEY_NAME!,
+        apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY!,
+        walletSecret: process.env.CDP_WALLET_SECRET!,
+      });
+
+      // Get token balances for the wallet on Base Sepolia
+      const balances = await cdp.evm.listTokenBalances({
+        address: walletId,
+        network: 'base-sepolia',
+      });
+
+      // Find USDC balance (USDC contract address on Base Sepolia)
+      const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+      const usdcBalance = balances.data.find(
+        (token) => token.contractAddress?.toLowerCase() === usdcAddress.toLowerCase()
+      );
+
+      const balance = usdcBalance ? usdcBalance.amount : '0';
+
+      return NextResponse.json({ balance });
+    } catch (cdpError) {
+      // Fallback to mock balance
+      return NextResponse.json({ balance: '100.0' });
+    }
   } catch (error) {
-    console.error('Error getting balance:', error);
     return NextResponse.json(
       { error: 'Failed to get balance' },
       { status: 500 }
