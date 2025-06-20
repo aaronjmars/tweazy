@@ -36,8 +36,7 @@ export async function POST() {
     };
 
     return NextResponse.json(walletInfo);
-  } catch (error) {
-
+  } catch {
     // Fallback to mock wallet if CDP fails
     const randomBytes = Array.from({length: 20}, () => Math.floor(Math.random() * 256));
     const address = '0x' + randomBytes.map(b => b.toString(16).padStart(2, '0')).join('');

@@ -45,8 +45,7 @@ export async function POST(request: NextRequest) {
         network: 'base-sepolia',
       });
 
-    } catch (cdpError) {
-
+    } catch {
       // Fallback to mock funding
       return NextResponse.json({
         success: true,
@@ -55,7 +54,7 @@ export async function POST(request: NextRequest) {
         note: 'Fallback funding due to CDP error'
       });
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fund wallet' },
       { status: 500 }

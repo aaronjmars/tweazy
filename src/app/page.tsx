@@ -39,7 +39,7 @@ function WalletInfo() {
           const balance = await cdpWalletService.getBalance(cdpWalletInfo.id);
           setCdpBalance(balance);
         }
-      } catch (error) {
+      } catch {
       } finally {
         setIsRefreshing(false);
       }
@@ -62,7 +62,7 @@ function WalletInfo() {
         await navigator.clipboard.writeText(address);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
-      } catch (err) {
+      } catch {
       }
     }
   }, [walletType, metamaskAddress, cdpWalletInfo?.address, smartWalletInfo?.address]);

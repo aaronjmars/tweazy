@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Zap, CheckCircle, AlertCircle, Wallet, Info } from 'lucide-react';
+import { Zap, Info } from 'lucide-react';
 import { BASE_SEPOLIA_CHAIN_ID, getPaymasterUrl } from '@/lib/wagmiConfig';
 import { useWallet } from '@/components/WalletProvider';
 import { useAccount } from 'wagmi';
 
 export function PaymasterExample() {
-  const { walletType, isOnCorrectChain, switchToCorrectChain } = useWallet();
+  const { walletType } = useWallet();
   const { address } = useAccount();
   const [testResult, setTestResult] = useState<string>('');
 
@@ -62,7 +62,7 @@ export function PaymasterExample() {
               while you still pay the required USDC amount. This means you only need USDC in your wallet!
             </p>
             <p className="text-sm text-blue-600">
-              💡 Try making a payment in the Chat tab - if you're using a CDP wallet, gas will be sponsored automatically.
+              💡 Try making a payment in the Chat tab - if you&apos;re using a CDP wallet, gas will be sponsored automatically.
             </p>
           </div>
 
@@ -82,7 +82,7 @@ export function PaymasterExample() {
                 <div>Connected: {address ? '✅ Yes' : '❌ No'}</div>
                 <div>Type: {walletType || 'None'}</div>
                 <div>Paymaster Eligible: {
-                  (walletType === 'cdp' || walletType === 'smart') ? '✅ Yes' : '❌ MetaMask not supported'
+                  walletType === 'cdp' ? '✅ Yes' : '❌ MetaMask not supported'
                 }</div>
               </div>
             </div>
@@ -127,7 +127,7 @@ export function PaymasterExample() {
               <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-medium">3</div>
               <div>
                 <h4 className="font-medium">Look for Gas Sponsorship</h4>
-                <p className="text-sm text-gray-600">In the payment modal, you'll see a "Gas Free" badge if paymaster is active</p>
+                <p className="text-sm text-gray-600">In the payment modal, you&apos;ll see a &quot;Gas Free&quot; badge if paymaster is active</p>
               </div>
             </div>
           </div>

@@ -44,7 +44,7 @@ export function PaymentModal({
 
     try {
       // Enable paymaster for CDP/Smart wallets on supported chains
-      const usePaymaster = (paymentContext.walletType === 'cdp' || paymentContext.walletType === 'smart') &&
+      const usePaymaster = paymentContext.walletType === 'cdp' &&
                           isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID);
 
       if (usePaymaster) {
@@ -141,7 +141,7 @@ export function PaymentModal({
                   <span className="font-medium text-foreground">
                     {paymentContext.walletType === 'metamask' ? 'MetaMask' : 'Coinbase CDP'}
                   </span>
-                  {(paymentContext.walletType === 'cdp' || paymentContext.walletType === 'smart') &&
+                  {paymentContext.walletType === 'cdp' &&
                    isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID) && (
                     <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
                       <Zap className="w-3 h-3 mr-1" />
@@ -199,7 +199,7 @@ export function PaymentModal({
                 Processing Payment
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                {(paymentContext.walletType === 'cdp' || paymentContext.walletType === 'smart') &&
+                {paymentContext.walletType === 'cdp' &&
                  isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID) ? (
                   <>
                     <Zap className="w-4 h-4 inline mr-1 text-green-600" />

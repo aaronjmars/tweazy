@@ -36,7 +36,7 @@ export const wagmiConfig = createConfig({
 
 // Helper function to check if paymaster is supported for a given chain
 export function isPaymasterSupported(chainId: number): boolean {
-  return PAYMASTER_CONFIG.supportedChains.includes(chainId);
+  return PAYMASTER_CONFIG.supportedChains.includes(chainId as 84532 | 8453);
 }
 
 // Helper function to get paymaster URL

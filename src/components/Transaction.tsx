@@ -7,9 +7,9 @@ export interface TransactionProps {
   address?: string;
   contracts?: Array<{
     address: string;
-    abi: any[];
+    abi: readonly unknown[];
     functionName: string;
-    args: any[];
+    args: unknown[];
   }>;
   chainId?: number;
   capabilities?: {
@@ -45,7 +45,7 @@ export function Transaction({
   const enhancedChildren = React.Children.map(children, (child) => {
     if (React.isValidElement(child) && child.type === TransactionButton) {
       return React.cloneElement(child, {
-        ...child.props,
+        ...(child.props as object),
         address,
         contracts,
         chainId,
@@ -73,6 +73,7 @@ export function TransactionButton({
     <PayButton
       {...transactionProps}
       text={text}
+      disabled={disabled}
       className={className}
     />
   );

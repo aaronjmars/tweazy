@@ -75,7 +75,7 @@ export function usePayment(): UsePaymentReturn {
     try {
       const balance = await checkBalance(paymentContext);
       setState(prev => ({ ...prev, balance, isLoadingBalance: false }));
-    } catch (error) {
+    } catch {
       setState(prev => ({
         ...prev,
         balance: null,
@@ -88,7 +88,7 @@ export function usePayment(): UsePaymentReturn {
   const validateBalance = useCallback(async (requiredAmount: string, paymentContext: PaymentContext): Promise<boolean> => {
     try {
       return await validateSufficientBalanceUniversal(paymentContext, requiredAmount);
-    } catch (error) {
+    } catch {
       return false;
     }
   }, []);

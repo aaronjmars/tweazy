@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useAccount } from 'wagmi';
 import { useTamboThreadInput } from '@tambo-ai/react';
 import { cn } from "@/lib/utils";
 import { ArrowUp } from "lucide-react";
@@ -16,8 +15,7 @@ export interface EnhancedMessageInputProps {
 }
 
 export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageInputProps) {
-  const { address } = useAccount();
-  const { walletType, paymentContext, isWalletReady, cdpWalletInfo, switchToCorrectChain, isOnCorrectChain } = useWallet();
+  const { walletType, paymentContext, isWalletReady, switchToCorrectChain, isOnCorrectChain } = useWallet();
   const { value, setValue, submit, isPending, error } = useTamboThreadInput(contextKey);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -58,7 +56,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
         setTimeout(() => {
           textareaRef.current?.focus();
         }, 0);
-      } catch (error) {
+      } catch {
         setDisplayValue(pendingMessage);
         setSubmitError('Failed to send message after payment. Please try again.');
       }
@@ -109,7 +107,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     try {
       // Use getAddress to validate and normalize the address
       normalizedRecipient = getAddress(cleanRecipient);
-    } catch (error) {
+    } catch {
       setSubmitError('Payment recipient address is invalid. Please check configuration.');
       return;
     }

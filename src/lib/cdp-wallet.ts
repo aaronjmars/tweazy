@@ -52,7 +52,7 @@ class CDPWalletServiceImpl implements CDPWalletService {
 
       const { balance } = await response.json();
       return balance;
-    } catch (error) {
+    } catch {
       return '0';
     }
   }
@@ -101,7 +101,7 @@ class CDPWalletStorage {
       if (stored) {
         try {
           return JSON.parse(stored);
-        } catch (error) {
+        } catch {
           this.clearWalletSession();
         }
       }
@@ -132,7 +132,7 @@ export async function fundTestnetWallet(walletAddress: string): Promise<boolean>
     });
 
     return response.ok;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

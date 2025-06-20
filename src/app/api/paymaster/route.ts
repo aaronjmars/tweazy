@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       const { CdpClient } = await import('@coinbase/cdp-sdk')
 
       // Initialize CDP client with your credentials
-      const cdp = new CdpClient({
+      await new CdpClient({
         apiKeyId: process.env.CDP_API_KEY_NAME!,
         apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY!,
       })
@@ -56,8 +56,7 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json(response)
 
-    } catch (cdpError) {
-
+    } catch {
       // Fallback to mock response if CDP fails
       const fallbackResponse = {
         gasLimits: {
@@ -75,9 +74,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(fallbackResponse)
     }
 
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json(
-      { error: e.message || 'Paymaster API failed' },
+      { error: (e instanceof Error ? e.message : 'Unknown error') || 'Paymaster API failed' },
       { status: 500 }
     )
   }

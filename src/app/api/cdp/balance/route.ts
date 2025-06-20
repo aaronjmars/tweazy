@@ -35,18 +35,19 @@ export async function POST(request: NextRequest) {
 
       // Find USDC balance (USDC contract address on Base Sepolia)
       const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
-      const usdcBalance = balances.data.find(
-        (token) => token.contractAddress?.toLowerCase() === usdcAddress.toLowerCase()
+      const tokenBalances = Array.isArray(balances) ? balances : (balances as { data?: unknown[] }).data || [];
+      const usdcBalance = tokenBalances.find(
+        (token: { contractAddress?: string; amount?: string }) => token.contractAddress?.toLowerCase() === usdcAddress.toLowerCase()
       );
 
       const balance = usdcBalance ? usdcBalance.amount : '0';
 
       return NextResponse.json({ balance });
-    } catch (cdpError) {
+    } catch {
       // Fallback to mock balance
       return NextResponse.json({ balance: '100.0' });
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to get balance' },
       { status: 500 }
