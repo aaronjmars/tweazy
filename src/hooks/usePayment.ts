@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAccount } from 'wagmi';
-import { PaymentDetails, PaymentResult, checkUSDCBalance, validateSufficientBalance } from '@/lib/payment';
-import { createX402PaymentHandler } from '@/lib/x402';
+import { PaymentDetails, PaymentResult, PaymentContext, checkBalance, validateSufficientBalanceUniversal, makePayment } from '@/lib/payment';
 
 export interface PaymentState {
   isProcessing: boolean;
@@ -13,17 +12,17 @@ export interface PaymentState {
 
 export interface UsePaymentReturn {
   state: PaymentState;
-  processPayment: (paymentDetails: PaymentDetails) => Promise<PaymentResult>;
-  checkBalance: () => Promise<void>;
+  processPayment: (paymentDetails: PaymentDetails, paymentContext: PaymentContext) => Promise<PaymentResult>;
+  checkBalance: (paymentContext: PaymentContext) => Promise<void>;
   clearError: () => void;
-  validateBalance: (requiredAmount: string) => Promise<boolean>;
+  validateBalance: (requiredAmount: string, paymentContext: PaymentContext) => Promise<boolean>;
 }
 
 /**
  * Hook for handling USDC payments on Sepolia
  */
 export function usePayment(): UsePaymentReturn {
-  const { address } = useAccount();
+  const { } = useAccount();
   
   const [state, setState] = useState<PaymentState>({
     isProcessing: false,
@@ -33,18 +32,11 @@ export function usePayment(): UsePaymentReturn {
     isLoadingBalance: false,
   });
 
-  const processPayment = useCallback(async (paymentDetails: PaymentDetails): Promise<PaymentResult> => {
-    if (!address) {
-      const error = 'Wallet not connected';
-      setState(prev => ({ ...prev, error }));
-      return { success: false, error };
-    }
-
+  const processPayment = useCallback(async (paymentDetails: PaymentDetails, paymentContext: PaymentContext): Promise<PaymentResult> => {
     setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
     try {
-      const paymentHandler = createX402PaymentHandler(address);
-      const result = await paymentHandler.handlePayment(paymentDetails);
+      const result = await makePayment(paymentDetails, paymentContext);
       
       setState(prev => ({
         ...prev,
@@ -56,7 +48,7 @@ export function usePayment(): UsePaymentReturn {
       // Refresh balance after payment
       if (result.success) {
         // Refresh balance in the background
-        checkUSDCBalance(address).then(balance => {
+        checkBalance(paymentContext).then(balance => {
           setState(prev => ({ ...prev, balance }));
         }).catch(() => {
           // Ignore balance refresh errors
@@ -75,18 +67,13 @@ export function usePayment(): UsePaymentReturn {
 
       return { success: false, error: errorMessage };
     }
-  }, [address]);
+  }, []);
 
-  const checkBalance = useCallback(async (): Promise<void> => {
-    if (!address) {
-      setState(prev => ({ ...prev, balance: null }));
-      return;
-    }
-
+  const checkBalanceFunc = useCallback(async (paymentContext: PaymentContext): Promise<void> => {
     setState(prev => ({ ...prev, isLoadingBalance: true }));
 
     try {
-      const balance = await checkUSDCBalance(address);
+      const balance = await checkBalance(paymentContext);
       setState(prev => ({ ...prev, balance, isLoadingBalance: false }));
     } catch (error) {
       console.error('Error checking balance:', error);
@@ -97,18 +84,16 @@ export function usePayment(): UsePaymentReturn {
         error: 'Failed to check balance',
       }));
     }
-  }, [address]);
+  }, []);
 
-  const validateBalance = useCallback(async (requiredAmount: string): Promise<boolean> => {
-    if (!address) return false;
-
+  const validateBalance = useCallback(async (requiredAmount: string, paymentContext: PaymentContext): Promise<boolean> => {
     try {
-      return await validateSufficientBalance(address, requiredAmount);
+      return await validateSufficientBalanceUniversal(paymentContext, requiredAmount);
     } catch (error) {
       console.error('Error validating balance:', error);
       return false;
     }
-  }, [address]);
+  }, []);
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
@@ -117,7 +102,7 @@ export function usePayment(): UsePaymentReturn {
   return {
     state,
     processPayment,
-    checkBalance,
+    checkBalance: checkBalanceFunc,
     clearError,
     validateBalance,
   };

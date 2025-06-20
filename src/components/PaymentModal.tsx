@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { X, AlertCircle, CheckCircle, Loader2, Wallet } from 'lucide-react';
-import { PaymentDetails } from '@/lib/payment';
+import { PaymentDetails, PaymentContext } from '@/lib/payment';
 import { formatUSDCAmount } from '@/lib/payment';
 import { usePayment } from '@/hooks/usePayment';
 import { useAccount } from 'wagmi';
@@ -11,6 +11,7 @@ export interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   paymentDetails: PaymentDetails;
+  paymentContext: PaymentContext;
   onPaymentSuccess: () => void;
   onPaymentError: (error: string) => void;
 }
@@ -19,6 +20,7 @@ export function PaymentModal({
   isOpen,
   onClose,
   paymentDetails,
+  paymentContext,
   onPaymentSuccess,
   onPaymentError,
 }: PaymentModalProps) {
@@ -27,18 +29,18 @@ export function PaymentModal({
   const [step, setStep] = useState<'confirm' | 'processing' | 'success' | 'error'>('confirm');
 
   useEffect(() => {
-    if (isOpen && address) {
-      checkBalance();
+    if (isOpen && paymentContext) {
+      checkBalance(paymentContext);
       setStep('confirm');
       clearError();
     }
-  }, [isOpen, address, checkBalance, clearError]);
+  }, [isOpen, paymentContext, checkBalance, clearError]);
 
   const handlePayment = async () => {
     setStep('processing');
     
     try {
-      const result = await processPayment(paymentDetails);
+      const result = await processPayment(paymentDetails, paymentContext);
       
       if (result.success) {
         setStep('success');
@@ -108,7 +110,14 @@ export function PaymentModal({
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Network:</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  Sepolia Testnet
+                  {paymentContext.walletType === 'cdp' ? 'Base Sepolia' : 'Sepolia Testnet'}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Wallet:</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {paymentContext.walletType === 'metamask' ? 'MetaMask' : 'Coinbase CDP'}
                 </span>
               </div>
 
@@ -141,11 +150,13 @@ export function PaymentModal({
               </button>
               <button
                 onClick={handlePayment}
-                disabled={state.isProcessing || !address}
+                disabled={state.isProcessing || (!address && paymentContext.walletType === 'metamask')}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
               >
                 <Wallet className="w-4 h-4" />
-                <span>Pay with USDC</span>
+                <span>
+                  Pay with {paymentContext.walletType === 'metamask' ? 'MetaMask' : 'CDP Wallet'}
+                </span>
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { parseUnits, formatUnits } from 'viem';
 import { writeContract, readContract, waitForTransactionReceipt, switchChain } from 'wagmi/actions';
 import { wagmiConfig, USDC_SEPOLIA_ADDRESS } from './wagmiConfig';
 import { sepolia } from 'wagmi/chains';
+import { cdpWalletService, CDPWalletInfo } from './cdp-wallet';
 
 // ERC-20 ABI for USDC transfers
 const ERC20_ABI = [
@@ -54,6 +55,14 @@ export interface PaymentResult {
   error?: string;
 }
 
+export type WalletType = 'metamask' | 'cdp';
+
+export interface PaymentContext {
+  walletType: WalletType;
+  walletInfo?: CDPWalletInfo;
+  userAddress?: string;
+}
+
 /**
  * Check USDC balance for a given address on Sepolia
  */
@@ -83,7 +92,7 @@ export async function checkUSDCBalance(address: string): Promise<string> {
 }
 
 /**
- * Transfer USDC tokens on Sepolia testnet
+ * Transfer USDC tokens on Sepolia testnet using MetaMask
  */
 export async function transferUSDC(
   recipient: string,
@@ -151,6 +160,99 @@ export async function validateSufficientBalance(
     return balanceNum >= requiredNum;
   } catch (error) {
     console.error('Error validating balance:', error);
+    return false;
+  }
+}
+
+/**
+ * Transfer USDC using CDP wallet
+ */
+export async function transferUSDCWithCDP(
+  walletId: string,
+  recipient: string,
+  amount: string
+): Promise<PaymentResult> {
+  try {
+    const result = await cdpWalletService.transferUSDC(walletId, recipient, amount);
+    return result;
+  } catch (error) {
+    console.error('Error transferring USDC with CDP:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'CDP transfer failed',
+    };
+  }
+}
+
+/**
+ * Universal payment function that handles both MetaMask and CDP wallets
+ */
+export async function makePayment(
+  paymentDetails: PaymentDetails,
+  paymentContext: PaymentContext
+): Promise<PaymentResult> {
+  switch (paymentContext.walletType) {
+    case 'metamask':
+      return await transferUSDC(paymentDetails.recipient, paymentDetails.amount);
+    
+    case 'cdp':
+      if (!paymentContext.walletInfo?.id) {
+        return {
+          success: false,
+          error: 'CDP wallet not found',
+        };
+      }
+      return await transferUSDCWithCDP(
+        paymentContext.walletInfo.id,
+        paymentDetails.recipient,
+        paymentDetails.amount
+      );
+    
+    default:
+      return {
+        success: false,
+        error: 'Unsupported wallet type',
+      };
+  }
+}
+
+/**
+ * Check balance for both wallet types
+ */
+export async function checkBalance(paymentContext: PaymentContext): Promise<string> {
+  switch (paymentContext.walletType) {
+    case 'metamask':
+      if (!paymentContext.userAddress) {
+        throw new Error('User address not found for MetaMask');
+      }
+      return await checkUSDCBalance(paymentContext.userAddress);
+    
+    case 'cdp':
+      if (!paymentContext.walletInfo?.id) {
+        throw new Error('CDP wallet not found');
+      }
+      return await cdpWalletService.getBalance(paymentContext.walletInfo.id);
+    
+    default:
+      throw new Error('Unsupported wallet type');
+  }
+}
+
+/**
+ * Validate sufficient balance for both wallet types
+ */
+export async function validateSufficientBalanceUniversal(
+  paymentContext: PaymentContext,
+  requiredAmount: string
+): Promise<boolean> {
+  try {
+    const balance = await checkBalance(paymentContext);
+    const balanceNum = parseFloat(balance);
+    const requiredNum = parseFloat(requiredAmount);
+    
+    return balanceNum >= requiredNum;
+  } catch (error) {
+    console.error('Error validating universal balance:', error);
     return false;
   }
 }

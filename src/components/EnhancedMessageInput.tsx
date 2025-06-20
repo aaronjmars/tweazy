@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ArrowUp } from "lucide-react";
 import { PaymentModal } from '@/components/PaymentModal';
 import { PaymentDetails } from '@/lib/payment';
+import { useWallet } from '@/components/WalletProvider';
 
 export interface EnhancedMessageInputProps {
   contextKey?: string;
@@ -15,6 +16,7 @@ export interface EnhancedMessageInputProps {
 
 export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageInputProps) {
   const { address } = useAccount();
+  const { walletType, paymentContext, isWalletReady, cdpWalletInfo } = useWallet();
   const { value, setValue, submit, isPending, error } = useTamboThreadInput(contextKey);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,9 +39,12 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     console.log('EnhancedMessageInput mounted', { 
       address, 
       contextKey, 
+      walletType,
+      isWalletReady,
+      cdpWalletInfo,
       recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT 
     });
-  }, [address, contextKey]);
+  }, [address, contextKey, walletType, isWalletReady, cdpWalletInfo]);
 
   const handlePaymentRequired = useCallback(async (details: PaymentDetails): Promise<boolean> => {
     console.log('Payment required:', details);
@@ -80,7 +85,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
   }, []);
 
   const handleEnhancedSubmit = useCallback(async (e: React.FormEvent) => {
-    console.log('Enhanced submit triggered', { value, address });
+    console.log('Enhanced submit triggered', { value, walletType, isWalletReady });
     e.preventDefault();
     
     if (!value.trim()) {
@@ -88,8 +93,8 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
       return;
     }
     
-    if (!address) {
-      console.log('No wallet address - wallet must be connected');
+    if (!isWalletReady) {
+      console.log('Wallet not ready - wallet must be connected');
       setSubmitError('Please connect your wallet to send messages');
       return;
     }
@@ -113,7 +118,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
 
     console.log('Triggering payment modal with details:', paymentDetails);
     await handlePaymentRequired(paymentDetails);
-  }, [value, address, handlePaymentRequired]);
+  }, [value, isWalletReady, handlePaymentRequired]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
@@ -148,12 +153,12 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
           <div className="flex justify-end mt-2 p-1">
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center space-x-2">
-                {address && (
+                {isWalletReady && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Wallet connected • 0.1 USDC required per query
+                    {walletType === 'metamask' ? 'MetaMask' : 'CDP Wallet'} connected • 0.1 USDC required per query
                   </span>
                 )}
-                {!address && (
+                {!isWalletReady && (
                   <span className="text-xs text-red-500 dark:text-red-400">
                     Connect wallet to send messages
                   </span>
@@ -183,7 +188,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
       </form>
 
       {/* Payment Modal */}
-      {paymentDetails && (
+      {paymentDetails && paymentContext && (
         <PaymentModal
           isOpen={showPaymentModal}
           onClose={() => {
@@ -192,6 +197,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
             setPendingMessage(null);
           }}
           paymentDetails={paymentDetails}
+          paymentContext={paymentContext}
           onPaymentSuccess={handlePaymentSuccess}
           onPaymentError={handlePaymentError}
         />

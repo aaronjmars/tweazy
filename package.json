@@ -1,5 +1,5 @@
 {
-  "name": "tambo",
+  "name": "mcp-x402",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,7 @@
     "init": "npx tambo init"
   },
   "dependencies": {
+    "@coinbase/coinbase-sdk": "^0.25.0",
     "@tailwindcss/oxide": "^4.1.8",
     "@tambo-ai/react": "^0.26.3",
     "@tanstack/react-query": "^5.80.5",

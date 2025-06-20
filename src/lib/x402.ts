@@ -1,4 +1,4 @@
-import { PaymentDetails, PaymentResult, transferUSDC, validateSufficientBalance } from './payment';
+import { PaymentDetails, PaymentResult, PaymentContext, makePayment, validateSufficientBalanceUniversal } from './payment';
 
 export interface X402Response {
   status: 402;
@@ -8,7 +8,7 @@ export interface X402Response {
 }
 
 export interface X402PaymentHandler {
-  handlePayment: (paymentDetails: PaymentDetails) => Promise<PaymentResult>;
+  handlePayment: (paymentDetails: PaymentDetails, paymentContext: PaymentContext) => Promise<PaymentResult>;
   validatePayment: (transactionHash: string) => Promise<boolean>;
 }
 
@@ -72,15 +72,15 @@ export function parseX402Response(error: unknown): X402Response | null {
 }
 
 /**
- * Create x402 payment handler
+ * Create x402 payment handler with support for both wallet types
  */
-export function createX402PaymentHandler(userAddress: string): X402PaymentHandler {
+export function createX402PaymentHandler(): X402PaymentHandler {
   return {
-    async handlePayment(paymentDetails: PaymentDetails): Promise<PaymentResult> {
+    async handlePayment(paymentDetails: PaymentDetails, paymentContext: PaymentContext): Promise<PaymentResult> {
       try {
         // Validate sufficient balance first
-        const hasSufficientBalance = await validateSufficientBalance(
-          userAddress,
+        const hasSufficientBalance = await validateSufficientBalanceUniversal(
+          paymentContext,
           paymentDetails.amount
         );
 
@@ -91,11 +91,8 @@ export function createX402PaymentHandler(userAddress: string): X402PaymentHandle
           };
         }
 
-        // Execute payment
-        const result = await transferUSDC(
-          paymentDetails.recipient,
-          paymentDetails.amount
-        );
+        // Execute payment using the universal payment function
+        const result = await makePayment(paymentDetails, paymentContext);
 
         return result;
       } catch (error) {
@@ -141,11 +138,11 @@ export async function retryAfterPayment<T>(
 }
 
 /**
- * Handle x402 flow for any API request
+ * Handle x402 flow for any API request with support for both wallet types
  */
 export async function handleX402Flow<T>(
   apiCall: () => Promise<T>,
-  userAddress: string,
+  paymentContext: PaymentContext,
   onPaymentRequired?: (paymentDetails: PaymentDetails) => Promise<boolean>
 ): Promise<T> {
   try {
@@ -169,8 +166,8 @@ export async function handleX402Flow<T>(
     }
 
     // Create payment handler and process payment
-    const paymentHandler = createX402PaymentHandler(userAddress);
-    const paymentResult = await paymentHandler.handlePayment(x402Response.paymentRequired);
+    const paymentHandler = createX402PaymentHandler();
+    const paymentResult = await paymentHandler.handlePayment(x402Response.paymentRequired, paymentContext);
 
     if (!paymentResult.success) {
       throw new Error(paymentResult.error || 'Payment failed');

@@ -1,68 +1,156 @@
-# Tambo MCP Template
+# x402 Payment-Gated AI Chat
 
-This is a starter NextJS app with tambo-ai for generative UI and MCP.
+A Next.js application implementing **x402 HTTP Payment Required** for AI interactions with dual wallet support (MetaMask & Coinbase CDP).
 
-[![Watch the tutorial here](https://img.youtube.com/vi/6zDDPfr7Aoo/0.jpg)](https://youtu.be/6zDDPfr7Aoo)
+## Overview
 
-## Get Started
+This app demonstrates payment-gated AI conversations where users pay **0.1 USDC** per message for AI responses. It showcases the x402 HTTP status code implementation with real blockchain micropayments.
 
-1. Run `npm create-tambo@latest my-tambo-app` for a new project
+### Key Features
 
-2. `npm install`
+- **Payment-Gated AI**: Every message requires 0.1 USDC payment before AI responds
+- **Dual Wallet Support**: MetaMask (Sepolia) or Coinbase CDP (Base Sepolia)
+- **Tambo AI Integration**: Generative UI with MCP (Model Context Protocol)
+- **x402 Implementation**: Proper HTTP 402 Payment Required handling
+- **Testnet Safe**: Uses testnet tokens with no real monetary value
 
-3. `npx tambo init`
+## Quick Start
 
-- or rename `example.env.local` to `.env.local` and add your tambo API key you can get for free [here](https://tambo.co/dashboard).
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-4. Run `npm run dev` and go to `localhost:3000` to use the app!
+2. **Initialize configuration**:
+   ```bash
+   npx tambo init
+   ```
+   *Or manually rename `example.env.local` to `.env.local` and add your API keys*
 
-### Configure Model Context Protocol (MCP) Servers
+3. **Add required environment variables** to `.env.local`:
+   ```env
+   NEXT_PUBLIC_TAMBO_API_KEY=your-tambo-api-key
+   NEXT_PUBLIC_PAYMENT_RECIPIENT=0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6
+   NEXT_PUBLIC_SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/your-infura-key
+   
+   # CDP Wallet (optional)
+   CDP_API_KEY_NAME=your-cdp-key-name
+   CDP_API_KEY_PRIVATE_KEY=your-cdp-private-key
+   CDP_PROJECT_ID=your-cdp-project-id
+   NEXT_PUBLIC_CDP_NETWORK=base-sepolia
+   ```
 
-You can go to https://localhost:3000/mcp-config to add MCP servers.
+4. **Start development**:
+   ```bash
+   npm run dev
+   ```
 
-For the demo above we used smithery.ai's [brave-search-mcp](https://smithery.ai/server/@mikechao/brave-search-mcp)
+5. **Open http://localhost:3000**
 
-![brave-search-mcp](./brave-search-mcp.png)
+## User Flow
 
-You can use any MCP compatible server that supports SSE or HTTP.
+1. **Select Wallet**: Choose MetaMask or Coinbase CDP on first launch
+2. **Connect Wallet**: Connect your chosen wallet
+3. **Type Message**: Enter any message in chat
+4. **Payment Modal**: Confirm 0.1 USDC payment 
+5. **AI Response**: Receive AI response after successful payment
 
-Our MCP config page is built using the tambo-ai/react/mcp package:
+## Wallet Setup
 
-```tsx
-// In your chat page
-<TamboProvider
-  apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-  components={components}
->
-  <TamboMcpProvider mcpServers={mcpServers}>
-    <MessageThreadFull contextKey="tambo-template" />
-  </TamboMcpProvider>
-</TamboProvider>
-```
+### MetaMask (Sepolia Testnet)
+- Install MetaMask extension
+- Add Sepolia network (Chain ID: 11155111)
+- Get Sepolia ETH from [Sepolia Faucet](https://sepoliafaucet.com/)
+- Get Sepolia USDC from [Circle Faucet](https://faucet.circle.com/)
 
-In this example, MCP servers are stored in browser localStorage and loaded when the application starts.
+### Coinbase CDP (Base Sepolia)
+- Wallets created automatically via API
+- Testnet funding handled through application
+- No manual wallet setup required
 
-You could have these servers be stored in a database or fetched from an API.
+## Architecture
 
-For more detailed documentation, visit [Tambo's official docs](https://tambo.co/docs).
+### Core Components
+- **Payment System** (`src/lib/payment.ts`): Universal payment handling
+- **x402 Handler** (`src/lib/x402.ts`): HTTP 402 response processing
+- **Dual Wallets** (`src/lib/cdp-wallet.ts`): CDP integration alongside MetaMask
+- **Payment UI** (`src/components/PaymentModal.tsx`): Payment confirmation modal
 
-## Customizing
+### MCP Integration
+- Configure MCP servers at `/mcp-config`
+- Context7 MCP server for payment-gated search
+- Stored in browser localStorage
 
-### Change what components tambo can control
+### API Routes (CDP)
+- `/api/cdp/create-wallet` - Create CDP wallets
+- `/api/cdp/balance` - Check USDC balance  
+- `/api/cdp/transfer` - Execute payments
+- `/api/cdp/fund-wallet` - Testnet funding
 
-You can see how the `Graph` component is registered with tambo in `src/lib/tambo.ts`:
+## Development Commands
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+## Customization
+
+### Add AI-Controllable Components
+
+Components are registered in `src/lib/tambo.ts`:
 
 ```tsx
 const components: TamboComponent[] = [
   {
     name: "Graph",
-    description:
-      "A component that renders various types of charts (bar, line, pie) using Recharts. Supports customizable data visualization with labels, datasets, and styling options.",
+    description: "Renders charts using Recharts",
     component: Graph,
-    propsSchema: graphSchema, // zod schema for the component props
+    propsSchema: graphSchema, // Zod schema
   },
   // Add more components
 ];
 ```
 
-You can find more information about the options [here](https://tambo.co/docs/concepts/registering-components)
+### Modify Payment Flow
+
+Edit payment amounts, recipients, or validation logic in:
+- `src/lib/payment.ts` - Payment processing
+- `src/components/EnhancedMessageInput.tsx` - Payment trigger (line 113-120)
+
+## Testing
+
+### Prerequisites
+- Wallet with testnet tokens (ETH for gas, USDC for payments)
+- Valid Tambo API key from [tambo.co/dashboard](https://tambo.co/dashboard)
+
+### Test Scenarios
+1. **Successful Payment**: Connect wallet → Send message → Pay → See response
+2. **Insufficient Balance**: Try with insufficient USDC
+3. **Payment Cancellation**: Cancel payment modal
+4. **Network Errors**: Test with poor connectivity
+
+## Security Notes
+
+⚠️ **Testnet Only**: Uses Sepolia/Base Sepolia testnets with no real monetary value
+- All payments are test transactions
+- Private keys should never be shared
+- Use only test/development wallets
+
+## Documentation
+
+- **Tambo AI**: [tambo.co/docs](https://tambo.co/docs)
+- **x402 Standard**: HTTP 402 Payment Required specification
+- **MCP Protocol**: Model Context Protocol documentation
+
+## Support
+
+For questions or issues:
+- Check console for debug information
+- Verify environment variables are set correctly
+- Ensure wallet has sufficient testnet tokens
+- Review network settings (Sepolia/Base Sepolia)
+
+---
+
+**Status**: ✅ Ready for testing - Payment-gated AI chat with dual wallet support
