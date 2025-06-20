@@ -4,7 +4,6 @@ import { ReactNode, useRef } from "react";
 import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "../lib/wagmiConfig";
 import { ThemeProvider } from "next-themes";
-import WalletGate from "./WalletGate";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function ClientProviders({ children }: { children: ReactNode }) {
@@ -15,9 +14,7 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClientRef.current}>
       <WagmiProvider config={wagmiConfig}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <WalletGate>
-            {children}
-          </WalletGate>
+          {children}
         </ThemeProvider>
       </WagmiProvider>
     </QueryClientProvider>

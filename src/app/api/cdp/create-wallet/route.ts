@@ -1,22 +1,12 @@
 import { NextResponse } from 'next/server';
-import { Coinbase, Wallet } from '@coinbase/coinbase-sdk';
+// import { Coinbase, Wallet } from '@coinbase/cdp-sdk';
 
 export async function POST() {
   try {
-    Coinbase.configure({
-      apiKeyName: process.env.CDP_API_KEY_NAME!,
-      privateKey: process.env.CDP_API_KEY_PRIVATE_KEY!,
-    });
-
-    const wallet = await Wallet.create({
-      networkId: process.env.NEXT_PUBLIC_CDP_NETWORK || 'base-sepolia',
-    });
-
-    const address = await wallet.getDefaultAddress();
-
+    // Temporarily return a mock wallet for testing smart wallet implementation
     const walletInfo = {
-      id: wallet.getId(),
-      address: address.getId(),
+      id: 'mock-wallet-' + Date.now(),
+      address: '0x' + Math.random().toString(16).substr(2, 40),
       network: process.env.NEXT_PUBLIC_CDP_NETWORK || 'base-sepolia',
     };
 

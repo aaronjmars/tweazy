@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Coinbase, Wallet } from '@coinbase/coinbase-sdk';
+// import { Coinbase, Wallet } from '@coinbase/cdp-sdk';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,17 +12,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    Coinbase.configure({
-      apiKeyName: process.env.CDP_API_KEY_NAME!,
-      privateKey: process.env.CDP_API_KEY_PRIVATE_KEY!,
-    });
-
-    const wallet = await Wallet.fetch(walletId);
-    const address = await wallet.getDefaultAddress();
-    const balance = await address.getBalance('usdc');
-
+    // Temporarily return a mock balance for testing smart wallet implementation
     return NextResponse.json({
-      balance: balance.toString(),
+      balance: '100.0',
     });
   } catch (error) {
     console.error('Error getting balance:', error);

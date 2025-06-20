@@ -1,12 +1,12 @@
 import { http, createConfig } from 'wagmi';
-import { mainnet, sepolia } from 'wagmi/chains';
+import { mainnet, baseSepolia } from 'wagmi/chains';
 import { injected } from 'wagmi/connectors';
 
-// USDC contract address on Sepolia testnet
-export const USDC_SEPOLIA_ADDRESS = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238' as const;
+// USDC contract address on Base Sepolia testnet
+export const USDC_BASE_SEPOLIA_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e' as const;
 
 export const wagmiConfig = createConfig({
-  chains: [mainnet, sepolia],
+  chains: [mainnet, baseSepolia],
   connectors: [
     injected({
       target: 'metaMask',
@@ -14,7 +14,7 @@ export const wagmiConfig = createConfig({
   ],
   transports: {
     [mainnet.id]: http(),
-    [sepolia.id]: http(),
+    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org'),
   },
   ssr: true,
 });

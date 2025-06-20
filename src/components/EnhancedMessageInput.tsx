@@ -8,6 +8,7 @@ import { ArrowUp } from "lucide-react";
 import { PaymentModal } from '@/components/PaymentModal';
 import { PaymentDetails } from '@/lib/payment';
 import { useWallet } from '@/components/WalletProvider';
+import { getAddress } from 'viem';
 
 export interface EnhancedMessageInputProps {
   contextKey?: string;
@@ -16,7 +17,7 @@ export interface EnhancedMessageInputProps {
 
 export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageInputProps) {
   const { address } = useAccount();
-  const { walletType, paymentContext, isWalletReady, cdpWalletInfo } = useWallet();
+  const { walletType, paymentContext, isWalletReady, cdpWalletInfo, switchToCorrectChain, isOnCorrectChain } = useWallet();
   const { value, setValue, submit, isPending, error } = useTamboThreadInput(contextKey);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -99,10 +100,38 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
       return;
     }
 
-    const recipient = process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT;
+    // For MetaMask, ensure we're on the correct chain
+    if (walletType === 'metamask' && !isOnCorrectChain) {
+      console.log('Wrong chain detected, attempting to switch');
+      setSubmitError('Switching to Base Sepolia network...');
+      
+      const switched = await switchToCorrectChain();
+      if (!switched) {
+        setSubmitError('Please switch to Base Sepolia network in MetaMask to continue');
+        return;
+      }
+    }
+
+    const recipient = process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6';
+    
     if (!recipient) {
       console.error('No payment recipient configured');
       setSubmitError('Payment system not configured. Please check environment variables.');
+      return;
+    }
+
+    // Clean the recipient address (remove any whitespace/newlines)
+    const cleanRecipient = recipient.trim();
+    
+    // Validate the recipient address format and normalize it
+    let normalizedRecipient: string;
+    try {
+      // Use getAddress to validate and normalize the address
+      normalizedRecipient = getAddress(cleanRecipient);
+      console.log('Address validation successful:', normalizedRecipient);
+    } catch (error) {
+      console.error('Invalid payment recipient address format:', cleanRecipient, error);
+      setSubmitError('Payment recipient address is invalid. Please check configuration.');
       return;
     }
 
@@ -112,13 +141,13 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     // Always require payment for every LLM query
     const paymentDetails: PaymentDetails = {
       amount: '0.1',
-      recipient,
+      recipient: normalizedRecipient,
       description: 'LLM Query Payment - Required for AI response',
     };
 
     console.log('Triggering payment modal with details:', paymentDetails);
     await handlePaymentRequired(paymentDetails);
-  }, [value, isWalletReady, handlePaymentRequired]);
+  }, [value, isWalletReady, handlePaymentRequired, walletType, isOnCorrectChain, switchToCorrectChain]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);

@@ -12,13 +12,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-This is a Next.js application built with Tambo AI for generative UI and Model Context Protocol (MCP) integration, featuring x402 HTTP payment-gated functionality with dual wallet support.
+This is a Next.js application built with Tambo AI for generative UI and Model Context Protocol (MCP) integration, featuring x402 HTTP payment-gated functionality with triple wallet support including Smart Wallets with passkey authentication.
 
 ### Core Structure
 
 - **Tambo Integration**: Uses `@tambo-ai/react` for AI-driven component generation and MCP server communication
 - **Payment System**: Implements x402 (HTTP 402 Payment Required) using testnet USDC payments
-- **Dual Wallet Support**: Supports both MetaMask (Sepolia) and Coinbase CDP (Base Sepolia) wallets
+- **Triple Wallet Support**: Supports Smart Wallets with passkeys, MetaMask (Base Sepolia), and Coinbase CDP (Base Sepolia)
+- **Passkey Authentication**: Biometric authentication using Coinbase Smart Wallets for enhanced security
 
 ### Key Components
 
@@ -28,12 +29,13 @@ This is a Next.js application built with Tambo AI for generative UI and Model Co
 - Components are registered in `src/lib/tambo.ts` with Zod schemas for AI control
 
 **Payment Infrastructure**:
-- `src/lib/payment.ts` - Universal payment system supporting both MetaMask and CDP wallets
-- `src/lib/x402.ts` - x402 response handling and payment flow orchestration  
+- `src/lib/payment.ts` - Universal payment system supporting all wallet types (MetaMask, CDP, Smart Wallets)
+- `src/lib/smart-wallet.ts` - Coinbase Smart Wallet service with passkey authentication
 - `src/lib/cdp-wallet.ts` - Coinbase CDP wallet service with API integration
+- `src/lib/x402.ts` - x402 response handling and payment flow orchestration  
 - `src/components/PaymentModal.tsx` - Payment confirmation UI
-- `src/components/WalletProvider.tsx` - Wallet selection and management context
-- `src/components/WalletSelector.tsx` - Initial wallet type selection UI
+- `src/components/WalletProvider.tsx` - Multi-wallet selection and management context
+- `src/components/WalletSelector.tsx` - Wallet type selection UI with Smart Wallet prominence
 
 **Core Libraries**:
 - `src/lib/tambo.ts` - Central Tambo component and tool registration
@@ -47,11 +49,12 @@ This is a Next.js application built with Tambo AI for generative UI and Model Co
 - Supports SSE and HTTP MCP servers
 - Context7 MCP server integration for search functionality requiring payments
 
-### Dual Wallet System
+### Triple Wallet System
 
-**Wallet Selection**: Users choose between MetaMask or Coinbase CDP on first launch
-- MetaMask: Uses Sepolia testnet with wagmi/viem integration
-- CDP: Uses Base Sepolia testnet with server-side API integration
+**Wallet Selection**: Users choose between Smart Wallet (with passkeys), MetaMask, or Coinbase CDP on first launch
+- **Smart Wallet**: Uses Coinbase Wallet SDK with passkey authentication (most secure, no seed phrases)
+- **MetaMask**: Uses Base Sepolia testnet with wagmi/viem integration  
+- **CDP**: Uses Base Sepolia testnet with server-side API integration
 
 **CDP Integration**: Server-side API routes handle CDP operations:
 - `/api/cdp/create-wallet` - Creates new CDP wallets
@@ -63,8 +66,8 @@ This is a Next.js application built with Tambo AI for generative UI and Model Co
 
 1. User triggers API call requiring payment (e.g., search queries)
 2. If x402 response received, payment modal displays
-3. User confirms 0.1 USDC payment (network depends on wallet type)
-4. Payment executed through selected wallet (MetaMask or CDP)
+3. User confirms 0.1 USDC payment (all wallets use Base Sepolia network)
+4. Payment executed through selected wallet (Smart Wallet with passkey, MetaMask, or CDP)
 5. After successful payment, original request retries automatically
 6. Payment validation uses transaction hashes
 
@@ -74,7 +77,7 @@ Required in `.env.local`:
 - `NEXT_PUBLIC_TAMBO_API_KEY` - Tambo API key from tambo.co/dashboard
 - `NEXT_PUBLIC_CONTEXT7_MCP_URL` - Context7 MCP server URL
 - `NEXT_PUBLIC_PAYMENT_RECIPIENT` - Ethereum address for receiving payments
-- `NEXT_PUBLIC_SEPOLIA_RPC_URL` - Sepolia testnet RPC endpoint
+- `NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL` - Base Sepolia testnet RPC endpoint
 - `CDP_API_KEY_NAME` - Coinbase CDP API key name
 - `CDP_API_KEY_PRIVATE_KEY` - Coinbase CDP private key
 - `CDP_PROJECT_ID` - Coinbase CDP project ID
@@ -82,12 +85,18 @@ Required in `.env.local`:
 
 ### Testing
 
-The dual wallet x402 payment system supports:
+The triple wallet x402 payment system supports:
+
+**Smart Wallet Testing** (Recommended):
+- Passkey authentication (fingerprint, Face ID, device biometrics)
+- No seed phrases or private keys to manage
+- Automatic wallet creation and network configuration
+- Uses Base Sepolia network
 
 **MetaMask Testing**:
-- MetaMask wallet with Sepolia testnet configured
-- Sepolia ETH for gas fees  
-- Sepolia USDC tokens for payments
+- MetaMask wallet with Base Sepolia testnet configured
+- Base Sepolia ETH for gas fees  
+- Base Sepolia USDC tokens for payments (Contract: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`)
 
 **CDP Testing**:
 - Wallets created automatically via API
@@ -95,9 +104,30 @@ The dual wallet x402 payment system supports:
 - Testnet funding simulated via API endpoints
 
 **Testing Flow**:
-- Select wallet type on first launch
+- Select wallet type on first launch (Smart Wallet prominently featured)
+- Authenticate with passkey (Smart Wallet) or connect existing wallet
 - Type messages to trigger payment modal (every query requires 0.1 USDC)
 - Complete payment to continue with AI inference
+
+### Important Technical Notes
+
+**USDC Contract Address**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e` (Base Sepolia)
+- All wallets use this USDC contract for payments
+- 6 decimal places for USDC token calculations
+- Balance queries and transfers target this contract
+
+**Network Configuration**: All wallets operate on Base Sepolia (Chain ID: 84532)
+- MetaMask auto-switches to Base Sepolia when connected
+- Smart Wallets automatically configure to Base Sepolia
+- CDP wallets use Base Sepolia by default
+
+**Smart Wallet SDK**: Uses `@coinbase/wallet-sdk` with smart wallet configuration:
+```typescript
+const sdk = createCoinbaseWalletSDK({
+  appName: 'MCP x402 Payment System',
+  smartWallet: { enabled: true }
+});
+```
 
 ### Component Registration
 

@@ -10,7 +10,8 @@
     "init": "npx tambo init"
   },
   "dependencies": {
-    "@coinbase/coinbase-sdk": "^0.25.0",
+    "@coinbase/wallet-sdk": "latest",
+    "@coinbase/cdp-sdk": "latest",
     "@tailwindcss/oxide": "^4.1.8",
     "@tambo-ai/react": "^0.26.3",
     "@tanstack/react-query": "^5.80.5",
@@ -32,7 +33,6 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4.1.8",
     "@types/dompurify": "^3.2.0",
     "@types/node": "^22.15.24",
     "@types/react": "^19",
@@ -43,7 +43,7 @@
     "eslint-config-next": "^15.3.2",
     "postcss": "^8.5.4",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4",
+    "tailwindcss": "^3.4.15",
     "typescript": "^5"
   }
 }

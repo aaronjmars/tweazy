@@ -1,8 +1,9 @@
-import { parseUnits, formatUnits } from 'viem';
+import { parseUnits, formatUnits, isAddress, getAddress } from 'viem';
 import { writeContract, readContract, waitForTransactionReceipt, switchChain } from 'wagmi/actions';
-import { wagmiConfig, USDC_SEPOLIA_ADDRESS } from './wagmiConfig';
-import { sepolia } from 'wagmi/chains';
+import { wagmiConfig, USDC_BASE_SEPOLIA_ADDRESS } from './wagmiConfig';
+import { baseSepolia } from 'wagmi/chains';
 import { cdpWalletService, CDPWalletInfo } from './cdp-wallet';
+import { smartWalletService, SmartWalletInfo } from './smart-wallet';
 
 // ERC-20 ABI for USDC transfers
 const ERC20_ABI = [
@@ -60,27 +61,34 @@ export type WalletType = 'metamask' | 'cdp';
 export interface PaymentContext {
   walletType: WalletType;
   walletInfo?: CDPWalletInfo;
+  smartWalletInfo?: SmartWalletInfo;
   userAddress?: string;
 }
 
 /**
- * Check USDC balance for a given address on Sepolia
+ * Check USDC balance for a given address on Base Sepolia
  */
 export async function checkUSDCBalance(address: string): Promise<string> {
   try {
+    // Validate and normalize the address
+    if (!isAddress(address)) {
+      throw new Error('Invalid address format');
+    }
+    const normalizedAddress = getAddress(address);
+
     // Ensure we're on the correct chain for balance checking
     try {
-      await switchChain(wagmiConfig, { chainId: sepolia.id });
+      await switchChain(wagmiConfig, { chainId: baseSepolia.id });
     } catch (switchError) {
       console.log('Chain switch not needed or failed for balance check:', switchError);
     }
 
     const balance = await readContract(wagmiConfig, {
-      address: USDC_SEPOLIA_ADDRESS,
+      address: USDC_BASE_SEPOLIA_ADDRESS,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
-      args: [address as `0x${string}`],
-      chainId: sepolia.id,
+      args: [normalizedAddress],
+      chainId: baseSepolia.id,
     });
 
     // USDC has 6 decimals
@@ -92,16 +100,22 @@ export async function checkUSDCBalance(address: string): Promise<string> {
 }
 
 /**
- * Transfer USDC tokens on Sepolia testnet using MetaMask
+ * Transfer USDC tokens on Base Sepolia testnet using MetaMask
  */
 export async function transferUSDC(
   recipient: string,
   amount: string
 ): Promise<PaymentResult> {
   try {
-    // Ensure we're on the correct chain (Sepolia)
+    // Validate and normalize the recipient address
+    if (!isAddress(recipient)) {
+      throw new Error('Invalid recipient address format');
+    }
+    const normalizedRecipient = getAddress(recipient);
+
+    // Ensure we're on the correct chain (Base Sepolia)
     try {
-      await switchChain(wagmiConfig, { chainId: sepolia.id });
+      await switchChain(wagmiConfig, { chainId: baseSepolia.id });
     } catch (switchError) {
       console.log('Chain switch not needed or failed:', switchError);
       // Continue anyway - the writeContract call will handle chain switching
@@ -112,17 +126,17 @@ export async function transferUSDC(
 
     // Execute the transfer
     const hash = await writeContract(wagmiConfig, {
-      address: USDC_SEPOLIA_ADDRESS,
+      address: USDC_BASE_SEPOLIA_ADDRESS,
       abi: ERC20_ABI,
       functionName: 'transfer',
-      args: [recipient as `0x${string}`, amountInUnits],
-      chainId: sepolia.id,
+      args: [normalizedRecipient, amountInUnits],
+      chainId: baseSepolia.id,
     });
 
     // Wait for transaction confirmation
     const receipt = await waitForTransactionReceipt(wagmiConfig, {
       hash,
-      chainId: sepolia.id,
+      chainId: baseSepolia.id,
     });
 
     if (receipt.status === 'success') {
@@ -196,17 +210,27 @@ export async function makePayment(
       return await transferUSDC(paymentDetails.recipient, paymentDetails.amount);
     
     case 'cdp':
-      if (!paymentContext.walletInfo?.id) {
+      // Handle both regular CDP wallets and smart wallets
+      if (paymentContext.smartWalletInfo) {
+        // Use smart wallet for payment
+        return await smartWalletService.transferUSDC(
+          paymentContext.smartWalletInfo,
+          paymentDetails.recipient,
+          paymentDetails.amount
+        );
+      } else if (paymentContext.walletInfo?.id) {
+        // Use regular CDP wallet
+        return await transferUSDCWithCDP(
+          paymentContext.walletInfo.id,
+          paymentDetails.recipient,
+          paymentDetails.amount
+        );
+      } else {
         return {
           success: false,
           error: 'CDP wallet not found',
         };
       }
-      return await transferUSDCWithCDP(
-        paymentContext.walletInfo.id,
-        paymentDetails.recipient,
-        paymentDetails.amount
-      );
     
     default:
       return {
@@ -228,10 +252,14 @@ export async function checkBalance(paymentContext: PaymentContext): Promise<stri
       return await checkUSDCBalance(paymentContext.userAddress);
     
     case 'cdp':
-      if (!paymentContext.walletInfo?.id) {
+      // Handle both regular CDP wallets and smart wallets
+      if (paymentContext.smartWalletInfo) {
+        return await smartWalletService.getBalance(paymentContext.smartWalletInfo);
+      } else if (paymentContext.walletInfo?.id) {
+        return await cdpWalletService.getBalance(paymentContext.walletInfo.id);
+      } else {
         throw new Error('CDP wallet not found');
       }
-      return await cdpWalletService.getBalance(paymentContext.walletInfo.id);
     
     default:
       throw new Error('Unsupported wallet type');
