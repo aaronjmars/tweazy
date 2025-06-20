@@ -127,7 +127,7 @@ class SmartWalletService {
         } else {
           // Direct RPC returned zero balance or empty result
         }
-      } catch (rpcError) {
+      } catch {
         // Direct RPC call failed
       }
 
@@ -159,7 +159,7 @@ class SmartWalletService {
       const balanceUsdc = Number(balanceWei) / Math.pow(10, 6);
       
       return balanceUsdc.toString();
-    } catch (error) {
+    } catch {
       return '0';
     }
   }
@@ -215,7 +215,7 @@ class SmartWalletService {
         });
       }
       SmartWalletStorage.clearWalletSession();
-    } catch (error) {
+    } catch {
     }
   }
 
@@ -256,7 +256,7 @@ class SmartWalletStorage {
       if (stored) {
         try {
           return JSON.parse(stored);
-        } catch (error) {
+        } catch {
           this.clearWalletSession();
         }
       }

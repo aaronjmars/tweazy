@@ -108,7 +108,7 @@ export function createX402PaymentHandler(): X402PaymentHandler {
         // In a real implementation, you would verify the transaction
         // For now, we'll assume the transaction hash indicates success
         return transactionHash.length > 0;
-      } catch (error) {
+      } catch {
         return false;
       }
     },

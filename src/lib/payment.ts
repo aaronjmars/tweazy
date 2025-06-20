@@ -143,7 +143,7 @@ export async function checkUSDCBalance(address: string): Promise<string> {
     // Ensure we're on the correct chain for balance checking
     try {
       await switchChain(wagmiConfig, { chainId: baseSepolia.id });
-    } catch (switchError) {
+    } catch {
       // Chain switch not needed or failed for balance check
     }
 
@@ -157,7 +157,7 @@ export async function checkUSDCBalance(address: string): Promise<string> {
 
     // USDC has 6 decimals
     return formatUnits(balance as bigint, 6);
-  } catch (error) {
+  } catch {
     throw new Error('Failed to check USDC balance');
   }
 }
@@ -179,7 +179,7 @@ export async function transferUSDC(
     // Ensure we're on the correct chain (Base Sepolia)
     try {
       await switchChain(wagmiConfig, { chainId: baseSepolia.id });
-    } catch (switchError) {
+    } catch {
       // Chain switch not needed or failed
       // Continue anyway - the writeContract call will handle chain switching
     }
@@ -234,7 +234,7 @@ export async function validateSufficientBalance(
     const requiredNum = parseFloat(requiredAmount);
     
     return balanceNum >= requiredNum;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -295,12 +295,12 @@ export async function transferUSDCWithPaymaster(
 
     try {
       // Request paymaster sponsorship
-      const sponsorData = await requestPaymasterSponsorship(partialUserOp);
+      await requestPaymasterSponsorship(partialUserOp);
 
       // In a full implementation, we would now send the sponsored UserOperation to a bundler
       // For now, we'll proceed with the regular transaction but sponsorship was obtained
 
-    } catch (paymasterError) {
+    } catch {
       // Paymaster sponsorship failed, falling back to regular transaction with user-paid gas
     }
 
@@ -313,7 +313,7 @@ export async function transferUSDCWithPaymaster(
 
     return result;
 
-  } catch (error) {
+  } catch {
     // Fall back to regular transaction if anything fails
     return await transferUSDC(recipient, amount);
   }
@@ -410,7 +410,7 @@ export async function validateSufficientBalanceUniversal(
     const requiredNum = parseFloat(requiredAmount);
     
     return balanceNum >= requiredNum;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
