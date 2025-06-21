@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tweazy.app'),
-  title: "Tweazy, the best way to read tweets onchain",
+  title: "Tweazy - The best way to read tweets onchain",
   description: "Query Twitter w/ AI in one click, with x402, MCP & CDP.",
   icons: {
     icon: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    title: "Tweazy, the best way to read tweets onchain",
+    title: "Tweazy - The best way to read tweets onchain",
     description: "Query Twitter w/ AI in one click, with x402, MCP & CDP.",
     type: "website",
     images: [
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tweazy, the best way to read tweets onchain",
+    title: "Tweazy - The best way to read tweets onchain",
     description: "Query Twitter w/ AI in one click, with x402, MCP & CDP.",
     images: ["/og-banner.png"],
   },
@@ -66,6 +66,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script 
+          defer 
+          src="https://cloud.umami.is/script.js" 
+          data-website-id="4ce93699-fc9c-4e24-8a4e-a3372ce3e674"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
