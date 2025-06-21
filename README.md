@@ -40,7 +40,7 @@ Perfect for developers wanting to build **monetized AI applications** with Web3 
 1. **Clone and install**:
 
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/aaronjmars/tweazy
    cd tweazy
    npm install
    ```
