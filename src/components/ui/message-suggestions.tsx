@@ -244,7 +244,7 @@ const MessageSuggestionsStatus = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "p-2 rounded-md text-sm bg-muted/30",
+        "p-2 rounded-md text-sm",
         !error &&
           !isGenerating &&
           (!thread?.generationStage || thread.generationStage === "COMPLETE")

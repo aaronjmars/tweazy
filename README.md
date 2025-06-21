@@ -18,9 +18,10 @@ Perfect for developers wanting to build **monetized AI applications** with Web3 
 
 ## ✨ Key Features
 
-- 🔐 **Wallet Support**: Smart Wallets with Passkeys or Custodial Wallets (Metamask, ...)
+- 🔐 **Dual Wallet Support**: Smart Wallets with Passkeys (CDP) or Custodial Wallets
 - 💳 **x402 Payment Gates**: HTTP 402 Payment Required implementation for API access
-- 🔑 **Passkey Authentication**: Biometric login with Smart Wallets (most secure)
+- 🔑 **Passkey Authentication**: Biometric login with Smart Wallets (most secure, no seed phrases)
+- ⛽ **Gas Sponsorship**: Transaction fee sponsorship via paymaster for Smart Wallets
 - 🤖 **Tambo AI Integration**: Generative UI with React component registry
 - 🔗 **MCP Protocol Support**: Model Context Protocol for extensible AI functionality
 - 🌐 **Base Network**: Supports both Base testnet (default) and Base mainnet
@@ -82,9 +83,9 @@ Perfect for developers wanting to build **monetized AI applications** with Web3 
 
 ### First Steps
 
-1. **Connect a wallet** (Smart Wallet with passkeys is recommended for new users)
+1. **Connect a wallet** (Smart Wallet with passkeys recommended for gas-free transactions)
 2. **Ask a question** in the chat interface
-3. **Confirm the 0.1 USDC payment** when prompted
+3. **Confirm the 0.1 USDC payment** when prompted (gas fees may be sponsored)
 4. **See your AI response** after successful payment!
 
 ## ⚙️ Configuration
@@ -138,14 +139,40 @@ NEXT_PUBLIC_NETWORK_MODE=mainnet
 
 All network-specific settings (RPC URLs, contract addresses, chain IDs) update automatically.
 
+## ⛽ Gas Sponsorship (Paymaster)
+
+**Smart Wallets** benefit from transaction fee sponsorship via paymaster integration:
+
+### How Gas Sponsorship Works
+
+1. **Smart Wallet Selection**: When users choose Smart Wallet with passkeys
+2. **Automatic Detection**: System detects Smart Wallet capability for gas sponsorship  
+3. **Paymaster Integration**: Gas fees for USDC payments are sponsored via CDP paymaster
+4. **User Experience**: Users only pay the 0.1 USDC for AI queries, no gas fees required
+5. **Fallback**: If paymaster fails, transaction proceeds with user-paid gas
+
+### Benefits
+
+- 🆓 **Gas-free transactions** for Smart Wallet users
+- 🔄 **Automatic handling** - no user configuration needed
+- 🛡️ **Reliable fallback** - always works even if sponsorship unavailable
+- 💰 **Cost effective** - users only pay for AI queries, not network fees
+
+### Technical Implementation
+
+- **Paymaster URL**: Configured via `CDP_PAYMASTER_SERVICE` environment variable
+- **Sponsorship Logic**: Implemented in `src/lib/payment.ts` 
+- **User Operations**: ERC-4337 compatible Smart Account transactions
+- **Base Network**: Works on both Base Sepolia (testnet) and Base Mainnet
+
 ## 🔄 How It Works
 
 ### User Flow
 
-1. **🔗 Connect Wallet**: Choose from Smart Wallet (passkeys), MetaMask, or Coinbase CDP
+1. **🔗 Connect Wallet**: Choose from Smart Wallet (passkeys) or Custodial Wallet
 2. **💬 Ask Questions**: Type your question in the chat interface
 3. **💳 Payment Prompt**: App shows payment modal for 0.1 USDC
-4. **✅ Confirm Payment**: Approve the blockchain transaction
+4. **✅ Confirm Payment**: Approve the blockchain transaction (gas fees sponsored for Smart Wallets)
 5. **🤖 AI Response**: Receive AI-generated answer with dynamic UI components
 6. **🔄 Repeat**: Ask more questions, each requiring a new payment
 
@@ -165,21 +192,22 @@ graph TD
 
 ### 🔒 Smart Wallet with Passkeys (Recommended)
 
-**Best for**: New users, maximum security
+**Best for**: New users, gas-free transactions, maximum security
 
-- ✅ **No setup required** - Wallet created automatically
+- ✅ **No setup required** - Wallet created automatically via CDP
 - ✅ **Biometric authentication** - Use fingerprint, Face ID, or device passkeys
 - ✅ **Most secure** - No seed phrases or private keys to manage
+- ✅ **Gas sponsorship** - Transaction fees sponsored via paymaster
 - ✅ **Instant setup** - Ready in seconds
-- ✅ **Auto-configured** - Works on Base Sepolia out of the box
+- ✅ **Auto-configured** - Works on Base Sepolia/Mainnet out of the box
 
-### 🦊 MetaMask
+### 🔗 Custodial Wallet
 
-**Best for**: Existing MetaMask users
+**Best for**: Existing wallet users (MetaMask, Rabby, Coinbase Wallet, etc.)
 
-- 🔧 Install MetaMask browser extension
-- 🌐 Add Base Sepolia network (Chain ID: 84532)
-- 💧 Get testnet ETH from [Base Sepolia Faucet](https://www.alchemy.com/faucets/base-sepolia)
+- 🔧 Any injected Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.)
+- 🌐 Auto-switches to Base Sepolia network (Chain ID: 84532)
+- 💧 Get testnet ETH from [Base Sepolia Faucet](https://www.alchemy.com/faucets/base-sepolia) for gas fees
 - 🪙 Get testnet USDC: Contract `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
 
 ## 🏗️ Architecture
@@ -211,15 +239,17 @@ src/
 
 #### 💳 Payment System (`src/lib/payment.ts`)
 
-- **Universal payment handling** for all wallet types
+- **Universal payment handling** for both wallet types
 - **x402 integration** for payment-gated API calls
+- **Paymaster integration** for gas sponsorship on Smart Wallets
 - **Transaction validation** and error handling
 - **USDC transfers** on Base network
 
 #### 🔐 Wallet Management
 
-- **Smart Wallet** (`src/lib/smart-wallet.ts`): Passkey authentication
-- **Wallet Provider** (`src/components/WalletProvider.tsx`): Multi-wallet context
+- **Smart Wallet** (`src/lib/smart-wallet.ts`): CDP-based passkey authentication with gas sponsorship
+- **Custodial Wallet** (via wagmi): Support for all injected Web3 wallets
+- **Wallet Provider** (`src/components/WalletProvider.tsx`): Dual-wallet context management
 
 #### 🤖 AI Integration
 
@@ -230,13 +260,13 @@ src/
 
 ### API Routes
 
-#### CDP Wallet Operations
+#### Smart Wallet (CDP) Operations
 
-- `POST /api/cdp/create-wallet` - Create new CDP wallet
+- `POST /api/cdp/create-wallet` - Create new Smart Wallet via CDP
 - `POST /api/cdp/balance` - Check USDC balance
-- `POST /api/cdp/transfer` - Execute USDC payments
+- `POST /api/cdp/transfer` - Execute USDC payments with optional gas sponsorship
 - `POST /api/cdp/fund-wallet` - Fund wallet with testnet tokens
-- `POST /api/paymaster` - Handle paymaster sponsorship
+- `POST /api/paymaster` - Handle paymaster gas sponsorship for Smart Wallets
 
 ### Configuration System
 
@@ -283,39 +313,46 @@ npm run lint         # Run ESLint for code linting
 #### Core Payment Flow
 
 1. **Smart Wallet (Recommended)**:
-   - Create passkey → Ask question → Confirm payment → See AI response
+   - Create passkey → Ask question → Confirm payment (gas-free) → See AI response
 
-2. **Custodial Wallet (MetaMask)**:
-   - Connect MetaMask → Switch to Base Sepolia → Ask question → Pay → See response
+2. **Custodial Wallet**:
+   - Connect wallet → Switch to Base Sepolia → Ask question → Pay (with gas fees) → See response
 
 ### Getting Testnet Tokens
 
-#### Base Sepolia ETH (for gas)
+#### For Smart Wallet Users
 
-- [Alchemy Base Sepolia Faucet](https://www.alchemy.com/faucets/base-sepolia)
-- [Coinbase Faucet](https://www.coinbase.com/faucets/base-sepolia-faucet)
+- **No setup required** - Smart Wallets with gas sponsorship don't need ETH for gas fees
+- **USDC only** - Get testnet USDC for payments (contract: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`)
 
-#### Base Sepolia USDC (for payments)
+#### For Custodial Wallet Users
 
-- Contract: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
-- Use a testnet USDC faucet or bridge testnet ETH to USDC
+- **Base Sepolia ETH (for gas fees)**:
+  - [Alchemy Base Sepolia Faucet](https://www.alchemy.com/faucets/base-sepolia)
+  - [Coinbase Faucet](https://www.coinbase.com/faucets/base-sepolia-faucet)
+
+- **Base Sepolia USDC (for payments)**:
+  - Contract: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+  - Use a testnet USDC faucet or bridge testnet ETH to USDC
 
 ## 🔧 Technical Details
 
 ### Wallet Architecture
 
-#### Smart Wallet (Passkeys)
+#### Smart Wallet (CDP with Passkeys)
 
-- **SDK**: Coinbase Wallet SDK
-- **Authentication**: WebAuthn passkeys (biometric)
-- **Security**: No private keys, device-based authentication
-- **Network**: Base Sepolia/Mainnet
+- **SDK**: Coinbase CDP SDK with Smart Wallet integration
+- **Authentication**: WebAuthn passkeys (biometric authentication)
+- **Security**: No private keys or seed phrases, device-based authentication
+- **Gas Sponsorship**: ERC-4337 paymaster integration for transaction fee sponsorship
+- **Network**: Base Sepolia/Mainnet with automatic configuration
 
-#### Wallet  Integration
+#### Custodial Wallet Integration
 
-- **Library**: wagmi + viem
-- **Network**: Base Sepolia/Mainnet
-- **Features**: Standard Web3 wallet connection
+- **Library**: wagmi + viem for Web3 wallet connections
+- **Supported Wallets**: MetaMask, Rabby, Coinbase Wallet, and all injected wallets
+- **Network**: Base Sepolia/Mainnet with manual gas fee payment
+- **Features**: Standard Web3 wallet connection with user-controlled private keys
 
 ### x402 Payment Protocol
 
@@ -369,10 +406,10 @@ The app automatically switches contracts and RPC endpoints based on `NEXT_PUBLIC
 
 ### Wallet Security
 
-- **Smart Wallets**: Most secure - use passkeys, no private keys
-- **MetaMask**: Never share private keys or seed phrases
-- **CDP Wallets**: Server-managed, API-based security
+- **Smart Wallets**: Most secure - use passkeys, no private keys, gas sponsorship included
+- **Custodial Wallets**: User-controlled private keys, manual gas fee management
 - **Payment validation**: All transactions verified on-chain
+- **Gas sponsorship**: Smart Wallets benefit from paymaster-sponsored transactions
 
 ## 🤝 Contributing
 
