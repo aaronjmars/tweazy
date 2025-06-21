@@ -24,10 +24,10 @@ interface WalletSelectorProps {
 const walletOptions: WalletOption[] = [
   {
     type: 'metamask',
-    name: 'Custodial Wallet',
-    description: 'Connect your existing custodial wallet on Base Sepolia testnet',
+    name: 'Injected Wallet',
+    description: 'Connect any Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.)',
     icon: <Wallet className="h-10 w-10 text-orange-500" />,
-    features: ['Existing wallet', 'Manual setup', 'Full control'],
+    features: ['Multi-wallet support', 'Browser extension', 'Full control'],
     network: 'Base Sepolia',
   },
 ];
@@ -230,7 +230,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                       Connecting...
                     </div>
                   ) : (
-                    'Connect Custodial Wallet'
+                    'Connect Wallet'
                   )}
                 </Button>
               </CardContent>

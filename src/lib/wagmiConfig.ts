@@ -24,10 +24,8 @@ export const PAYMASTER_CONFIG = {
 export const wagmiConfig = createConfig({
   chains: [baseSepolia, mainnet], // Prioritize Base Sepolia
   connectors: [
-    injected({
-      target: 'metaMask',
-    }),
-    injected(), // Fallback injected connector for any wallet
+    // Support all injected wallets (MetaMask, Rabby, Coinbase Wallet, etc.)
+    injected(), // Generic injected connector for all wallets
   ],
   transports: {
     [baseSepolia.id]: http(config.rpc.baseSepoliaUrl),

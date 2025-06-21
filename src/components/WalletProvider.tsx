@@ -168,23 +168,21 @@ export function WalletProvider({ children }: WalletProviderProps) {
         // Log all available connectors for debugging
         console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })));
         
-        // Try to find the injected connector (should be available if MetaMask is installed)
-        const metamaskConnector = connectors.find(connector => 
-          connector.type === 'injected' || 
-          connector.id.includes('injected') ||
-          connector.name?.toLowerCase().includes('metamask') ||
-          connector.name?.toLowerCase().includes('injected')
+        // Find any injected wallet connector (MetaMask, Rabby, Coinbase Wallet, etc.)
+        const injectedConnector = connectors.find(connector => 
+          connector.type === 'injected' ||
+          connector.id.includes('injected')
         ) || connectors[0]; // Fallback to first available connector
         
-        if (!metamaskConnector) {
-          throw new Error('No wallet connector found. Please install MetaMask or another Web3 wallet.');
+        if (!injectedConnector) {
+          throw new Error('No wallet connector found. Please install a Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.).');
         }
 
-        console.log('Using connector:', { id: metamaskConnector.id, name: metamaskConnector.name, type: metamaskConnector.type });
+        console.log('Using connector:', { id: injectedConnector.id, name: injectedConnector.name, type: injectedConnector.type });
         
         // Trigger the wallet connection
         try {
-          await connect({ connector: metamaskConnector });
+          await connect({ connector: injectedConnector });
         } catch (connectError) {
           // If connect throws or fails, handle it
           console.error('Connection error:', connectError);
@@ -197,7 +195,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         localStorage.setItem(config.storage.walletTypeKey, 'metamask');
         setShowWalletSelector(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to connect to custodial wallet');
+        setError(err instanceof Error ? err.message : 'Failed to connect to wallet');
       } finally {
         setIsLoading(false);
       }
@@ -300,8 +298,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Connect Custodial Wallet</h1>
-          <p className="text-muted-foreground">Please connect your custodial wallet to continue</p>
+          <h1 className="text-2xl font-bold">Connect Wallet</h1>
+          <p className="text-muted-foreground">Please connect your Web3 wallet to continue</p>
           <button
             onClick={switchWallet}
             className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
