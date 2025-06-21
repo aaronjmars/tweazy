@@ -139,7 +139,7 @@ export function PaymentModal({
                 <div className="flex items-center gap-2">
                   <Wallet className="h-3 w-3" />
                   <span className="font-medium text-foreground">
-                    {paymentContext.walletType === 'metamask' ? 'MetaMask' : 'Coinbase CDP'}
+                    {paymentContext.walletType === 'metamask' ? 'Custodial Wallet' : 'Coinbase CDP'}
                   </span>
                   {paymentContext.walletType === 'cdp' &&
                    isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID) && (
@@ -185,7 +185,7 @@ export function PaymentModal({
                 className="flex-1"
               >
                 <Wallet className="w-4 h-4 mr-2" />
-                Pay with {paymentContext.walletType === 'metamask' ? 'MetaMask' : 'CDP Wallet'}
+                Pay with {paymentContext.walletType === 'metamask' ? 'Custodial Wallet' : 'CDP Wallet'}
               </Button>
             </div>
           </>

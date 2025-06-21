@@ -88,7 +88,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
       
       const switched = await switchToCorrectChain();
       if (!switched) {
-        setSubmitError('Please switch to Base Sepolia network in MetaMask to continue');
+        setSubmitError('Please switch to Base Sepolia network in your custodial wallet to continue');
         return;
       }
     }

@@ -24,8 +24,8 @@ interface WalletSelectorProps {
 const walletOptions: WalletOption[] = [
   {
     type: 'metamask',
-    name: 'MetaMask',
-    description: 'Connect your existing MetaMask wallet on Base Sepolia testnet',
+    name: 'Custodial Wallet',
+    description: 'Connect your existing custodial wallet on Base Sepolia testnet',
     icon: <Wallet className="h-10 w-10 text-orange-500" />,
     features: ['Existing wallet', 'Manual setup', 'Full control'],
     network: 'Base Sepolia',
@@ -69,7 +69,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
             </div>
           </div>
           <h1 className="text-4xl font-bold text-foreground">
-            Choose Your Wallet
+            Tweazy 💥
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Select your preferred wallet to access AI services with x402 micropayments
@@ -157,7 +157,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
             </Card>
           )}
 
-          {/* MetaMask Option */}
+          {/* Custodial Wallet Option */}
           {walletOptions.map((option) => (
             <Card
               key={option.type}
@@ -230,7 +230,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                       Connecting...
                     </div>
                   ) : (
-                    'Connect MetaMask'
+                    'Connect Custodial Wallet'
                   )}
                 </Button>
               </CardContent>
@@ -246,7 +246,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
           </div>
           <div className="max-w-lg mx-auto p-4 rounded-lg bg-muted/30 border">
             <p className="text-xs text-muted-foreground">
-              Both wallet options use Base Sepolia testnet and support USDC payments for AI services.
+              Both wallet options use Base Sepolia testnet and support USDC payments for AI inferences.
               Smart Wallet offers enhanced security with biometric authentication.
             </p>
           </div>

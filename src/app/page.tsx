@@ -78,10 +78,10 @@ function WalletInfo() {
         <div className="flex items-center gap-2">
           <Wallet className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-foreground">
-            {walletType === 'metamask' 
-              ? 'MetaMask' 
-              : smartWalletInfo 
-                ? 'Smart Wallet' 
+            {walletType === 'metamask'
+              ? 'Custodial Wallet'
+              : smartWalletInfo
+                ? 'Smart Wallet'
                 : 'CDP Wallet'}
           </span>
           {walletType === 'metamask' && !isOnCorrectChain && (

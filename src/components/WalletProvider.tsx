@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useConnect } from 'wagmi';
 import { switchChain } from 'wagmi/actions';
 import { wagmiConfig } from '@/lib/wagmiConfig';
 import { baseSepolia } from 'wagmi/chains';
@@ -57,6 +57,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
   // MetaMask wallet connection
   const { address: metamaskAddress, isConnected } = useAccount();
   const chainId = useChainId();
+  const { connect, connectors } = useConnect();
   
   // Check if user is on the correct chain (Base Sepolia)
   const isOnCorrectChain = chainId === baseSepolia.id;
@@ -162,9 +163,25 @@ export function WalletProvider({ children }: WalletProviderProps) {
     if (selectedWalletType === 'cdp') {
       await createCDPWallet();
     } else if (selectedWalletType === 'metamask') {
-      setWalletType('metamask');
-      localStorage.setItem(config.storage.walletTypeKey, 'metamask');
-      setShowWalletSelector(false);
+      setIsLoading(true);
+      try {
+        // Find the custodial wallet connector
+        const metamaskConnector = connectors.find(connector => connector.id === 'injected');
+        if (!metamaskConnector) {
+          throw new Error('Custodial wallet connector not found. Please install a compatible wallet.');
+        }
+
+        // Trigger the custodial wallet connection popup
+        await connect({ connector: metamaskConnector });
+
+        setWalletType('metamask');
+        localStorage.setItem(config.storage.walletTypeKey, 'metamask');
+        setShowWalletSelector(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to connect to custodial wallet');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -230,7 +247,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       await switchChain(wagmiConfig, { chainId: baseSepolia.id });
       return true;
     } catch {
-      setError('Failed to switch to Base Sepolia network. Please switch manually in MetaMask.');
+      setError('Failed to switch to Base Sepolia network. Please switch manually in your custodial wallet.');
       return false;
     } finally {
       setIsLoading(false);
@@ -264,8 +281,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Connect MetaMask</h1>
-          <p className="text-muted-foreground">Please connect your MetaMask wallet to continue</p>
+          <h1 className="text-2xl font-bold">Connect Custodial Wallet</h1>
+          <p className="text-muted-foreground">Please connect your custodial wallet to continue</p>
           <button
             onClick={switchWallet}
             className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
