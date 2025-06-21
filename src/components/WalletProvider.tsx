@@ -183,11 +183,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
         console.log('Using connector:', { id: metamaskConnector.id, name: metamaskConnector.name, type: metamaskConnector.type });
         
         // Trigger the wallet connection
-        const connectResult = connect({ connector: metamaskConnector });
-        
-        // If connect returns a promise, wait for it; otherwise, continue
-        if (connectResult && typeof connectResult.then === 'function') {
-          await connectResult;
+        try {
+          await connect({ connector: metamaskConnector });
+        } catch (connectError) {
+          // If connect throws or fails, handle it
+          console.error('Connection error:', connectError);
+          throw connectError;
         }
 
         // The wallet connection will be handled by the useAccount hook
