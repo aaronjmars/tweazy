@@ -1,5 +1,4 @@
-# Tweazy - The best way to read tweets onchain / Powered by x402, MCP & CDP Smart Wallets.
-
+# Tweazy - The best way to read tweets onchain / Powered by x402, MCP & CDP Smart Wallets
 
 The best way to monetize AI applications & MCP, using x402, MCP & CDP Smart Wallets.
 Users pay **0.1 USDC** per MCP query, showcasing how to monetize AI services with seamless Web3 payments.

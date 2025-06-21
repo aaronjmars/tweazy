@@ -35,11 +35,9 @@ function WalletInfo() {
   });
 
   const handleRefreshBalance = useCallback(async () => {
-    console.log('Refreshing balance for wallet type:', walletType);
     setIsRefreshing(true);
     try {
       await refreshBalance();
-      console.log('Balance refreshed successfully');
     } catch (error) {
       console.error('Failed to refresh balance:', error);
     } finally {

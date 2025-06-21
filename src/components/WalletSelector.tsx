@@ -24,7 +24,7 @@ interface WalletSelectorProps {
 const walletOptions: WalletOption[] = [
   {
     type: 'metamask',
-    name: 'Injected Wallet',
+    name: 'Custodial Wallet',
     description: 'Connect any Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.)',
     icon: <Wallet className="h-10 w-10 text-orange-500" />,
     features: ['Multi-wallet support', 'Browser extension', 'Full control'],
@@ -72,7 +72,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
             Tweazy 💥
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Select your preferred wallet to access AI services with x402 micropayments
+            Research on X using your favorite crypto wallet, with x402 & MCP
           </p>
         </div>
 
