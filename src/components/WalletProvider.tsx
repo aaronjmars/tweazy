@@ -165,11 +165,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
     } else if (selectedWalletType === 'metamask') {
       setIsLoading(true);
       try {
-        // Log all available connectors for debugging
-        console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })));
-        
-        // Find any injected wallet connector (MetaMask, Rabby, Coinbase Wallet, etc.)
-        const injectedConnector = connectors.find(connector => 
+          const injectedConnector = connectors.find(connector => 
           connector.type === 'injected' ||
           connector.id.includes('injected')
         ) || connectors[0]; // Fallback to first available connector
@@ -177,8 +173,6 @@ export function WalletProvider({ children }: WalletProviderProps) {
         if (!injectedConnector) {
           throw new Error('No wallet connector found. Please install a Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.).');
         }
-
-        console.log('Using connector:', { id: injectedConnector.id, name: injectedConnector.name, type: injectedConnector.type });
         
         // Trigger the wallet connection
         try {

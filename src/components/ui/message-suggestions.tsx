@@ -313,7 +313,7 @@ const MessageSuggestionsList = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex space-x-2 overflow-x-auto pb-2 rounded-md bg-muted/30 min-h-[2.5rem]",
+        "flex space-x-2 overflow-x-auto pb-2 rounded-md min-h-[2.5rem]",
         isGenerating ? "opacity-70" : "",
         className,
       )}
