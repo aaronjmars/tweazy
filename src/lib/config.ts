@@ -1,135 +1,152 @@
 /**
  * @file config.ts
- * @description Centralized configuration with encoded default values
- * This file contains all configurable constants with sensible defaults
- * for non-secret information to ensure the app works even without env vars
+ * @description Centralized configuration with network-specific settings
+ * This file contains all non-secret configuration with easy testnet/mainnet switching
+ * Secrets are kept in environment variables only
  */
 
-// Default configuration constants (non-secret only)
-const DEFAULT_CONFIG = {
-  // Application Configuration
-  APP_NAME: 'Tweazy',
-  APP_LOGO_URL: 'https://tweazy.com/logo.png',
+// Network mode from environment (defaults to testnet for safety)
+const NETWORK_MODE = (process.env.NEXT_PUBLIC_NETWORK_MODE || 'testnet') as 'testnet' | 'mainnet';
 
-  // Chain Configuration
-  BASE_SEPOLIA_CHAIN_ID: 84532,
-  BASE_MAINNET_CHAIN_ID: 8453,
-  DEFAULT_NETWORK: 'base-sepolia',
-  NETWORK_DISPLAY_NAME: 'Base Sepolia',
-
-  // RPC Configuration
-  BASE_SEPOLIA_RPC_URL: 'https://sepolia.base.org',
-  BASE_SEPOLIA_FALLBACK_RPC_URL: 'https://sepolia.base.org',
-
-  // Contract Addresses
-  USDC_CONTRACT_ADDRESS: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
-
-  // Payment Configuration
-  DEFAULT_PAYMENT_AMOUNT: '0.1',
-  USDC_DECIMALS: 6,
-
-  // Gas Configuration
-  DEFAULT_GAS_LIMIT: 21000,
-  PAYMASTER_CALL_GAS_LIMIT: 30000,
-  PAYMASTER_VERIFICATION_GAS_LIMIT: 30000,
-  PAYMASTER_PRE_VERIFICATION_GAS: 21000,
-  MAX_FEE_PER_GAS: 1500000000, // 1.5 gwei
-  MAX_PRIORITY_FEE_PER_GAS: 1500000000, // 1.5 gwei
-
-  // API Configuration
-  API_BASE_URL: '/api',
-  PAYMASTER_URL: '/api/paymaster',
-
-  // Storage Configuration
-  WALLET_TYPE_STORAGE_KEY: 'wallet_type',
-  CDP_WALLET_STORAGE_KEY: 'cdp_wallet_session',
-  SMART_WALLET_STORAGE_KEY: 'smart_wallet_session',
-
-  // Testing Configuration
-  MOCK_WALLET_BALANCE: '100.0',
-  TESTNET_NOTICE: 'Base Sepolia testnet only • No real funds required • Secure & Private',
-
-  // CDP Network Configuration
-  CDP_NETWORK: 'base-sepolia',
+// Network-specific configurations
+const NETWORK_CONFIGS = {
+  testnet: {
+    // Base Sepolia (Testnet)
+    chainId: 84532,
+    name: 'base-sepolia',
+    displayName: 'Base Sepolia',
+    rpcUrl: 'https://sepolia.base.org',
+    fallbackRpcUrl: 'https://sepolia.base.org',
+    usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    cdpNetwork: 'base-sepolia',
+    testnetNotice: 'Base Sepolia testnet only • No real funds required • Secure & Private',
+    isTestnet: true,
+  },
+  mainnet: {
+    // Base Mainnet (Production)
+    chainId: 8453,
+    name: 'base-mainnet',
+    displayName: 'Base Mainnet',
+    rpcUrl: 'https://mainnet.base.org',
+    fallbackRpcUrl: 'https://base.llamarpc.com',
+    usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    cdpNetwork: 'base-mainnet',
+    testnetNotice: '',
+    isTestnet: false,
+  },
 } as const;
 
-/**
- * Configuration object that pulls from environment variables with fallbacks
- */
-export const config = {
+// Application constants (non-network specific)
+const APP_CONSTANTS = {
   // Application Configuration
-  app: {
-    name: process.env.NEXT_PUBLIC_APP_NAME || DEFAULT_CONFIG.APP_NAME,
-    logoUrl: process.env.NEXT_PUBLIC_APP_LOGO_URL || DEFAULT_CONFIG.APP_LOGO_URL,
-  },
-
-  // Chain Configuration
-  chains: {
-    baseSepolia: {
-      id: parseInt(process.env.NEXT_PUBLIC_BASE_SEPOLIA_CHAIN_ID || DEFAULT_CONFIG.BASE_SEPOLIA_CHAIN_ID.toString()),
-      name: 'base-sepolia',
-      displayName: process.env.NEXT_PUBLIC_NETWORK_DISPLAY_NAME || DEFAULT_CONFIG.NETWORK_DISPLAY_NAME,
-    },
-    baseMainnet: {
-      id: parseInt(process.env.NEXT_PUBLIC_BASE_MAINNET_CHAIN_ID || DEFAULT_CONFIG.BASE_MAINNET_CHAIN_ID.toString()),
-      name: 'base-mainnet',
-      displayName: 'Base Mainnet',
-    },
-    default: process.env.NEXT_PUBLIC_DEFAULT_NETWORK || DEFAULT_CONFIG.DEFAULT_NETWORK,
-  },
-
-  // RPC Configuration
-  rpc: {
-    baseSepoliaUrl: process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || DEFAULT_CONFIG.BASE_SEPOLIA_RPC_URL,
-    baseSepoliaFallbackUrl: process.env.NEXT_PUBLIC_BASE_SEPOLIA_FALLBACK_RPC_URL || DEFAULT_CONFIG.BASE_SEPOLIA_FALLBACK_RPC_URL,
-  },
-
-  // Contract Addresses
-  contracts: {
-    usdc: process.env.NEXT_PUBLIC_USDC_CONTRACT_ADDRESS || DEFAULT_CONFIG.USDC_CONTRACT_ADDRESS,
-  },
+  name: 'MCP x402 Payment System',
+  logoUrl: 'https://your-app.com/logo.png',
 
   // Payment Configuration
-  payment: {
-    defaultAmount: process.env.NEXT_PUBLIC_DEFAULT_PAYMENT_AMOUNT || DEFAULT_CONFIG.DEFAULT_PAYMENT_AMOUNT,
-    usdcDecimals: parseInt(process.env.NEXT_PUBLIC_USDC_DECIMALS || DEFAULT_CONFIG.USDC_DECIMALS.toString()),
-    recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '', // This should be provided
-  },
+  defaultPaymentAmount: '0.1',
+  usdcDecimals: 6,
 
-  // Gas Configuration
+  // Gas Configuration (conservative defaults)
   gas: {
-    defaultLimit: parseInt(process.env.NEXT_PUBLIC_DEFAULT_GAS_LIMIT || DEFAULT_CONFIG.DEFAULT_GAS_LIMIT.toString()),
+    defaultLimit: 21000,
     paymaster: {
-      callGasLimit: parseInt(process.env.NEXT_PUBLIC_PAYMASTER_CALL_GAS_LIMIT || DEFAULT_CONFIG.PAYMASTER_CALL_GAS_LIMIT.toString()),
-      verificationGasLimit: parseInt(process.env.NEXT_PUBLIC_PAYMASTER_VERIFICATION_GAS_LIMIT || DEFAULT_CONFIG.PAYMASTER_VERIFICATION_GAS_LIMIT.toString()),
-      preVerificationGas: parseInt(process.env.NEXT_PUBLIC_PAYMASTER_PRE_VERIFICATION_GAS || DEFAULT_CONFIG.PAYMASTER_PRE_VERIFICATION_GAS.toString()),
-      maxFeePerGas: parseInt(process.env.NEXT_PUBLIC_MAX_FEE_PER_GAS || DEFAULT_CONFIG.MAX_FEE_PER_GAS.toString()),
-      maxPriorityFeePerGas: parseInt(process.env.NEXT_PUBLIC_MAX_PRIORITY_FEE_PER_GAS || DEFAULT_CONFIG.MAX_PRIORITY_FEE_PER_GAS.toString()),
+      callGasLimit: 30000,
+      verificationGasLimit: 30000,
+      preVerificationGas: 21000,
+      maxFeePerGas: 1500000000, // 1.5 gwei
+      maxPriorityFeePerGas: 1500000000, // 1.5 gwei
     },
   },
 
   // API Configuration
   api: {
-    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_CONFIG.API_BASE_URL,
-    paymasterUrl: process.env.NEXT_PUBLIC_PAYMASTER_URL || DEFAULT_CONFIG.PAYMASTER_URL,
+    baseUrl: '/api',
+    paymasterUrl: '/api/paymaster',
   },
 
-  // Storage Configuration
+  // Storage Configuration (hardcoded for consistency)
   storage: {
-    walletTypeKey: process.env.NEXT_PUBLIC_WALLET_TYPE_STORAGE_KEY || DEFAULT_CONFIG.WALLET_TYPE_STORAGE_KEY,
-    cdpWalletKey: process.env.NEXT_PUBLIC_CDP_WALLET_STORAGE_KEY || DEFAULT_CONFIG.CDP_WALLET_STORAGE_KEY,
-    smartWalletKey: process.env.NEXT_PUBLIC_SMART_WALLET_STORAGE_KEY || DEFAULT_CONFIG.SMART_WALLET_STORAGE_KEY,
+    walletTypeKey: 'wallet_type',
+    cdpWalletKey: 'cdp_wallet_session',
+    smartWalletKey: 'smart_wallet_session',
   },
 
   // Testing Configuration
   testing: {
-    mockWalletBalance: process.env.NEXT_PUBLIC_MOCK_WALLET_BALANCE || DEFAULT_CONFIG.MOCK_WALLET_BALANCE,
-    testnetNotice: process.env.NEXT_PUBLIC_TESTNET_NOTICE || DEFAULT_CONFIG.TESTNET_NOTICE,
+    mockWalletBalance: '100.0',
+  },
+} as const;
+
+// Get current network configuration
+const currentNetwork = NETWORK_CONFIGS[NETWORK_MODE];
+
+/**
+ * Main configuration object with network-aware settings
+ */
+export const config = {
+  // Application Configuration
+  app: APP_CONSTANTS,
+
+  // Current Network Configuration
+  network: {
+    mode: NETWORK_MODE,
+    ...currentNetwork,
   },
 
-  // CDP Configuration
+  // All Networks (for switching)
+  networks: NETWORK_CONFIGS,
+
+  // Payment Configuration (requires environment variable)
+  payment: {
+    defaultAmount: APP_CONSTANTS.defaultPaymentAmount,
+    usdcDecimals: APP_CONSTANTS.usdcDecimals,
+    recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '', // Required secret
+  },
+
+  // Gas Configuration
+  gas: APP_CONSTANTS.gas,
+
+  // API Configuration
+  api: APP_CONSTANTS.api,
+
+  // Storage Configuration
+  storage: APP_CONSTANTS.storage,
+
+  // Testing Configuration
+  testing: {
+    ...APP_CONSTANTS.testing,
+    testnetNotice: currentNetwork.testnetNotice,
+  },
+
+  // Legacy chain configuration (for backward compatibility)
+  chains: {
+    baseSepolia: {
+      id: NETWORK_CONFIGS.testnet.chainId,
+      name: NETWORK_CONFIGS.testnet.name,
+      displayName: NETWORK_CONFIGS.testnet.displayName,
+    },
+    baseMainnet: {
+      id: NETWORK_CONFIGS.mainnet.chainId,
+      name: NETWORK_CONFIGS.mainnet.name,
+      displayName: NETWORK_CONFIGS.mainnet.displayName,
+    },
+    default: currentNetwork.name,
+  },
+
+  // Legacy RPC configuration (for backward compatibility)
+  rpc: {
+    baseSepoliaUrl: NETWORK_CONFIGS.testnet.rpcUrl,
+    baseSepoliaFallbackUrl: NETWORK_CONFIGS.testnet.fallbackRpcUrl,
+  },
+
+  // Legacy contract configuration (for backward compatibility)
+  contracts: {
+    usdc: currentNetwork.usdcContract,
+  },
+
+  // Legacy CDP configuration (for backward compatibility)
   cdp: {
-    network: process.env.NEXT_PUBLIC_CDP_NETWORK || DEFAULT_CONFIG.CDP_NETWORK,
+    network: currentNetwork.cdpNetwork,
   },
 } as const;
 
@@ -143,6 +160,15 @@ export const configUtils = {
   getChainById: (chainId: number) => {
     if (chainId === config.chains.baseSepolia.id) return config.chains.baseSepolia;
     if (chainId === config.chains.baseMainnet.id) return config.chains.baseMainnet;
+    return null;
+  },
+
+  /**
+   * Get network config by chain ID
+   */
+  getNetworkByChainId: (chainId: number) => {
+    if (chainId === NETWORK_CONFIGS.testnet.chainId) return NETWORK_CONFIGS.testnet;
+    if (chainId === NETWORK_CONFIGS.mainnet.chainId) return NETWORK_CONFIGS.mainnet;
     return null;
   },
 
@@ -170,6 +196,31 @@ export const configUtils = {
    * Get full API endpoint URL
    */
   getApiEndpoint: (endpoint: string) => `${config.api.baseUrl}${endpoint}`,
+
+  /**
+   * Check if current network is testnet
+   */
+  isTestnet: () => config.network.isTestnet,
+
+  /**
+   * Check if current network is mainnet
+   */
+  isMainnet: () => !config.network.isTestnet,
+
+  /**
+   * Get contract address for current network
+   */
+  getCurrentUSDCContract: () => config.network.usdcContract,
+
+  /**
+   * Get RPC URL for current network
+   */
+  getCurrentRpcUrl: () => config.network.rpcUrl,
+
+  /**
+   * Get fallback RPC URL for current network
+   */
+  getCurrentFallbackRpcUrl: () => config.network.fallbackRpcUrl,
 };
 
 /**
@@ -181,15 +232,15 @@ export const envChecker = {
    */
   checkRequired: () => {
     const missing: string[] = [];
-    
+
     if (!process.env.NEXT_PUBLIC_TAMBO_API_KEY) {
       missing.push('NEXT_PUBLIC_TAMBO_API_KEY');
     }
-    
+
     if (!config.payment.recipient) {
       missing.push('NEXT_PUBLIC_PAYMENT_RECIPIENT');
     }
-    
+
     return {
       isValid: missing.length === 0,
       missing,
@@ -205,6 +256,53 @@ export const envChecker = {
       process.env.CDP_API_KEY_PRIVATE_KEY &&
       process.env.CDP_WALLET_SECRET
     );
+  },
+
+  /**
+   * Get current network mode
+   */
+  getNetworkMode: () => NETWORK_MODE,
+
+  /**
+   * Check if running in production mode
+   */
+  isProduction: () => NETWORK_MODE === 'mainnet',
+
+  /**
+   * Check if running in development mode
+   */
+  isDevelopment: () => NETWORK_MODE === 'testnet',
+};
+
+/**
+ * Network switching utilities
+ */
+export const networkUtils = {
+  /**
+   * Get configuration for a specific network
+   */
+  getNetworkConfig: (mode: 'testnet' | 'mainnet') => NETWORK_CONFIGS[mode],
+
+  /**
+   * Get all available networks
+   */
+  getAllNetworks: () => NETWORK_CONFIGS,
+
+  /**
+   * Check if a chain ID is supported
+   */
+  isSupportedChainId: (chainId: number) => {
+    return chainId === NETWORK_CONFIGS.testnet.chainId ||
+           chainId === NETWORK_CONFIGS.mainnet.chainId;
+  },
+
+  /**
+   * Get network mode by chain ID
+   */
+  getNetworkModeByChainId: (chainId: number): 'testnet' | 'mainnet' | null => {
+    if (chainId === NETWORK_CONFIGS.testnet.chainId) return 'testnet';
+    if (chainId === NETWORK_CONFIGS.mainnet.chainId) return 'mainnet';
+    return null;
   },
 };
 

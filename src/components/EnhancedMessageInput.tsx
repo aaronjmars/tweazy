@@ -8,6 +8,7 @@ import { PaymentModal } from '@/components/PaymentModal';
 import { PaymentDetails } from '@/lib/payment';
 import { useWallet } from '@/components/WalletProvider';
 import { getAddress } from 'viem';
+import { config } from '@/lib/config';
 
 export interface EnhancedMessageInputProps {
   contextKey?: string;
@@ -92,10 +93,10 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
       }
     }
 
-    const recipient = process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6';
+    const recipient = config.payment.recipient;
 
     if (!recipient) {
-      setSubmitError('Payment system not configured. Please check environment variables.');
+      setSubmitError('Payment system not configured. Please set NEXT_PUBLIC_PAYMENT_RECIPIENT in your environment.');
       return;
     }
 
