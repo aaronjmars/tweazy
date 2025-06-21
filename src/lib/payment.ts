@@ -1,8 +1,7 @@
 import { parseUnits, formatUnits, isAddress, getAddress, encodeFunctionData } from 'viem';
 import { writeContract, readContract, waitForTransactionReceipt, switchChain } from 'wagmi/actions';
-import { wagmiConfig, USDC_BASE_SEPOLIA_ADDRESS, getPaymasterUrl, isPaymasterSupported, BASE_SEPOLIA_CHAIN_ID } from './wagmiConfig';
+import { wagmiConfig, getPaymasterUrl, isPaymasterSupported } from './wagmiConfig';
 import { config, configUtils } from './config';
-import { baseSepolia } from 'wagmi/chains';
 import { cdpWalletService, CDPWalletInfo } from './cdp-wallet';
 import { smartWalletService, SmartWalletInfo } from './smart-wallet';
 
@@ -144,17 +143,17 @@ export async function checkUSDCBalance(address: string): Promise<string> {
 
     // Ensure we're on the correct chain for balance checking
     try {
-      await switchChain(wagmiConfig, { chainId: baseSepolia.id });
+      await switchChain(wagmiConfig, { chainId: config.network.chainId });
     } catch {
       // Chain switch not needed or failed for balance check
     }
 
     const balance = await readContract(wagmiConfig, {
-      address: USDC_BASE_SEPOLIA_ADDRESS,
+      address: config.network.usdcContract as `0x${string}`,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [normalizedAddress],
-      chainId: baseSepolia.id,
+      chainId: config.network.chainId,
     });
 
     // USDC decimals configurable
@@ -179,9 +178,9 @@ export async function transferUSDC(
     }
     const normalizedRecipient = getAddress(recipient);
 
-    // Ensure we're on the correct chain (Base Sepolia)
+    // Ensure we're on the correct chain
     try {
-      await switchChain(wagmiConfig, { chainId: baseSepolia.id });
+      await switchChain(wagmiConfig, { chainId: config.network.chainId });
     } catch {
       // Chain switch not needed or failed
       // Continue anyway - the writeContract call will handle chain switching
@@ -193,17 +192,17 @@ export async function transferUSDC(
 
     // Execute the transfer
     const hash = await writeContract(wagmiConfig, {
-      address: USDC_BASE_SEPOLIA_ADDRESS,
+      address: config.network.usdcContract as `0x${string}`,
       abi: ERC20_ABI,
       functionName: 'transfer',
       args: [normalizedRecipient, amountInUnits],
-      chainId: baseSepolia.id,
+      chainId: config.network.chainId,
     });
 
     // Wait for transaction confirmation
     const receipt = await waitForTransactionReceipt(wagmiConfig, {
       hash,
-      chainId: baseSepolia.id,
+      chainId: config.network.chainId,
     });
 
     if (receipt.status === 'success') {
@@ -282,7 +281,7 @@ export async function transferUSDCWithPaymaster(
     }
 
     // Check if paymaster is supported for this chain
-    if (!isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID)) {
+    if (!isPaymasterSupported(config.network.chainId)) {
       return await transferUSDC(recipient, amount);
     }
 

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       // Get token balances for the wallet on configured network
       const balances = await cdp.evm.listTokenBalances({
         address: walletId,
-        network: config.cdp.network as 'base-sepolia',
+        network: config.network.cdpNetwork as 'base-sepolia',
       });
 
       // Find USDC balance (configurable USDC contract address)

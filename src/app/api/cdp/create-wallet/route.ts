@@ -12,7 +12,7 @@ export async function POST() {
       const walletInfo = {
         id: 'mock-wallet-' + Date.now(),
         address: address,
-        network: config.cdp.network,
+        network: config.network.cdpNetwork,
       };
       return NextResponse.json(walletInfo);
     }
@@ -33,7 +33,7 @@ export async function POST() {
     const walletInfo = {
       id: account.address, // Use address as ID for simplicity
       address: account.address,
-      network: config.cdp.network,
+      network: config.network.cdpNetwork,
     };
 
     return NextResponse.json(walletInfo);
@@ -45,7 +45,7 @@ export async function POST() {
     const walletInfo = {
       id: 'fallback-wallet-' + Date.now(),
       address: address,
-      network: config.cdp.network,
+      network: config.network.cdpNetwork,
     };
 
     return NextResponse.json(walletInfo);

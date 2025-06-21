@@ -20,7 +20,7 @@ export interface SmartWalletInfo {
 const SMART_WALLET_CONFIG = {
   appName: config.app.name,
   appLogoUrl: config.app.logoUrl,
-  appChainIds: [config.chains.baseSepolia.id],
+  appChainIds: [config.network.chainId],
   smartWallet: {
     enabled: true
   }
@@ -101,9 +101,9 @@ class SmartWalletService {
         return '0';
       }
       
-      // Try using direct RPC call to Base Sepolia instead of wallet provider
+      // Try using direct RPC call to current network instead of wallet provider
       try {
-        const response = await fetch(config.rpc.baseSepoliaFallbackUrl, {
+        const response = await fetch(config.network.fallbackRpcUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, R
 import { useAccount, useChainId, useConnect } from 'wagmi';
 import { switchChain } from 'wagmi/actions';
 import { wagmiConfig } from '@/lib/wagmiConfig';
-import { baseSepolia } from 'wagmi/chains';
+// Removed unused chain imports - chains are now configured dynamically in wagmiConfig
 import { WalletSelector } from './WalletSelector';
 import { CDPWalletInfo, CDPWalletStorage, fundTestnetWallet } from '@/lib/cdp-wallet';
 import { SmartWalletInfo, SmartWalletStorage, smartWalletService } from '@/lib/smart-wallet';
@@ -59,8 +59,9 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const chainId = useChainId();
   const { connect, connectors } = useConnect();
   
-  // Check if user is on the correct chain (Base Sepolia)
-  const isOnCorrectChain = chainId === baseSepolia.id;
+  // Check if user is on the correct chain based on network mode
+  const targetChainId = config.network.chainId;
+  const isOnCorrectChain = chainId === targetChainId;
 
   // Check for existing wallet session on mount
   useEffect(() => {
@@ -255,10 +256,10 @@ export function WalletProvider({ children }: WalletProviderProps) {
       setIsLoading(true);
       setError(null);
       
-      await switchChain(wagmiConfig, { chainId: baseSepolia.id });
+      await switchChain(wagmiConfig, { chainId: config.network.chainId });
       return true;
     } catch {
-      setError('Failed to switch to Base Sepolia network. Please switch manually in your custodial wallet.');
+      setError(`Failed to switch to ${config.network.displayName} network. Please switch manually in your custodial wallet.`);
       return false;
     } finally {
       setIsLoading(false);
@@ -312,7 +313,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         <div className="text-center space-y-4 max-w-md">
           <h1 className="text-2xl font-bold">Switch Network</h1>
           <p className="text-muted-foreground">
-            Please switch to {config.chains.baseSepolia.displayName} network to continue. Current network is not supported.
+            Please switch to {config.network.displayName} network to continue. Current network is not supported.
           </p>
           {error && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -325,7 +326,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
               disabled={isLoading}
               className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
             >
-              {isLoading ? 'Switching...' : `Switch to ${config.chains.baseSepolia.displayName}`}
+              {isLoading ? 'Switching...' : `Switch to ${config.network.displayName}`}
             </button>
             <button
               onClick={switchWallet}

@@ -35,15 +35,15 @@ export async function POST(request: NextRequest) {
       // Request ETH from configured network faucet
       const faucetResponse = await cdp.evm.requestFaucet({
         address: walletAddress,
-        network: config.cdp.network as 'base-sepolia',
+        network: config.network.cdpNetwork as 'base-sepolia',
         token: 'eth',
       });
 
       return NextResponse.json({
         success: true,
-        message: `Wallet funded with ETH on ${config.chains.baseSepolia.displayName}`,
+        message: `Wallet funded with ETH on ${config.network.displayName}`,
         transactionHash: faucetResponse.transactionHash,
-        network: config.cdp.network,
+        network: config.network.cdpNetwork,
       });
 
     } catch {

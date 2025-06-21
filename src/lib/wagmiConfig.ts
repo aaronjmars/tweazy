@@ -1,5 +1,5 @@
 import { http, createConfig } from 'wagmi';
-import { mainnet, baseSepolia } from 'wagmi/chains';
+import { mainnet, baseSepolia, base } from 'wagmi/chains';
 import { injected } from 'wagmi/connectors';
 import { config, configUtils } from './config';
 
@@ -21,16 +21,41 @@ export const PAYMASTER_CONFIG = {
   maxPriorityFeePerGas: config.gas.paymaster.maxPriorityFeePerGas,
 } as const;
 
+// Get chains based on network mode
+const getChains = () => {
+  const chains = [mainnet]; // Always include mainnet for fallback
+  
+  if (config.network.mode === 'testnet') {
+    chains.unshift(baseSepolia); // Prioritize testnet
+  } else {
+    chains.unshift(base); // Prioritize mainnet
+  }
+  
+  return chains;
+};
+
+// Get transports based on network mode
+const getTransports = () => {
+  const transports: Record<number, ReturnType<typeof http>> = {
+    [mainnet.id]: http(),
+  };
+  
+  if (config.network.mode === 'testnet') {
+    transports[baseSepolia.id] = http(config.network.rpcUrl);
+  } else {
+    transports[base.id] = http(config.network.rpcUrl);
+  }
+  
+  return transports;
+};
+
 export const wagmiConfig = createConfig({
-  chains: [baseSepolia, mainnet], // Prioritize Base Sepolia
+  chains: getChains(),
   connectors: [
     // Support all injected wallets (MetaMask, Rabby, Coinbase Wallet, etc.)
     injected(), // Generic injected connector for all wallets
   ],
-  transports: {
-    [baseSepolia.id]: http(config.rpc.baseSepoliaUrl),
-    [mainnet.id]: http(),
-  },
+  transports: getTransports(),
   ssr: true,
 });
 

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { X, AlertCircle, CheckCircle, Loader2, Wallet, Zap } from 'lucide-react';
 import { PaymentDetails, PaymentContext, formatUSDCAmount } from '@/lib/payment';
 import { isPaymasterSupported, BASE_SEPOLIA_CHAIN_ID } from '@/lib/wagmiConfig';
+import { config } from '@/lib/config';
 import { usePayment } from '@/hooks/usePayment';
 import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/button';
@@ -130,7 +131,7 @@ export function PaymentModal({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Network:</span>
                 <Badge variant="outline" className="text-xs">
-                  {paymentContext.walletType === 'cdp' ? 'Base Sepolia' : 'Base Sepolia'}
+                  {config.network.displayName}
                 </Badge>
               </div>
               

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
-        network: 'base-sepolia',
+        network: process.env.NEXT_PUBLIC_NETWORK_MODE === 'mainnet' ? 'base-mainnet' : 'base-sepolia',
         amount: amount,
         recipient: recipient,
       });

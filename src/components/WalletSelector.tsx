@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Wallet, Zap, Shield, Coins, Fingerprint } from 'lucide-react';
+import { config } from '@/lib/config';
 
 export interface WalletOption {
   type: 'metamask' | 'cdp';
@@ -28,7 +29,7 @@ const walletOptions: WalletOption[] = [
     description: 'Connect any Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.)',
     icon: <Wallet className="h-10 w-10 text-orange-500" />,
     features: ['Multi-wallet support', 'Browser extension', 'Full control'],
-    network: 'Base Sepolia',
+    network: config.network.displayName,
   },
 ];
 
@@ -120,7 +121,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <Coins className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <span>Network: Base Sepolia</span>
+                    <span>Network: {config.network.displayName}</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {['Passkey Auth', 'No Passwords', 'Biometric Security', 'Instant Setup'].map((feature, index) => (
@@ -242,11 +243,11 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
         <div className="text-center space-y-4">
           <div className="flex justify-center items-center gap-2 text-sm text-muted-foreground">
             <Shield className="h-4 w-4 text-primary" />
-            <span>Base Sepolia testnet only • No real funds required • Secure & Private</span>
+            <span>{config.network.testnetNotice || `${config.network.displayName} • Secure & Private`}</span>
           </div>
           <div className="max-w-lg mx-auto p-4 rounded-lg bg-muted/30 border">
             <p className="text-xs text-muted-foreground">
-              Both wallet options use Base Sepolia testnet and support USDC payments for AI inferences.
+              Both wallet options use {config.network.displayName} and support USDC payments for AI inferences.
               Smart Wallet offers enhanced security with biometric authentication.
             </p>
           </div>
