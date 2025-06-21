@@ -36,11 +36,9 @@ const NETWORK_CONFIGS = {
   },
 } as const;
 
-// Application constants (non-network specific)
 const APP_CONSTANTS = {
-  // Application Configuration
-  name: 'MCP x402 Payment System',
-  logoUrl: 'https://your-app.com/logo.png',
+  name: 'Tweazy',
+  logoUrl: 'https://tweazy.wtf/icon.png',
 
   // Payment Configuration
   defaultPaymentAmount: '0.1',
