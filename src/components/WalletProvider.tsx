@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { switchChain } from 'wagmi/actions';
 import { wagmiConfig } from '@/lib/wagmiConfig';
@@ -8,7 +8,8 @@ import { baseSepolia } from 'wagmi/chains';
 import { WalletSelector } from './WalletSelector';
 import { CDPWalletInfo, CDPWalletStorage, fundTestnetWallet } from '@/lib/cdp-wallet';
 import { SmartWalletInfo, SmartWalletStorage, smartWalletService } from '@/lib/smart-wallet';
-import { WalletType, PaymentContext } from '@/lib/payment';
+import { WalletType, PaymentContext, checkBalance } from '@/lib/payment';
+import { config } from '@/lib/config';
 
 interface WalletContextType {
   walletType: WalletType | null;
@@ -18,12 +19,15 @@ interface WalletContextType {
   error: string | null;
   cdpWalletInfo: CDPWalletInfo | null;
   smartWalletInfo: SmartWalletInfo | null;
+  balance: string | null;
+  lastBalanceUpdate: Date | null;
   createCDPWallet: () => Promise<void>;
   connectSmartWallet: () => Promise<void>;
   fundWallet: () => Promise<void>;
   switchWallet: () => void;
   switchToCorrectChain: () => Promise<boolean>;
   isOnCorrectChain: boolean;
+  refreshBalance: () => Promise<void>;
 }
 
 const WalletContext = createContext<WalletContextType | null>(null);
@@ -47,6 +51,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showWalletSelector, setShowWalletSelector] = useState(true);
+  const [balance, setBalance] = useState<string | null>(null);
+  const [lastBalanceUpdate, setLastBalanceUpdate] = useState<Date | null>(null);
 
   // MetaMask wallet connection
   const { address: metamaskAddress, isConnected } = useAccount();
@@ -57,7 +63,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   // Check for existing wallet session on mount
   useEffect(() => {
-    const savedWalletType = localStorage.getItem('wallet_type');
+    const savedWalletType = localStorage.getItem(config.storage.walletTypeKey);
     const savedCdpWallet = CDPWalletStorage.getWalletSession();
     const savedSmartWallet = SmartWalletStorage.getWalletSession();
 
@@ -100,7 +106,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       await fundTestnetWallet(walletInfo.address);
       
       setWalletType('cdp');
-      localStorage.setItem('wallet_type', 'cdp');
+      localStorage.setItem(config.storage.walletTypeKey, 'cdp');
       setShowWalletSelector(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create CDP wallet');
@@ -118,7 +124,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       setSmartWalletInfo(walletInfo);
       
       setWalletType('cdp'); // Use cdp type for smart wallets
-      localStorage.setItem('wallet_type', 'smart');
+      localStorage.setItem(config.storage.walletTypeKey, 'smart');
       setShowWalletSelector(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to connect smart wallet');
@@ -157,7 +163,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       await createCDPWallet();
     } else if (selectedWalletType === 'metamask') {
       setWalletType('metamask');
-      localStorage.setItem('wallet_type', 'metamask');
+      localStorage.setItem(config.storage.walletTypeKey, 'metamask');
       setShowWalletSelector(false);
     }
   };
@@ -166,15 +172,45 @@ export function WalletProvider({ children }: WalletProviderProps) {
     await connectSmartWallet();
   };
 
+  // Determine if wallet is ready for payments
+  const isWalletReady = Boolean(
+    (walletType === 'metamask' && isConnected && metamaskAddress && isOnCorrectChain) ||
+    (walletType === 'cdp' && (cdpWalletInfo || smartWalletInfo))
+  );
+
+  // Create payment context
+  const paymentContext: PaymentContext | null = useMemo(() => {
+    return isWalletReady ? {
+      walletType: walletType!,
+      walletInfo: cdpWalletInfo || undefined,
+      smartWalletInfo: smartWalletInfo || undefined,
+      userAddress: metamaskAddress || undefined,
+    } : null;
+  }, [isWalletReady, walletType, cdpWalletInfo, smartWalletInfo, metamaskAddress]);
+
+  const refreshBalance = useCallback(async () => {
+    if (!paymentContext) return;
+
+    try {
+      const currentBalance = await checkBalance(paymentContext);
+      setBalance(currentBalance);
+      setLastBalanceUpdate(new Date());
+    } catch (err) {
+      console.error('Failed to refresh balance:', err);
+    }
+  }, [paymentContext]);
+
   const switchWallet = () => {
     // Clear all wallet data
     setWalletType(null);
     setCdpWalletInfo(null);
     setSmartWalletInfo(null);
     setError(null);
+    setBalance(null);
+    setLastBalanceUpdate(null);
     CDPWalletStorage.clearWalletSession();
     SmartWalletStorage.clearWalletSession();
-    localStorage.removeItem('wallet_type');
+    localStorage.removeItem(config.storage.walletTypeKey);
     setShowWalletSelector(true);
   };
 
@@ -201,19 +237,22 @@ export function WalletProvider({ children }: WalletProviderProps) {
     }
   };
 
-  // Determine if wallet is ready for payments
-  const isWalletReady = Boolean(
-    (walletType === 'metamask' && isConnected && metamaskAddress && isOnCorrectChain) ||
-    (walletType === 'cdp' && (cdpWalletInfo || smartWalletInfo))
-  );
 
-  // Create payment context
-  const paymentContext: PaymentContext | null = isWalletReady ? {
-    walletType: walletType!,
-    walletInfo: cdpWalletInfo || undefined,
-    smartWalletInfo: smartWalletInfo || undefined,
-    userAddress: metamaskAddress || undefined,
-  } : null;
+
+  // Auto-refresh balance every minute and when wallet becomes ready
+  useEffect(() => {
+    if (!isWalletReady || !paymentContext) return;
+
+    // Initial balance fetch
+    refreshBalance();
+
+    // Set up interval for automatic refresh every minute
+    const interval = setInterval(() => {
+      refreshBalance();
+    }, 60000); // 60 seconds
+
+    return () => clearInterval(interval);
+  }, [isWalletReady, paymentContext, refreshBalance]);
 
   // Show wallet selector if no wallet is selected
   if (showWalletSelector || !walletType) {
@@ -245,7 +284,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         <div className="text-center space-y-4 max-w-md">
           <h1 className="text-2xl font-bold">Switch Network</h1>
           <p className="text-muted-foreground">
-            Please switch to Base Sepolia network to continue. Current network is not supported.
+            Please switch to {config.chains.baseSepolia.displayName} network to continue. Current network is not supported.
           </p>
           {error && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -258,7 +297,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
               disabled={isLoading}
               className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
             >
-              {isLoading ? 'Switching...' : 'Switch to Base Sepolia'}
+              {isLoading ? 'Switching...' : `Switch to ${config.chains.baseSepolia.displayName}`}
             </button>
             <button
               onClick={switchWallet}
@@ -282,12 +321,15 @@ export function WalletProvider({ children }: WalletProviderProps) {
         error,
         cdpWalletInfo,
         smartWalletInfo,
+        balance,
+        lastBalanceUpdate,
         createCDPWallet,
         connectSmartWallet,
         fundWallet,
         switchWallet,
         switchToCorrectChain,
         isOnCorrectChain,
+        refreshBalance,
       }}
     >
       {children}

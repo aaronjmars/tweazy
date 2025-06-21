@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { config, configUtils, envChecker } from '@/lib/config'
 
 export async function POST(req: NextRequest) {
   /**
@@ -16,15 +17,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if we have the required environment variables
-    if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY || !process.env.CDP_PAYMASTER_SERVICE) {
+    if (!envChecker.isCDPConfigured() || !process.env.CDP_PAYMASTER_SERVICE) {
 
       const mockResponse = {
         gasLimits: {
-          callGasLimit: '0x5208',           // 21000 gas
-          verificationGasLimit: '0x5208',   // 21000 gas
-          preVerificationGas: '0x5208',     // 21000 gas
-          maxFeePerGas: '0x59682f00',       // 1.5 gwei
-          maxPriorityFeePerGas: '0x59682f00', // 1.5 gwei
+          callGasLimit: configUtils.gasToHex(config.gas.paymaster.callGasLimit),
+          verificationGasLimit: configUtils.gasToHex(config.gas.paymaster.verificationGasLimit),
+          preVerificationGas: configUtils.gasToHex(config.gas.paymaster.preVerificationGas),
+          maxFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxFeePerGas),
+          maxPriorityFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxPriorityFeePerGas),
         },
         paymasterAndData: '0x' + (process.env.CDP_PAYMASTER_SERVICE?.slice(-40) || '0'.repeat(40)) + '0'.repeat(128),
       }
@@ -45,11 +46,11 @@ export async function POST(req: NextRequest) {
       // The actual UserOperation will be handled by the CDP SDK's sendUserOperation method
       const response = {
         gasLimits: {
-          callGasLimit: '0x7530',           // 30000 gas
-          verificationGasLimit: '0x7530',   // 30000 gas
-          preVerificationGas: '0x5208',     // 21000 gas
-          maxFeePerGas: '0x59682f00',       // 1.5 gwei
-          maxPriorityFeePerGas: '0x59682f00', // 1.5 gwei
+          callGasLimit: configUtils.gasToHex(config.gas.paymaster.callGasLimit),
+          verificationGasLimit: configUtils.gasToHex(config.gas.paymaster.verificationGasLimit),
+          preVerificationGas: configUtils.gasToHex(config.gas.paymaster.preVerificationGas),
+          maxFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxFeePerGas),
+          maxPriorityFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxPriorityFeePerGas),
         },
         paymasterAndData: process.env.CDP_PAYMASTER_SERVICE + '0'.repeat(128),
         sponsored: true,
@@ -60,11 +61,11 @@ export async function POST(req: NextRequest) {
       // Fallback to mock response if CDP fails
       const fallbackResponse = {
         gasLimits: {
-          callGasLimit: '0x5208',
-          verificationGasLimit: '0x5208',
-          preVerificationGas: '0x5208',
-          maxFeePerGas: '0x59682f00',
-          maxPriorityFeePerGas: '0x59682f00',
+          callGasLimit: configUtils.gasToHex(config.gas.defaultLimit),
+          verificationGasLimit: configUtils.gasToHex(config.gas.defaultLimit),
+          preVerificationGas: configUtils.gasToHex(config.gas.defaultLimit),
+          maxFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxFeePerGas),
+          maxPriorityFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxPriorityFeePerGas),
         },
         paymasterAndData: '0x' + '0'.repeat(168),
         sponsored: false,

@@ -66,20 +66,20 @@ export const MessageThreadFull = React.forwardRef<
   const populationSuggestions: Suggestion[] = [
     {
       id: "suggestion-1",
-      title: "Who is the new Pope?",
-      detailedSuggestion: "Who is the new Pope?",
+      title: "Latest Base updates",
+      detailedSuggestion: "What are the latest tweets from Base?",
       messageId: "current-events-query",
     },
     {
       id: "suggestion-2",
-      title: "Iran-India conflict?",
-      detailedSuggestion: "What is the status of the Iran-India conflict?",
+      title: "Compare Vitalik & Sam Altman vision",
+      detailedSuggestion: "Compare the vision of @vitalikbuterin & @sama about AI",
       messageId: "current-events-query",
     },
     {
       id: "suggestion-3",
-      title: "Latest on tariffs?",
-      detailedSuggestion: "Whats the latest news on tariffs?",
+      title: "Wallet UX according to Jesse Pollak",
+      detailedSuggestion: "Whats @jessepollak long term vision for wallet UX",
       messageId: "economic-query",
     },
   ];

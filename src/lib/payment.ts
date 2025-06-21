@@ -1,6 +1,7 @@
 import { parseUnits, formatUnits, isAddress, getAddress, encodeFunctionData } from 'viem';
 import { writeContract, readContract, waitForTransactionReceipt, switchChain } from 'wagmi/actions';
 import { wagmiConfig, USDC_BASE_SEPOLIA_ADDRESS, getPaymasterUrl, isPaymasterSupported, BASE_SEPOLIA_CHAIN_ID } from './wagmiConfig';
+import { config, configUtils } from './config';
 import { baseSepolia } from 'wagmi/chains';
 import { cdpWalletService, CDPWalletInfo } from './cdp-wallet';
 import { smartWalletService, SmartWalletInfo } from './smart-wallet';
@@ -119,7 +120,8 @@ export async function requestPaymasterSponsorship(
  * Build call data for USDC transfer
  */
 export function buildUSDCTransferCallData(recipient: string, amount: string): string {
-  const amountInUnits = parseUnits(amount, 6);
+  const decimals = config.payment.usdcDecimals;
+  const amountInUnits = parseUnits(amount, decimals);
   const normalizedRecipient = getAddress(recipient);
 
   return encodeFunctionData({
@@ -155,8 +157,9 @@ export async function checkUSDCBalance(address: string): Promise<string> {
       chainId: baseSepolia.id,
     });
 
-    // USDC has 6 decimals
-    return formatUnits(balance as bigint, 6);
+    // USDC decimals configurable
+    const decimals = config.payment.usdcDecimals;
+    return formatUnits(balance as bigint, decimals);
   } catch {
     throw new Error('Failed to check USDC balance');
   }
@@ -184,8 +187,9 @@ export async function transferUSDC(
       // Continue anyway - the writeContract call will handle chain switching
     }
 
-    // Convert amount to proper units (USDC has 6 decimals)
-    const amountInUnits = parseUnits(amount, 6);
+    // Convert amount to proper units (USDC decimals configurable)
+    const decimals = config.payment.usdcDecimals;
+    const amountInUnits = parseUnits(amount, decimals);
 
     // Execute the transfer
     const hash = await writeContract(wagmiConfig, {
@@ -290,7 +294,11 @@ export async function transferUSDCWithPaymaster(
       sender: userAddress,
       nonce: '0x0', // In production, this should be fetched from the smart account
       callData,
-      // Gas fields will be filled by paymaster
+      callGasLimit: configUtils.gasToHex(config.gas.paymaster.callGasLimit),
+      verificationGasLimit: configUtils.gasToHex(config.gas.paymaster.verificationGasLimit),
+      preVerificationGas: configUtils.gasToHex(config.gas.paymaster.preVerificationGas),
+      maxFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxFeePerGas),
+      maxPriorityFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxPriorityFeePerGas),
     };
 
     try {

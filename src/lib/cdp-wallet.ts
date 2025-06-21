@@ -3,6 +3,8 @@
  * @description Coinbase CDP wallet service for creating and managing wallets
  */
 
+import { config } from './config';
+
 export interface CDPWalletInfo {
   id: string;
   address: string;
@@ -19,7 +21,7 @@ export interface CDPWalletService {
 class CDPWalletServiceImpl implements CDPWalletService {
   async createWallet(): Promise<CDPWalletInfo> {
     try {
-      const response = await fetch('/api/cdp/create-wallet', {
+      const response = await fetch(`${config.api.baseUrl}/cdp/create-wallet`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +40,7 @@ class CDPWalletServiceImpl implements CDPWalletService {
 
   async getBalance(walletId: string): Promise<string> {
     try {
-      const response = await fetch('/api/cdp/balance', {
+      const response = await fetch(`${config.api.baseUrl}/cdp/balance`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ class CDPWalletServiceImpl implements CDPWalletService {
 
   async transferUSDC(walletId: string, recipient: string, amount: string): Promise<{ success: boolean; transactionHash?: string; error?: string; }> {
     try {
-      const response = await fetch('/api/cdp/transfer', {
+      const response = await fetch(`${config.api.baseUrl}/cdp/transfer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +89,9 @@ class CDPWalletServiceImpl implements CDPWalletService {
 
 // Storage for wallet sessions
 class CDPWalletStorage {
-  private static readonly STORAGE_KEY = 'cdp_wallet_session';
+  private static get STORAGE_KEY(): string {
+    return config.storage.cdpWalletKey;
+  }
 
   static saveWalletSession(walletInfo: CDPWalletInfo): void {
     if (typeof window !== 'undefined') {
@@ -123,7 +127,7 @@ export { CDPWalletStorage };
 // Wallet funding helper for testnet
 export async function fundTestnetWallet(walletAddress: string): Promise<boolean> {
   try {
-    const response = await fetch('/api/cdp/fund-wallet', {
+    const response = await fetch(`${config.api.baseUrl}/cdp/fund-wallet`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

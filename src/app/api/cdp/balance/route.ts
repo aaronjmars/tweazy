@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { config, envChecker } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,8 +13,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if CDP credentials are configured
-    if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY || !process.env.CDP_WALLET_SECRET) {
-      return NextResponse.json({ balance: '100.0' });
+    if (!envChecker.isCDPConfigured()) {
+      return NextResponse.json({ balance: config.testing.mockWalletBalance });
     }
 
     try {
@@ -27,14 +28,14 @@ export async function POST(request: NextRequest) {
         walletSecret: process.env.CDP_WALLET_SECRET!,
       });
 
-      // Get token balances for the wallet on Base Sepolia
+      // Get token balances for the wallet on configured network
       const balances = await cdp.evm.listTokenBalances({
         address: walletId,
-        network: 'base-sepolia',
+        network: config.cdp.network as 'base-sepolia',
       });
 
-      // Find USDC balance (USDC contract address on Base Sepolia)
-      const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+      // Find USDC balance (configurable USDC contract address)
+      const usdcAddress = config.contracts.usdc;
       const tokenBalances = Array.isArray(balances) ? balances : (balances as { data?: unknown[] }).data || [];
       const usdcBalance = tokenBalances.find(
         (token: { contractAddress?: string; amount?: string }) => token.contractAddress?.toLowerCase() === usdcAddress.toLowerCase()
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ balance });
     } catch {
       // Fallback to mock balance
-      return NextResponse.json({ balance: '100.0' });
+      return NextResponse.json({ balance: config.testing.mockWalletBalance });
     }
   } catch {
     return NextResponse.json(

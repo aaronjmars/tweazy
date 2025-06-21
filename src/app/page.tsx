@@ -3,21 +3,27 @@ import { MessageThreadFull } from "@/components/ui/message-thread-full";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { loadMcpServers } from "@/lib/mcp-utils";
 import { components } from "@/lib/tambo";
+import { generateUserContextKey } from "@/lib/user-context";
 import { TamboProvider } from "@tambo-ai/react";
 import { TamboMcpProvider } from "@tambo-ai/react/mcp";
 import { WalletProvider, useWallet } from "@/components/WalletProvider";
 import { Button } from "@/components/ui/button";
-import { Wallet, LogOut, RefreshCw, DollarSign, Copy, Check, AlertTriangle, Zap } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { Wallet, LogOut, RefreshCw, DollarSign, Copy, Check, AlertTriangle } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useAccount, useBalance } from "wagmi";
-import { cdpWalletService } from "@/lib/cdp-wallet";
-import { smartWalletService } from "@/lib/smart-wallet";
-import { PaymasterExample } from "@/components/PaymasterExample";
+import { config } from "@/lib/config";
 
 function WalletInfo() {
-  const { walletType, cdpWalletInfo, smartWalletInfo, switchWallet, isOnCorrectChain, switchToCorrectChain } = useWallet();
-  const [cdpBalance, setCdpBalance] = useState<string>('0');
-  const [smartBalance, setSmartBalance] = useState<string>('0');
+  const {
+    walletType,
+    cdpWalletInfo,
+    smartWalletInfo,
+    switchWallet,
+    isOnCorrectChain,
+    switchToCorrectChain,
+    balance,
+    refreshBalance
+  } = useWallet();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
@@ -25,33 +31,21 @@ function WalletInfo() {
   const { address: metamaskAddress } = useAccount();
   const { data: metamaskBalance } = useBalance({
     address: metamaskAddress,
-    token: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
+    token: config.contracts.usdc as `0x${string}`, // USDC contract address
   });
 
-  const refreshBalance = useCallback(async () => {
-    if (walletType === 'cdp') {
-      setIsRefreshing(true);
-      try {
-        if (smartWalletInfo) {
-          const balance = await smartWalletService.getBalance(smartWalletInfo);
-          setSmartBalance(balance);
-        } else if (cdpWalletInfo) {
-          const balance = await cdpWalletService.getBalance(cdpWalletInfo.id);
-          setCdpBalance(balance);
-        }
-      } catch {
-      } finally {
-        setIsRefreshing(false);
-      }
+  const handleRefreshBalance = useCallback(async () => {
+    console.log('Refreshing balance for wallet type:', walletType);
+    setIsRefreshing(true);
+    try {
+      await refreshBalance();
+      console.log('Balance refreshed successfully');
+    } catch (error) {
+      console.error('Failed to refresh balance:', error);
+    } finally {
+      setIsRefreshing(false);
     }
-  }, [walletType, cdpWalletInfo, smartWalletInfo]);
-
-  // Load balance on mount
-  useEffect(() => {
-    if (walletType === 'cdp' && (cdpWalletInfo || smartWalletInfo)) {
-      refreshBalance();
-    }
-  }, [walletType, cdpWalletInfo, smartWalletInfo, refreshBalance]);
+  }, [refreshBalance, walletType]);
 
   const copyAddress = useCallback(async () => {
     const address = walletType === 'metamask' 
@@ -67,16 +61,17 @@ function WalletInfo() {
     }
   }, [walletType, metamaskAddress, cdpWalletInfo?.address, smartWalletInfo?.address]);
 
-  const displayBalance = walletType === 'metamask' 
+  const displayBalance = walletType === 'metamask'
     ? metamaskBalance?.formatted || '0'
-    : smartWalletInfo ? smartBalance : cdpBalance;
+    : balance || '0';
 
   const displayAddress = walletType === 'metamask' 
     ? metamaskAddress 
     : smartWalletInfo?.address || cdpWalletInfo?.address;
 
   return (
-    <div className="absolute top-4 left-16 z-10 flex items-center gap-3">
+    <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
+      <ThemeToggle />
       <div className={`flex items-center gap-3 bg-card/95 backdrop-blur-sm rounded-lg px-4 py-2 border shadow-sm ${
         walletType === 'metamask' && !isOnCorrectChain ? 'border-destructive/50' : ''
       }`}>
@@ -121,18 +116,18 @@ function WalletInfo() {
         
         <div className="flex items-center gap-2 border-l pl-3">
           <DollarSign className="h-3 w-3 text-primary" />
-          <span className="text-sm font-mono text-foreground">
+          <span className={`text-sm font-mono text-foreground transition-opacity ${isRefreshing ? 'opacity-50' : ''}`}>
             {parseFloat(displayBalance).toFixed(2)} USDC
           </span>
           <Button
             variant="ghost"
             size="sm"
-            onClick={refreshBalance}
+            onClick={handleRefreshBalance}
             disabled={isRefreshing}
             className="h-6 w-6 p-0 hover:bg-muted"
-            title="Refresh balance"
+            title={isRefreshing ? "Refreshing..." : "Refresh balance"}
           >
-            <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3 w-3 transition-transform ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
           </Button>
         </div>
       </div>
@@ -152,49 +147,26 @@ function WalletInfo() {
 function MainApp() {
   // Load MCP server configurations
   const mcpServers = loadMcpServers();
-  const [activeTab, setActiveTab] = useState<'chat' | 'paymaster'>('chat');
+  const { paymentContext, isWalletReady } = useWallet();
+
+  // Create a unique context key based on user's wallet address
+  // This ensures each user has their own conversation history
+  const contextKey = generateUserContextKey(paymentContext, isWalletReady);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden relative bg-background">
       <WalletInfo />
 
-      <div className="absolute top-4 right-4 z-10 flex gap-2">
-        <Button
-          variant={activeTab === 'paymaster' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setActiveTab('paymaster')}
-        >
-          <Zap className="w-4 h-4 mr-2" />
-          Paymaster Demo
-        </Button>
-        <Button
-          variant={activeTab === 'chat' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setActiveTab('chat')}
-        >
-          Chat
-        </Button>
-        <ThemeToggle />
-      </div>
-
-      {activeTab === 'chat' ? (
-        <TamboProvider
-          apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-          components={components}
-        >
-          <TamboMcpProvider mcpServers={mcpServers}>
-            <div className="w-full max-w-4xl mx-auto h-full">
-              <MessageThreadFull contextKey="tambo-template" />
-            </div>
-          </TamboMcpProvider>
-        </TamboProvider>
-      ) : (
-        <div className="flex-1 overflow-auto">
-          <div className="w-full max-w-4xl mx-auto">
-            <PaymasterExample />
+      <TamboProvider
+        apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
+        components={components}
+      >
+        <TamboMcpProvider mcpServers={mcpServers}>
+          <div className="w-full max-w-4xl mx-auto h-full">
+            <MessageThreadFull contextKey={contextKey} />
           </div>
-        </div>
-      )}
+        </TamboMcpProvider>
+      </TamboProvider>
     </div>
   );
 }

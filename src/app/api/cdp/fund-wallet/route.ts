@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { config, envChecker } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if CDP credentials are configured
-    if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY || !process.env.CDP_WALLET_SECRET) {
+    if (!envChecker.isCDPConfigured()) {
       return NextResponse.json({
         success: true,
         message: 'Wallet funded successfully (mock)',
@@ -31,18 +32,18 @@ export async function POST(request: NextRequest) {
         walletSecret: process.env.CDP_WALLET_SECRET!,
       });
 
-      // Request ETH from Base Sepolia faucet
+      // Request ETH from configured network faucet
       const faucetResponse = await cdp.evm.requestFaucet({
         address: walletAddress,
-        network: 'base-sepolia',
+        network: config.cdp.network as 'base-sepolia',
         token: 'eth',
       });
 
       return NextResponse.json({
         success: true,
-        message: 'Wallet funded with ETH on Base Sepolia',
+        message: `Wallet funded with ETH on ${config.chains.baseSepolia.displayName}`,
         transactionHash: faucetResponse.transactionHash,
-        network: 'base-sepolia',
+        network: config.cdp.network,
       });
 
     } catch {

@@ -1,7 +1,8 @@
 {
-  "name": "mcp-x402",
+  "name": "tweazy",
   "version": "0.1.0",
   "private": true,
+  "description": "Query Twitter w/ AI in one click, with x402, MCP & CDP.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

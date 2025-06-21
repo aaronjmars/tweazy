@@ -32,7 +32,7 @@ export function MessageGenerationStage({
   // Map stage names to more user-friendly labels
   const stageLabels: Record<string, string> = {
     IDLE: "Idle",
-    CHOOSING_COMPONENT: "Choosing component",
+    CHOOSING_COMPONENT: "Loading",
     FETCHING_CONTEXT: "Fetching context",
     HYDRATING_COMPONENT: "Preparing component",
     STREAMING_RESPONSE: "Generating response",

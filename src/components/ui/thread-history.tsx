@@ -187,7 +187,7 @@ const ThreadHistoryHeader = React.forwardRef<
       {...props}
     >
       {!isCollapsed && (
-        <h2 className="text-sm text-muted-foreground">Tambo Conversations</h2>
+        <h2 className="text-sm text-muted-foreground">Previous Chats</h2>
       )}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}

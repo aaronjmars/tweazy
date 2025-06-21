@@ -22,7 +22,6 @@ const McpConfigPage = () => {
 
   // Persist servers to localStorage whenever the list changes
   useEffect(() => {
-    console.log("Saving to localStorage:", mcpServers);
     localStorage.setItem("mcp-servers", JSON.stringify(mcpServers));
     if (mcpServers.length > 0) {
       setSavedSuccess(true);
@@ -34,7 +33,6 @@ const McpConfigPage = () => {
   const addServer = (e: React.FormEvent) => {
     e.preventDefault();
     if (serverUrl.trim()) {
-      console.log("Adding server:", serverUrl.trim());
 
       const serverConfig = {
         url: serverUrl.trim(),
@@ -47,17 +45,10 @@ const McpConfigPage = () => {
       setServerUrl("");
       setServerName("");
       setTransportType(MCPTransport.HTTP);
-
-      // Double-check localStorage immediately after update
-      setTimeout(() => {
-        const saved = localStorage.getItem("mcp-servers");
-        console.log("Immediate localStorage check:", saved);
-      }, 100);
     }
   };
 
   const removeServer = (index: number) => {
-    console.log("Removing server at index:", index);
     setMcpServers((prev) => prev.filter((_, i) => i !== index));
   };
 

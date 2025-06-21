@@ -4,6 +4,7 @@
  */
 
 import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk';
+import { config, configUtils } from './config';
 
 // Extended wallet info for smart wallets
 export interface SmartWalletInfo {
@@ -17,9 +18,9 @@ export interface SmartWalletInfo {
 
 // Smart wallet configuration
 const SMART_WALLET_CONFIG = {
-  appName: 'MCP x402 Payment System',
-  appLogoUrl: 'https://your-app.com/logo.png', // You can update this with your actual logo
-  appChainIds: [84532], // Base Sepolia chain ID
+  appName: config.app.name,
+  appLogoUrl: config.app.logoUrl,
+  appChainIds: [config.chains.baseSepolia.id],
   smartWallet: {
     enabled: true
   }
@@ -93,7 +94,7 @@ class SmartWalletService {
   async getBalance(walletInfo: SmartWalletInfo): Promise<string> {
     try {
       // Check if the wallet address is the same as USDC contract (this shouldn't happen)
-      const usdcContract = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+      const usdcContract = config.contracts.usdc;
       if (walletInfo.address.toLowerCase() === usdcContract.toLowerCase()) {
         // ERROR: Smart wallet address is the same as USDC contract address!
         // This indicates a problem with wallet creation/connection
@@ -102,7 +103,7 @@ class SmartWalletService {
       
       // Try using direct RPC call to Base Sepolia instead of wallet provider
       try {
-        const response = await fetch('https://sepolia.base.org', {
+        const response = await fetch(config.rpc.baseSepoliaFallbackUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -176,8 +177,9 @@ class SmartWalletService {
         throw new Error('Failed to initialize smart wallet provider');
       }
       
-      const usdcContract = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
-      const amountWei = BigInt(Math.floor(parseFloat(amount) * Math.pow(10, 6)));
+      const usdcContract = config.contracts.usdc;
+      const decimals = config.payment.usdcDecimals;
+      const amountWei = BigInt(Math.floor(parseFloat(amount) * Math.pow(10, decimals)));
       
       // ERC-20 transfer function signature
       const transferData = '0xa9059cbb' + 
@@ -190,7 +192,7 @@ class SmartWalletService {
           from: walletInfo.address,
           to: usdcContract,
           data: transferData,
-          gas: '0x5208', // 21000 gas limit
+          gas: configUtils.gasToHex(config.gas.defaultLimit),
         }]
       }) as string;
 
@@ -221,14 +223,7 @@ class SmartWalletService {
 
   private getNetworkName(chainId: string): string {
     const chainIdNum = parseInt(chainId, 16);
-    switch (chainIdNum) {
-      case 84532: // Base Sepolia
-        return 'base-sepolia';
-      case 8453: // Base Mainnet
-        return 'base-mainnet';
-      default:
-        return 'unknown';
-    }
+    return configUtils.getNetworkNameById(chainIdNum);
   }
 
   isConnected(): boolean {
@@ -242,7 +237,9 @@ class SmartWalletService {
 
 // Storage for smart wallet sessions
 class SmartWalletStorage {
-  private static readonly STORAGE_KEY = 'smart_wallet_session';
+  private static get STORAGE_KEY(): string {
+    return config.storage.smartWalletKey;
+  }
 
   static saveWalletSession(walletInfo: SmartWalletInfo): void {
     if (typeof window !== 'undefined') {

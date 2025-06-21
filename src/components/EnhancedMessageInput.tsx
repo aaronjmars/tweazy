@@ -119,7 +119,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     const paymentDetails: PaymentDetails = {
       amount: '0.1',
       recipient: normalizedRecipient,
-      description: 'LLM Query Payment - Required for AI response',
+      description: 'LLM Query Payment - Required for an AI response',
     };
     await handlePaymentRequired(paymentDetails);
   }, [value, isWalletReady, handlePaymentRequired, walletType, isOnCorrectChain, switchToCorrectChain]);
@@ -150,7 +150,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
             onKeyDown={handleKeyDown}
             className="flex-1 p-3 rounded-t-lg bg-background text-foreground resize-none text-sm min-h-[82px] max-h-[40vh] focus:outline-none placeholder:text-muted-foreground/50"
             disabled={isPending}
-            placeholder="Type your message... (Payment required for each query)"
+            placeholder="Enter your message"
             aria-label="Chat Message Input"
           />
           
@@ -159,7 +159,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
               <div className="flex items-center space-x-2">
                 {isWalletReady && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {walletType === 'metamask' ? 'MetaMask' : 'CDP Wallet'} connected • 0.1 USDC required per query
+                    0.1 USDC per query
                   </span>
                 )}
                 {!isWalletReady && (

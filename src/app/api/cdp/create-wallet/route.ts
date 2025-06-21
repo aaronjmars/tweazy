@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
+import { config, envChecker } from '@/lib/config';
 
 export async function POST() {
   try {
     // Check if CDP credentials are configured
-    if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY || !process.env.CDP_WALLET_SECRET) {
+    if (!envChecker.isCDPConfigured()) {
       // Generate a proper mock Ethereum address
       const randomBytes = Array.from({length: 20}, () => Math.floor(Math.random() * 256));
       const address = '0x' + randomBytes.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -11,7 +12,7 @@ export async function POST() {
       const walletInfo = {
         id: 'mock-wallet-' + Date.now(),
         address: address,
-        network: 'base-sepolia',
+        network: config.cdp.network,
       };
       return NextResponse.json(walletInfo);
     }
@@ -32,7 +33,7 @@ export async function POST() {
     const walletInfo = {
       id: account.address, // Use address as ID for simplicity
       address: account.address,
-      network: 'base-sepolia',
+      network: config.cdp.network,
     };
 
     return NextResponse.json(walletInfo);
@@ -44,7 +45,7 @@ export async function POST() {
     const walletInfo = {
       id: 'fallback-wallet-' + Date.now(),
       address: address,
-      network: 'base-sepolia',
+      network: config.cdp.network,
     };
 
     return NextResponse.json(walletInfo);

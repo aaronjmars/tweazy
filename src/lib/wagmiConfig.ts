@@ -1,18 +1,24 @@
 import { http, createConfig } from 'wagmi';
 import { mainnet, baseSepolia } from 'wagmi/chains';
-import { injected, coinbaseWallet } from 'wagmi/connectors';
+import { injected } from 'wagmi/connectors';
+import { config, configUtils } from './config';
 
-// USDC contract address on Base Sepolia testnet
-export const USDC_BASE_SEPOLIA_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e' as const;
+// USDC contract address (configurable per network)
+export const USDC_BASE_SEPOLIA_ADDRESS = config.contracts.usdc as `0x${string}`;
 
 // Chain configuration constants
-export const BASE_SEPOLIA_CHAIN_ID = baseSepolia.id;
-export const BASE_MAINNET_CHAIN_ID = 8453; // Base mainnet
+export const BASE_SEPOLIA_CHAIN_ID = config.chains.baseSepolia.id;
+export const BASE_MAINNET_CHAIN_ID = config.chains.baseMainnet.id;
 
 // Paymaster configuration
 export const PAYMASTER_CONFIG = {
-  url: process.env.NEXT_PUBLIC_PAYMASTER_URL || '/api/paymaster',
+  url: config.api.paymasterUrl,
   supportedChains: [BASE_SEPOLIA_CHAIN_ID, BASE_MAINNET_CHAIN_ID],
+  callGasLimit: config.gas.paymaster.callGasLimit,
+  verificationGasLimit: config.gas.paymaster.verificationGasLimit,
+  preVerificationGas: config.gas.paymaster.preVerificationGas,
+  maxFeePerGas: config.gas.paymaster.maxFeePerGas,
+  maxPriorityFeePerGas: config.gas.paymaster.maxPriorityFeePerGas,
 } as const;
 
 export const wagmiConfig = createConfig({
@@ -21,14 +27,9 @@ export const wagmiConfig = createConfig({
     injected({
       target: 'metaMask',
     }),
-    coinbaseWallet({
-      appName: 'MCP x402 Payment System',
-      appLogoUrl: 'https://your-app.com/logo.png',
-      preference: 'smartWalletOnly', // Force smart wallet usage
-    }),
   ],
   transports: {
-    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org'),
+    [baseSepolia.id]: http(config.rpc.baseSepoliaUrl),
     [mainnet.id]: http(),
   },
   ssr: true,
@@ -36,10 +37,10 @@ export const wagmiConfig = createConfig({
 
 // Helper function to check if paymaster is supported for a given chain
 export function isPaymasterSupported(chainId: number): boolean {
-  return PAYMASTER_CONFIG.supportedChains.includes(chainId as 84532 | 8453);
+  return configUtils.isPaymasterSupported(chainId);
 }
 
 // Helper function to get paymaster URL
 export function getPaymasterUrl(): string {
-  return PAYMASTER_CONFIG.url;
+  return config.api.paymasterUrl;
 }
