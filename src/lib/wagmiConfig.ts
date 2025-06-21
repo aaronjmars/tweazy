@@ -27,6 +27,7 @@ export const wagmiConfig = createConfig({
     injected({
       target: 'metaMask',
     }),
+    injected(), // Fallback injected connector for any wallet
   ],
   transports: {
     [baseSepolia.id]: http(config.rpc.baseSepoliaUrl),

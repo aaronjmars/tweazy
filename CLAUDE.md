@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run build` - Build production application  
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint for code linting
-- `npx tambo init` - Initialize Tambo configuration and create .env.local
+- `npm run init` - Initialize Tambo configuration and create .env.local
 
 ## Architecture
 
@@ -38,7 +38,8 @@ This is a Next.js application built with Tambo AI for generative UI and Model Co
 - `src/components/WalletSelector.tsx` - Wallet type selection UI with Smart Wallet prominence
 
 **Core Libraries**:
-- `src/lib/tambo.ts` - Central Tambo component and tool registration
+- `src/lib/tambo.ts` - Central Tambo component and tool registration  
+- `src/lib/config.ts` - Centralized configuration with network-specific settings and environment-based switching
 - `src/lib/wagmiConfig.ts` - Ethereum wallet configuration
 - `src/lib/mcp-utils.ts` - MCP server utilities
 
@@ -73,15 +74,19 @@ This is a Next.js application built with Tambo AI for generative UI and Model Co
 
 ### Environment Variables
 
-Required in `.env.local`:
+**Required in `.env.local`**:
 - `NEXT_PUBLIC_TAMBO_API_KEY` - Tambo API key from tambo.co/dashboard
-- `NEXT_PUBLIC_CONTEXT7_MCP_URL` - Context7 MCP server URL
 - `NEXT_PUBLIC_PAYMENT_RECIPIENT` - Ethereum address for receiving payments
-- `NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL` - Base Sepolia testnet RPC endpoint
+
+**Optional in `.env.local`**:
+- `NEXT_PUBLIC_NETWORK_MODE` - Network mode: "testnet" (default) or "mainnet" for production
 - `CDP_API_KEY_NAME` - Coinbase CDP API key name
 - `CDP_API_KEY_PRIVATE_KEY` - Coinbase CDP private key
 - `CDP_PROJECT_ID` - Coinbase CDP project ID
-- `NEXT_PUBLIC_CDP_NETWORK` - CDP network (base-sepolia for testing)
+- `CDP_WALLET_SECRET` - CDP wallet secret
+- `CDP_PAYMASTER_SERVICE` - Paymaster service URL
+
+**Configuration Management**: The application uses `src/lib/config.ts` for centralized configuration with environment-based network switching. Non-sensitive config like RPC URLs, contract addresses, and gas settings are managed here, while secrets remain in environment variables.
 
 ### Testing
 
@@ -111,15 +116,19 @@ The triple wallet x402 payment system supports:
 
 ### Important Technical Notes
 
-**USDC Contract Address**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e` (Base Sepolia)
-- All wallets use this USDC contract for payments
-- 6 decimal places for USDC token calculations
-- Balance queries and transfers target this contract
+**Network Switching**: Application supports automatic testnet/mainnet switching via `NEXT_PUBLIC_NETWORK_MODE`:
+- **Testnet** (default): Base Sepolia (Chain ID: 84532), USDC: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- **Mainnet**: Base Mainnet (Chain ID: 8453), USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
 
-**Network Configuration**: All wallets operate on Base Sepolia (Chain ID: 84532)
-- MetaMask auto-switches to Base Sepolia when connected
-- Smart Wallets automatically configure to Base Sepolia
-- CDP wallets use Base Sepolia by default
+**USDC Contract Details**:
+- 6 decimal places for USDC token calculations
+- Balance queries and transfers target network-specific contract
+- All wallets use the same contract based on selected network
+
+**Configuration Architecture**: 
+- All network-specific settings (RPC URLs, contract addresses, chain IDs) automatically switch based on `NEXT_PUBLIC_NETWORK_MODE`
+- Configuration utilities in `src/lib/config.ts` provide type-safe access to current network settings
+- Environment checker validates required variables and network configuration
 
 **Smart Wallet SDK**: Uses `@coinbase/wallet-sdk` with smart wallet configuration:
 ```typescript

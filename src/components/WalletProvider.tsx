@@ -165,15 +165,33 @@ export function WalletProvider({ children }: WalletProviderProps) {
     } else if (selectedWalletType === 'metamask') {
       setIsLoading(true);
       try {
-        // Find the custodial wallet connector
-        const metamaskConnector = connectors.find(connector => connector.id === 'injected');
+        // Log all available connectors for debugging
+        console.log('Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })));
+        
+        // Try to find the injected connector (should be available if MetaMask is installed)
+        const metamaskConnector = connectors.find(connector => 
+          connector.type === 'injected' || 
+          connector.id.includes('injected') ||
+          connector.name?.toLowerCase().includes('metamask') ||
+          connector.name?.toLowerCase().includes('injected')
+        ) || connectors[0]; // Fallback to first available connector
+        
         if (!metamaskConnector) {
-          throw new Error('Custodial wallet connector not found. Please install a compatible wallet.');
+          throw new Error('No wallet connector found. Please install MetaMask or another Web3 wallet.');
         }
 
-        // Trigger the custodial wallet connection popup
-        await connect({ connector: metamaskConnector });
+        console.log('Using connector:', { id: metamaskConnector.id, name: metamaskConnector.name, type: metamaskConnector.type });
+        
+        // Trigger the wallet connection
+        const connectResult = connect({ connector: metamaskConnector });
+        
+        // If connect returns a promise, wait for it; otherwise, continue
+        if (connectResult && typeof connectResult.then === 'function') {
+          await connectResult;
+        }
 
+        // The wallet connection will be handled by the useAccount hook
+        // We'll set the wallet type and hide selector after successful connection
         setWalletType('metamask');
         localStorage.setItem(config.storage.walletTypeKey, 'metamask');
         setShowWalletSelector(false);
