@@ -40,7 +40,7 @@ export function parseX402Response(error: unknown): X402Response | null {
         status: 402,
         message: (dataObj.message as string) || 'Payment required to continue',
         paymentRequired: {
-          amount: (dataObj.amount as string) || '0.1',
+          amount: (dataObj.amount as string) || '0.01',
           recipient: (dataObj.recipient as string) || process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '',
           description: (dataObj.description as string) || 'x402 Payment Required',
           transactionId: dataObj.transactionId as string,
@@ -60,7 +60,7 @@ export function parseX402Response(error: unknown): X402Response | null {
         status: 402,
         message: 'Payment required to continue',
         paymentRequired: {
-          amount: '0.1',
+          amount: '0.01',
           recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '',
           description: 'x402 Payment Required',
         },

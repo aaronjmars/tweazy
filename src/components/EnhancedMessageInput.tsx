@@ -88,7 +88,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
       
       const switched = await switchToCorrectChain();
       if (!switched) {
-        setSubmitError('Please switch to Base Sepolia network in your custodial wallet to continue');
+        setSubmitError('Please switch to Base Sepolia network in your non-custodial wallet to continue');
         return;
       }
     }
@@ -118,7 +118,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
 
     // Always require payment for every LLM query
     const paymentDetails: PaymentDetails = {
-      amount: '0.1',
+      amount: '0.01',
       recipient: normalizedRecipient,
       description: 'LLM Query Payment - Required for an AI response',
     };
@@ -160,7 +160,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
               <div className="flex items-center space-x-2">
                 {isWalletReady && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    0.1 USDC per query
+                    0.01 USDC per query
                   </span>
                 )}
                 {!isWalletReady && (

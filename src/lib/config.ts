@@ -41,7 +41,7 @@ const APP_CONSTANTS = {
   logoUrl: 'https://tweazy.wtf/icon.png',
 
   // Payment Configuration
-  defaultPaymentAmount: '0.1',
+  defaultPaymentAmount: '0.01',
   usdcDecimals: 6,
 
   // Gas Configuration (conservative defaults)

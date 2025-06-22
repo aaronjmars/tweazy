@@ -259,7 +259,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       await switchChain(wagmiConfig, { chainId: config.network.chainId });
       return true;
     } catch {
-      setError(`Failed to switch to ${config.network.displayName} network. Please switch manually in your custodial wallet.`);
+      setError(`Failed to switch to ${config.network.displayName} network. Please switch manually in your non-custodial wallet.`);
       return false;
     } finally {
       setIsLoading(false);

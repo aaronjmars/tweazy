@@ -44,7 +44,7 @@ const ERC20_ABI = [
 ] as const;
 
 export interface PaymentDetails {
-  amount: string; // Amount in USDC (e.g., "0.1")
+  amount: string; // Amount in USDC (e.g., "0.01")
   recipient: string; // Ethereum address to receive payment
   description?: string;
   transactionId?: string;

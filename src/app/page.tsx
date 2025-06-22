@@ -77,7 +77,7 @@ function WalletInfo() {
           <Wallet className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-foreground">
             {walletType === 'metamask'
-              ? 'Custodial Wallet'
+              ? 'non-custodial wallet'
               : smartWalletInfo
                 ? 'Smart Wallet'
                 : 'CDP Wallet'}

@@ -25,7 +25,7 @@ interface WalletSelectorProps {
 const walletOptions: WalletOption[] = [
   {
     type: 'metamask',
-    name: 'Custodial Wallet',
+    name: 'Non-custodial Wallet',
     description: 'Connect any Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.)',
     icon: <Wallet className="h-10 w-10 text-orange-500" />,
     features: ['Multi-wallet support', 'Browser extension', 'Full control'],
@@ -158,7 +158,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
             </Card>
           )}
 
-          {/* Custodial Wallet Option */}
+          {/* Non-custodial Wallet Option */}
           {walletOptions.map((option) => (
             <Card
               key={option.type}
