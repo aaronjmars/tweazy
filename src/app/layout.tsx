@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "../components/ClientProviders";
-import { Metadata, Viewport } from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,60 +12,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://www.tweazy.wtf"),
-  title: "Tweazy - The best way to read tweets onchain",
-  description: "Query Twitter w/ AI in one click, with x402, MCP & CDP.",
-  icons: {
-    icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-    other: [
-      {
-        url: "/android-chrome-192x192.png",
-        sizes: "192x192",
-        type: "image/png",
-      },
-      {
-        url: "/android-chrome-512x512.png",
-        sizes: "512x512",
-        type: "image/png",
-      },
-    ],
-  },
-  manifest: "/site.webmanifest",
-  openGraph: {
-    url: "https://www.tweazy.wtf",
-    type: "website",
-    title: "Tweazy - The best way to read tweets onchain",
-    description: "Query Twitter w/ AI in one click, with x402, MCP & CDP.",
-    images: [
-      {
-        url: "https://tweazy.wtf/og-banner.png",
-        width: 1200,
-        height: 630,
-        alt: "Tweazy - Query Twitter w/ AI in one click",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Tweazy - The best way to read tweets onchain",
-    description: "Query Twitter w/ AI in one click, with x402, MCP & CDP",
-    images: ["https://tweazy.wtf/og-banner.png"],
-  },
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: "#1DA1F2",
-};
 
 export default function RootLayout({
   children,
@@ -76,6 +21,37 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>Tweazy - The best way to read tweets onchain</title>
+        <meta name="description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#1DA1F2" />
+        
+        {/* Favicon and Icons */}
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.tweazy.wtf" />
+        <meta property="og:title" content="Tweazy - The best way to read tweets onchain" />
+        <meta property="og:description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP." />
+        <meta property="og:image" content="https://tweazy.wtf/og-banner.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Tweazy - Query Twitter w/ AI in one click" />
+        
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.tweazy.wtf" />
+        <meta property="twitter:title" content="Tweazy - The best way to read tweets onchain" />
+        <meta property="twitter:description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP" />
+        <meta property="twitter:image" content="https://tweazy.wtf/og-banner.png" />
+        
         <script
           defer
           src="https://cloud.umami.is/script.js"
