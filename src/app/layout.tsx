@@ -40,17 +40,13 @@ export default function RootLayout({
         <meta property="og:url" content="https://www.tweazy.wtf" />
         <meta property="og:title" content="Tweazy - The best way to read tweets onchain" />
         <meta property="og:description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP." />
-        <meta property="og:image" content="https://tweazy.wtf/og-banner.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Tweazy - Query Twitter w/ AI in one click" />
+        <meta property="og:image" content="https://www.tweazy.wtf/og-banner.png" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content="https://www.tweazy.wtf" />
         <meta name="twitter:title" content="Tweazy - The best way to read tweets onchain" />
         <meta name="twitter:description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP" />
-        <meta name="twitter:image" content="https://tweazy.wtf/og-banner.png" />
+        <meta name="twitter:image" content="https://www.tweazy.wtf/og-banner.png" />
         
         <script
           defer
