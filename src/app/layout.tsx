@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     description: "Query Twitter w/ AI in one click, with x402, MCP & CDP.",
     images: [
       {
-        url: "https://tweazy.app/og-banner.png",
+        url: "https://tweazy.wtf/og-banner.png",
         width: 1200,
         height: 630,
         alt: "Tweazy - Query Twitter w/ AI in one click",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Tweazy - The best way to read tweets onchain",
     description: "Query Twitter w/ AI in one click, with x402, MCP & CDP",
-    images: ["https://tweazy.app/og-banner.png"],
+    images: ["https://tweazy.wtf/og-banner.png"],
   },
 };
 
