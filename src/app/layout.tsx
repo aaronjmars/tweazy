@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <title>Tweazy - The best way to read tweets onchain</title>
-        <meta name="description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP." />
+        <meta name="description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#1DA1F2" />
         
@@ -46,11 +46,11 @@ export default function RootLayout({
         <meta property="og:image:alt" content="Tweazy - Query Twitter w/ AI in one click" />
         
         {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://www.tweazy.wtf" />
-        <meta property="twitter:title" content="Tweazy - The best way to read tweets onchain" />
-        <meta property="twitter:description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP" />
-        <meta property="twitter:image" content="https://tweazy.wtf/og-banner.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://www.tweazy.wtf" />
+        <meta name="twitter:title" content="Tweazy - The best way to read tweets onchain" />
+        <meta name="twitter:description" content="Query Twitter w/ AI in one click, with x402, MCP & CDP" />
+        <meta name="twitter:image" content="https://tweazy.wtf/og-banner.png" />
         
         <script
           defer
