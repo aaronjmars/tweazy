@@ -26,6 +26,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (typeof amount !== 'string' && typeof amount !== 'number') {
+      return NextResponse.json(
+        { error: 'Amount must be a string or number' },
+        { status: 400 }
+      );
+    }
+
+    const amountNum = Number(amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0 || amountNum > 1e18) {
+      return NextResponse.json(
+        { error: 'Amount must be a positive, finite number within allowed range' },
+        { status: 400 }
+      );
+    }
+
     // Check if CDP credentials are configured
     if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY || !process.env.CDP_WALLET_SECRET) {
       return NextResponse.json({
