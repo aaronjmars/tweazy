@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isAddress } from 'viem';
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,6 +8,20 @@ export async function POST(request: NextRequest) {
     if (!walletId || !recipient || !amount) {
       return NextResponse.json(
         { error: 'Wallet ID, recipient, and amount are required' },
+        { status: 400 }
+      );
+    }
+
+    if (typeof walletId !== 'string' || !isAddress(walletId)) {
+      return NextResponse.json(
+        { error: 'Wallet ID must be a valid EVM address' },
+        { status: 400 }
+      );
+    }
+
+    if (typeof recipient !== 'string' || !isAddress(recipient)) {
+      return NextResponse.json(
+        { error: 'Recipient must be a valid EVM address' },
         { status: 400 }
       );
     }

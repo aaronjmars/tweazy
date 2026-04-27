@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isAddress } from 'viem';
 import { config, envChecker } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
@@ -8,6 +9,13 @@ export async function POST(request: NextRequest) {
     if (!walletId) {
       return NextResponse.json(
         { error: 'Wallet ID is required' },
+        { status: 400 }
+      );
+    }
+
+    if (typeof walletId !== 'string' || !isAddress(walletId)) {
+      return NextResponse.json(
+        { error: 'Wallet ID must be a valid EVM address' },
         { status: 400 }
       );
     }
