@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAddress } from 'viem';
+import { mockTxHash } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY || !process.env.CDP_WALLET_SECRET) {
       return NextResponse.json({
         success: true,
-        transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
+        transactionHash: mockTxHash(),
       });
     }
 
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
+        transactionHash: mockTxHash(),
         network: process.env.NEXT_PUBLIC_NETWORK_MODE === 'mainnet' ? 'base-mainnet' : 'base-sepolia',
         amount: amount,
         recipient: recipient,
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
       // Fallback to mock transaction
       return NextResponse.json({
         success: true,
-        transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
+        transactionHash: mockTxHash(),
         note: 'Fallback transaction due to CDP error'
       });
     }

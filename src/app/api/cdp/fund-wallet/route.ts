@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAddress } from 'viem';
 import { config, envChecker } from '@/lib/config';
+import { mockTxHash } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Wallet funded successfully (mock)',
-        transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
+        transactionHash: mockTxHash(),
       });
     }
 
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Wallet funded successfully (fallback)',
-        transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
+        transactionHash: mockTxHash(),
         note: 'Fallback funding due to CDP error'
       });
     }
