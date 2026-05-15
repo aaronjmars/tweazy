@@ -4,6 +4,7 @@
  */
 
 import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk';
+import { formatUnits, getAddress, isAddress, parseUnits } from 'viem';
 import { config, configUtils } from './config';
 
 // Extended wallet info for smart wallets
@@ -101,6 +102,8 @@ class SmartWalletService {
         return '0';
       }
       
+      const decimals = config.payment.usdcDecimals;
+
       // Try using direct RPC call to current network instead of wallet provider
       try {
         const response = await fetch(config.network.fallbackRpcUrl, {
@@ -122,9 +125,7 @@ class SmartWalletService {
         const data = await response.json();
 
         if (data.result && data.result !== '0x' && data.result !== '0x0') {
-          const balanceWei = BigInt(data.result);
-          const balanceUsdc = Number(balanceWei) / Math.pow(10, 6);
-          return balanceUsdc.toString();
+          return formatUnits(BigInt(data.result), decimals);
         } else {
           // Direct RPC returned zero balance or empty result
         }
@@ -134,15 +135,15 @@ class SmartWalletService {
 
       // Fallback to wallet provider method
       const { provider } = this.initializeSDK();
-      
+
       if (!provider) {
         throw new Error('Failed to initialize smart wallet provider');
       }
-      
+
       // ERC-20 balanceOf function signature
       const walletAddressHex = walletInfo.address.slice(2).toLowerCase().padStart(64, '0');
       const balanceOfData = '0x70a08231' + walletAddressHex;
-      
+
       const balance = await provider.request({
         method: 'eth_call',
         params: [{
@@ -156,34 +157,39 @@ class SmartWalletService {
         return '0';
       }
 
-      const balanceWei = BigInt(balance);
-      const balanceUsdc = Number(balanceWei) / Math.pow(10, 6);
-      
-      return balanceUsdc.toString();
+      return formatUnits(BigInt(balance), decimals);
     } catch {
       return '0';
     }
   }
 
   async transferUSDC(
-    walletInfo: SmartWalletInfo, 
-    recipient: string, 
+    walletInfo: SmartWalletInfo,
+    recipient: string,
     amount: string
   ): Promise<{ success: boolean; transactionHash?: string; error?: string; }> {
     try {
+      if (!isAddress(recipient)) {
+        return {
+          success: false,
+          error: 'Invalid recipient address format'
+        };
+      }
+      const normalizedRecipient = getAddress(recipient);
+
       const { provider } = this.initializeSDK();
-      
+
       if (!provider) {
         throw new Error('Failed to initialize smart wallet provider');
       }
-      
+
       const usdcContract = config.contracts.usdc;
       const decimals = config.payment.usdcDecimals;
-      const amountWei = BigInt(Math.floor(parseFloat(amount) * Math.pow(10, decimals)));
-      
+      const amountWei = parseUnits(amount, decimals);
+
       // ERC-20 transfer function signature
-      const transferData = '0xa9059cbb' + 
-        recipient.slice(2).padStart(64, '0') + 
+      const transferData = '0xa9059cbb' +
+        normalizedRecipient.slice(2).toLowerCase().padStart(64, '0') +
         amountWei.toString(16).padStart(64, '0');
 
       const txHash = await provider.request({
