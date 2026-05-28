@@ -15,3 +15,14 @@ export function mockTxHash(): `0x${string}` {
     const bytes = Array.from({ length: 32 }, () => Math.floor(Math.random() * 256));
     return ("0x" + bytes.map((b) => b.toString(16).padStart(2, "0")).join("")) as `0x${string}`;
 }
+
+/**
+ * Generate a non-cryptographic mock 20-byte EVM address for dev/fallback
+ * paths where CDP is not configured. Returns `0x` + 40 hex chars so the value
+ * passes viem's `isAddress` check — matches the real CDP path where the
+ * account address is used as the wallet id.
+ */
+export function mockEvmAddress(): `0x${string}` {
+    const bytes = Array.from({ length: 20 }, () => Math.floor(Math.random() * 256));
+    return ("0x" + bytes.map((b) => b.toString(16).padStart(2, "0")).join("")) as `0x${string}`;
+}
