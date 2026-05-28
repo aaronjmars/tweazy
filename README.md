@@ -74,6 +74,12 @@ Perfect for developers wanting to build **monetized AI applications** with Web3 
    CDP_PROJECT_ID=your-cdp-project-id
    CDP_WALLET_SECRET=your-cdp-wallet-secret
    CDP_PAYMASTER_SERVICE=your-paymaster-service-url
+
+   # Optional: enable mock success on /api/cdp/transfer when CDP creds are
+   # absent. Local development only — never set this on a deployment that
+   # actually serves paid queries, since it would unlock the paid flow
+   # without a real on-chain transfer.
+   TWEAZY_ALLOW_MOCK_PAYMENT=0
    ```
 
 4. **Start the development server**:
