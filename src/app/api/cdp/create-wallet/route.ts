@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
 import { config, envChecker } from '@/lib/config';
+import { mockEvmAddress } from '@/lib/utils';
 
 export async function POST() {
   try {
     // Check if CDP credentials are configured
     if (!envChecker.isCDPConfigured()) {
-      // Generate a proper mock Ethereum address
-      const randomBytes = Array.from({length: 20}, () => Math.floor(Math.random() * 256));
-      const address = '0x' + randomBytes.map(b => b.toString(16).padStart(2, '0')).join('');
-
+      // Use the same shape as the real CDP path below: id === address.
+      // Downstream /api/cdp/balance and /api/cdp/transfer validate walletId
+      // with viem's isAddress, so the id must be a valid EVM address.
+      const address = mockEvmAddress();
       const walletInfo = {
-        id: 'mock-wallet-' + Date.now(),
-        address: address,
+        id: address,
+        address,
         network: config.network.cdpNetwork,
       };
       return NextResponse.json(walletInfo);
@@ -39,12 +40,10 @@ export async function POST() {
     return NextResponse.json(walletInfo);
   } catch {
     // Fallback to mock wallet if CDP fails
-    const randomBytes = Array.from({length: 20}, () => Math.floor(Math.random() * 256));
-    const address = '0x' + randomBytes.map(b => b.toString(16).padStart(2, '0')).join('');
-
+    const address = mockEvmAddress();
     const walletInfo = {
-      id: 'fallback-wallet-' + Date.now(),
-      address: address,
+      id: address,
+      address,
       network: config.network.cdpNetwork,
     };
 
