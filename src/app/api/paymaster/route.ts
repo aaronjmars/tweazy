@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isAddress } from 'viem'
 import { config, configUtils, envChecker } from '@/lib/config'
 
 export async function POST(req: NextRequest) {
@@ -9,9 +10,17 @@ export async function POST(req: NextRequest) {
   try {
     const { partialUserOp } = await req.json()
 
-    if (!partialUserOp) {
+    if (!partialUserOp || typeof partialUserOp !== 'object' || Array.isArray(partialUserOp)) {
       return NextResponse.json(
-        { error: 'partialUserOp is required' },
+        { error: 'partialUserOp must be a non-null object' },
+        { status: 400 }
+      )
+    }
+
+    const sender = (partialUserOp as { sender?: unknown }).sender
+    if (typeof sender !== 'string' || !isAddress(sender)) {
+      return NextResponse.json(
+        { error: 'partialUserOp.sender must be a valid EVM address' },
         { status: 400 }
       )
     }
