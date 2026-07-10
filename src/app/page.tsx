@@ -10,7 +10,8 @@ import { WalletProvider, useWallet } from "@/components/WalletProvider";
 import { Button } from "@/components/ui/button";
 import { Wallet, LogOut, RefreshCw, DollarSign, Copy, Check, AlertTriangle } from "lucide-react";
 import { useState, useCallback } from "react";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
+import { erc20Abi, formatUnits } from "viem";
 import { config } from "@/lib/config";
 
 function WalletInfo() {
@@ -29,9 +30,12 @@ function WalletInfo() {
   
   // MetaMask wallet info
   const { address: metamaskAddress } = useAccount();
-  const { data: metamaskBalance } = useBalance({
-    address: metamaskAddress,
-    token: config.contracts.usdc as `0x${string}`, // USDC contract address
+  const { data: metamaskBalanceRaw } = useReadContract({
+    address: config.contracts.usdc as `0x${string}`, // USDC contract address
+    abi: erc20Abi,
+    functionName: 'balanceOf',
+    args: metamaskAddress ? [metamaskAddress] : undefined,
+    query: { enabled: !!metamaskAddress },
   });
 
   const handleRefreshBalance = useCallback(async () => {
@@ -60,7 +64,7 @@ function WalletInfo() {
   }, [walletType, metamaskAddress, cdpWalletInfo?.address, smartWalletInfo?.address]);
 
   const displayBalance = walletType === 'metamask'
-    ? metamaskBalance?.formatted || '0'
+    ? (metamaskBalanceRaw !== undefined ? formatUnits(metamaskBalanceRaw, config.payment.usdcDecimals) : '0')
     : balance || '0';
 
   const displayAddress = walletType === 'metamask' 
