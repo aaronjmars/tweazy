@@ -31,7 +31,7 @@ function WalletInfo() {
   // MetaMask wallet info
   const { address: metamaskAddress } = useAccount();
   const { data: metamaskBalanceRaw } = useReadContract({
-    address: config.contracts.usdc as `0x${string}`, // USDC contract address
+    address: config.network.usdcContract,
     abi: erc20Abi,
     functionName: 'balanceOf',
     args: metamaskAddress ? [metamaskAddress] : undefined,

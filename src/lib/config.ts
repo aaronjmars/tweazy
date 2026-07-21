@@ -47,19 +47,11 @@ const APP_CONSTANTS = {
   // Gas Configuration (conservative defaults)
   gas: {
     defaultLimit: 21000,
-    paymaster: {
-      callGasLimit: 30000,
-      verificationGasLimit: 30000,
-      preVerificationGas: 21000,
-      maxFeePerGas: 1500000000, // 1.5 gwei
-      maxPriorityFeePerGas: 1500000000, // 1.5 gwei
-    },
   },
 
   // API Configuration
   api: {
     baseUrl: '/api',
-    paymasterUrl: '/api/paymaster',
   },
 
   // Storage Configuration (hardcoded for consistency)
@@ -129,11 +121,6 @@ export const config = {
       displayName: NETWORK_CONFIGS.mainnet.displayName,
     },
   },
-
-  // Legacy contract configuration (for backward compatibility)
-  contracts: {
-    usdc: currentNetwork.usdcContract,
-  },
 } as const;
 
 /**
@@ -161,13 +148,6 @@ export const configUtils = {
    * Convert gas limit to hex string
    */
   gasToHex: (gasLimit: number) => '0x' + gasLimit.toString(16),
-
-  /**
-   * Check if paymaster is supported for chain
-   */
-  isPaymasterSupported: (chainId: number) => {
-    return chainId === config.chains.baseSepolia.id || chainId === config.chains.baseMainnet.id;
-  },
 };
 
 /**

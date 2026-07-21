@@ -95,7 +95,7 @@ class SmartWalletService {
   async getBalance(walletInfo: SmartWalletInfo): Promise<string> {
     try {
       // Check if the wallet address is the same as USDC contract (this shouldn't happen)
-      const usdcContract = config.contracts.usdc;
+      const usdcContract = config.network.usdcContract;
       if (walletInfo.address.toLowerCase() === usdcContract.toLowerCase()) {
         // ERROR: Smart wallet address is the same as USDC contract address!
         // This indicates a problem with wallet creation/connection
@@ -183,7 +183,7 @@ class SmartWalletService {
         throw new Error('Failed to initialize smart wallet provider');
       }
 
-      const usdcContract = config.contracts.usdc;
+      const usdcContract = config.network.usdcContract;
       const decimals = config.payment.usdcDecimals;
       const amountWei = parseUnits(amount, decimals);
 

@@ -1,10 +1,7 @@
 import { http, createConfig } from 'wagmi';
 import { mainnet, baseSepolia, base } from 'wagmi/chains';
 import { injected } from 'wagmi/connectors';
-import { config, configUtils } from './config';
-
-// Chain configuration constants
-export const BASE_SEPOLIA_CHAIN_ID = config.chains.baseSepolia.id;
+import { config } from './config';
 
 // Support all chains but prioritize based on network mode in the UI
 // This allows wagmi to work with all chains while the app logic handles network-specific behavior
@@ -23,12 +20,3 @@ export const wagmiConfig = createConfig({
   ssr: true,
 });
 
-// Helper function to check if paymaster is supported for a given chain
-export function isPaymasterSupported(chainId: number): boolean {
-  return configUtils.isPaymasterSupported(chainId);
-}
-
-// Helper function to get paymaster URL
-export function getPaymasterUrl(): string {
-  return config.api.paymasterUrl;
-}

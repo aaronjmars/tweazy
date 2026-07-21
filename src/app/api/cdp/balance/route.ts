@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Find USDC balance (configurable USDC contract address)
-      const usdcAddress = config.contracts.usdc;
+      const usdcAddress = config.network.usdcContract;
       const tokenBalances = Array.isArray(balances) ? balances : (balances as { data?: unknown[] }).data || [];
       const usdcBalance = tokenBalances.find(
         (token: { contractAddress?: string; amount?: string }) => token.contractAddress?.toLowerCase() === usdcAddress.toLowerCase()

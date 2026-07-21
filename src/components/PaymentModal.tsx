@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { X, AlertCircle, CheckCircle, Loader2, Wallet, Zap } from 'lucide-react';
+import { X, AlertCircle, CheckCircle, Loader2, Wallet } from 'lucide-react';
 import { PaymentDetails, PaymentContext, formatUSDCAmount } from '@/lib/payment';
-import { isPaymasterSupported, BASE_SEPOLIA_CHAIN_ID } from '@/lib/wagmiConfig';
 import { config } from '@/lib/config';
 import { usePayment } from '@/hooks/usePayment';
 import { useAccount } from 'wagmi';
@@ -44,20 +43,7 @@ export function PaymentModal({
     setStep('processing');
 
     try {
-      // Enable paymaster for CDP/Smart wallets on supported chains
-      const usePaymaster = paymentContext.walletType === 'cdp' &&
-                          isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID);
-
-      if (usePaymaster) {
-        // Using paymaster for gas sponsorship
-      }
-
-      const enhancedContext = {
-        ...paymentContext,
-        usePaymaster,
-      };
-
-      const result = await processPayment(paymentDetails, enhancedContext);
+      const result = await processPayment(paymentDetails, paymentContext);
 
       if (result.success) {
         setStep('success');
@@ -142,13 +128,6 @@ export function PaymentModal({
                   <span className="font-medium text-foreground">
                     {paymentContext.walletType === 'metamask' ? 'Non-custodial Wallet' : 'Coinbase CDP'}
                   </span>
-                  {paymentContext.walletType === 'cdp' &&
-                   isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID) && (
-                    <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
-                      <Zap className="w-3 h-3 mr-1" />
-                      Gas Free
-                    </Badge>
-                  )}
                 </div>
               </div>
 
@@ -200,15 +179,7 @@ export function PaymentModal({
                 Processing Payment
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                {paymentContext.walletType === 'cdp' &&
-                 isPaymasterSupported(BASE_SEPOLIA_CHAIN_ID) ? (
-                  <>
-                    <Zap className="w-4 h-4 inline mr-1 text-green-600" />
-                    Gas fees sponsored • Please confirm USDC payment in your wallet...
-                  </>
-                ) : (
-                  'Please confirm the transaction in your wallet...'
-                )}
+                Please confirm the transaction in your wallet...
               </p>
             </div>
           </div>
