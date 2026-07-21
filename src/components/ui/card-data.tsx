@@ -5,16 +5,6 @@ import { useTamboComponentState } from "@tambo-ai/react";
 import * as React from "react";
 import { z } from "zod";
 
-// Define option type for individual options in the multi-select
-export type DataCardItem = {
-  id: string;
-  label: string;
-  value: string;
-  description?: string;
-  url?: string;
-};
-
-// Define the component state type
 export type DataCardState = {
   selectedValues: string[];
 };
@@ -173,5 +163,3 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
 );
 
 DataCard.displayName = "DataCard";
-
-export default DataCard;

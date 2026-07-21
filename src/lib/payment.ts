@@ -225,24 +225,6 @@ export async function transferUSDC(
 }
 
 /**
- * Validate if an address has sufficient USDC balance
- */
-export async function validateSufficientBalance(
-  address: string,
-  requiredAmount: string
-): Promise<boolean> {
-  try {
-    const balance = await checkUSDCBalance(address);
-    const balanceNum = parseFloat(balance);
-    const requiredNum = parseFloat(requiredAmount);
-    
-    return balanceNum >= requiredNum;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Transfer USDC using CDP wallet
  */
 export async function transferUSDCWithCDP(

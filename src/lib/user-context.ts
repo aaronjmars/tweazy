@@ -65,12 +65,3 @@ export function generateUserContextKey(
   const anonymousId = getAnonymousSessionId();
   return `${baseKey}-anonymous-${anonymousId}`;
 }
-
-/**
- * Hook to get the current user's context key
- */
-export function useUserContextKey(baseKey: string = 'tambo-template'): string {
-  // This would need to be implemented with the wallet context
-  // For now, we'll keep the logic in the component
-  return baseKey;
-}

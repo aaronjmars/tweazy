@@ -277,8 +277,3 @@ class SmartWalletStorage {
 // Create singleton instance
 export const smartWalletService = new SmartWalletService();
 export { SmartWalletStorage };
-
-// Helper to check if smart wallet is available
-export function isSmartWalletAvailable(): boolean {
-  return typeof window !== 'undefined' && 'navigator' in window && 'credentials' in navigator;
-}

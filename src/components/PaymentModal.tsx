@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, AlertCircle, CheckCircle, Loader2, Wallet, Zap } from 'lucide-react';
 import { PaymentDetails, PaymentContext, formatUSDCAmount } from '@/lib/payment';
 import { isPaymasterSupported, BASE_SEPOLIA_CHAIN_ID } from '@/lib/wagmiConfig';

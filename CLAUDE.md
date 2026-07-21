@@ -18,7 +18,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Payment System** (`src/lib/payment.ts`):
 - Universal payment handling for both Smart Wallets (CDP) and external wallets
-- x402 HTTP 402 Payment Required protocol implementation
 - Paymaster integration for gas sponsorship on Smart Wallets
 - USDC transfers on Base network (testnet/mainnet)
 
@@ -36,7 +35,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **AI Integration**:
 - Tambo AI framework for generative UI with React component registry
 - MCP protocol support for extensible AI functionality
-- x402 payment gates trigger payment flows when AI queries require payment
+- Every AI query is payment-gated in `EnhancedMessageInput`, which opens the payment flow before the request is sent
 - Dynamic component rendering based on AI responses
 
 ### API Routes Structure
@@ -51,7 +50,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `src/lib/config.ts` - Centralized configuration with network switching
 - `src/lib/payment.ts` - Universal payment handling for all wallet types
-- `src/lib/x402.ts` - HTTP 402 Payment Required protocol implementation
 - `src/lib/tambo.ts` - Tambo component registry configuration
 - `src/components/WalletProvider.tsx` - Multi-wallet context management
 - `src/components/PaymentModal.tsx` - Payment confirmation UI
