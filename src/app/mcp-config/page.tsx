@@ -1,6 +1,7 @@
 "use client";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { McpServerInfo, MCPTransport } from "@tambo-ai/react/mcp";
+import { MCP_SERVERS_STORAGE_KEY } from "@/lib/mcp-utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -8,7 +9,7 @@ const McpConfigPage = () => {
   // Initialize from localStorage directly to avoid conflicts
   const initialMcpServers =
     typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("mcp-servers") || "[]")
+      ? JSON.parse(localStorage.getItem(MCP_SERVERS_STORAGE_KEY) || "[]")
       : [];
 
   const [mcpServers, setMcpServers] =
@@ -22,7 +23,7 @@ const McpConfigPage = () => {
 
   // Persist servers to localStorage whenever the list changes
   useEffect(() => {
-    localStorage.setItem("mcp-servers", JSON.stringify(mcpServers));
+    localStorage.setItem(MCP_SERVERS_STORAGE_KEY, JSON.stringify(mcpServers));
     if (mcpServers.length > 0) {
       setSavedSuccess(true);
       const timer = setTimeout(() => setSavedSuccess(false), 2000);

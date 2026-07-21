@@ -118,7 +118,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
 
     // Always require payment for every LLM query
     const paymentDetails: PaymentDetails = {
-      amount: '0.01',
+      amount: config.payment.defaultAmount,
       recipient: normalizedRecipient,
       description: 'LLM Query Payment - Required for an AI response',
     };
@@ -160,7 +160,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
               <div className="flex items-center space-x-2">
                 {isWalletReady && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    0.01 USDC per query
+                    {config.payment.defaultAmount} USDC per query
                   </span>
                 )}
                 {!isWalletReady && (
