@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useAccount } from 'wagmi';
-import { PaymentDetails, PaymentResult, PaymentContext, checkBalance, validateSufficientBalanceUniversal, makePayment } from '@/lib/payment';
+import { PaymentDetails, PaymentResult, PaymentContext, checkBalance, makePayment } from '@/lib/payment';
 
 export interface PaymentState {
   isProcessing: boolean;
@@ -15,15 +14,12 @@ export interface UsePaymentReturn {
   processPayment: (paymentDetails: PaymentDetails, paymentContext: PaymentContext) => Promise<PaymentResult>;
   checkBalance: (paymentContext: PaymentContext) => Promise<void>;
   clearError: () => void;
-  validateBalance: (requiredAmount: string, paymentContext: PaymentContext) => Promise<boolean>;
 }
 
 /**
  * Hook for handling USDC payments on Sepolia
  */
 export function usePayment(): UsePaymentReturn {
-  const { } = useAccount();
-  
   const [state, setState] = useState<PaymentState>({
     isProcessing: false,
     error: null,
@@ -75,21 +71,13 @@ export function usePayment(): UsePaymentReturn {
     try {
       const balance = await checkBalance(paymentContext);
       setState(prev => ({ ...prev, balance, isLoadingBalance: false }));
-    } catch {
+    } catch (error) {
       setState(prev => ({
         ...prev,
         balance: null,
         isLoadingBalance: false,
-        error: 'Failed to check balance',
+        error: error instanceof Error ? error.message : 'Failed to check balance',
       }));
-    }
-  }, []);
-
-  const validateBalance = useCallback(async (requiredAmount: string, paymentContext: PaymentContext): Promise<boolean> => {
-    try {
-      return await validateSufficientBalanceUniversal(paymentContext, requiredAmount);
-    } catch {
-      return false;
     }
   }, []);
 
@@ -102,6 +90,5 @@ export function usePayment(): UsePaymentReturn {
     processPayment,
     checkBalance: checkBalanceFunc,
     clearError,
-    validateBalance,
   };
 }

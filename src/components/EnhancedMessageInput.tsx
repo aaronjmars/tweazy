@@ -34,8 +34,6 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     }
   }, [value]);
 
-  // Component mounted
-
   const handlePaymentRequired = useCallback(async (details: PaymentDetails): Promise<boolean> => {
     setPaymentDetails(details);
     setShowPaymentModal(true);
@@ -70,7 +68,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     setSubmitError(error);
   }, []);
 
-  const handleEnhancedSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleEnhancedSubmit = useCallback(async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     if (!value.trim()) {
@@ -118,7 +116,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
 
     // Always require payment for every LLM query
     const paymentDetails: PaymentDetails = {
-      amount: '0.01',
+      amount: config.payment.defaultAmount,
       recipient: normalizedRecipient,
       description: 'LLM Query Payment - Required for an AI response',
     };
@@ -135,7 +133,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (displayValue.trim()) {
-        handleEnhancedSubmit(e as unknown as React.FormEvent);
+        handleEnhancedSubmit(e);
       }
     }
   };
@@ -160,7 +158,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
               <div className="flex items-center space-x-2">
                 {isWalletReady && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    0.01 USDC per query
+                    {config.payment.defaultAmount} USDC per query
                   </span>
                 )}
                 {!isWalletReady && (

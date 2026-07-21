@@ -140,9 +140,3 @@ export async function fundTestnetWallet(walletAddress: string): Promise<boolean>
     return false;
   }
 }
-
-// Helper to check if CDP wallet is available
-export function isCDPWalletAvailable(): boolean {
-  // Since we're using API routes, this is always available on the client
-  return true;
-}

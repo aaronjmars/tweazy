@@ -18,7 +18,7 @@ import React, { useMemo } from "react";
  * Context for sharing thread history state and functions
  */
 interface ThreadHistoryContextValue {
-  threads: { items?: TamboThread[] } | null | undefined;
+  threads: ReturnType<typeof useTamboThreadList>["data"];
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<unknown>;
@@ -138,9 +138,7 @@ const ThreadHistory = React.forwardRef<HTMLDivElement, ThreadHistoryProps>(
     );
 
     return (
-      <ThreadHistoryContext.Provider
-        value={contextValue as ThreadHistoryContextValue}
-      >
+      <ThreadHistoryContext.Provider value={contextValue}>
         <div
           ref={ref}
           className={cn(
@@ -351,7 +349,7 @@ const ThreadHistoryList = React.forwardRef<
     if (!threads?.items) return [];
 
     const query = searchQuery.toLowerCase();
-    return threads.items.filter((thread: TamboThread) =>
+    return threads.items.filter((thread) =>
       thread.id.toLowerCase().includes(query),
     );
   }, [isCollapsed, threads, searchQuery]);
@@ -402,7 +400,7 @@ const ThreadHistoryList = React.forwardRef<
   } else {
     content = (
       <div className="space-y-1">
-        {filteredThreads.map((thread: TamboThread) => (
+        {filteredThreads.map((thread) => (
           <div
             key={thread.id}
             onClick={async () => await handleSwitchThread(thread.id)}

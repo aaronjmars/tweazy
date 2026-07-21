@@ -16,8 +16,7 @@ export function useMergedRef<T>(...refs: React.Ref<T>[]) {
         if (typeof ref === "function") {
           ref(element);
         } else {
-          // This cast is safe because we're just updating the .current property
-          (ref as React.MutableRefObject<T>).current = element;
+          ref.current = element;
         }
       }
     },
@@ -119,9 +118,7 @@ export function getSafeContent(
       .map((item) => (item && item.type === "text" ? (item.text ?? "") : ""))
       .join("");
   }
-  // Handle potential edge cases or unknown types
-  // console.warn("getSafeContent encountered unknown content type:", content);
-  return "Invalid content format"; // Or handle differently
+  return "Invalid content format";
 }
 
 /**

@@ -10,16 +10,12 @@ import { cn } from "@/lib/utils";
  * @property {number} sideOffset - Offset for the tooltip side
  */
 
-// Provider component that should wrap any tooltips
 const TooltipProvider = TooltipPrimitive.Provider;
 
-// Root component for individual tooltips
 const TooltipRoot = TooltipPrimitive.Root;
 
-// Trigger component that wraps the element that triggers the tooltip
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
-// Content component for tooltip
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>

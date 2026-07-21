@@ -5,8 +5,11 @@
  * Secrets are kept in environment variables only
  */
 
-// Network mode from environment (defaults to testnet for safety)
-const NETWORK_MODE = (process.env.NEXT_PUBLIC_NETWORK_MODE || 'testnet') as 'testnet' | 'mainnet';
+// Network mode from environment (defaults to testnet for safety).
+// A cast here would let a typo'd value index NETWORK_CONFIGS as undefined and take
+// the whole app down; anything that isn't exactly 'mainnet' falls back to testnet.
+const NETWORK_MODE: 'testnet' | 'mainnet' =
+  process.env.NEXT_PUBLIC_NETWORK_MODE === 'mainnet' ? 'mainnet' : 'testnet';
 
 // Network-specific configurations
 const NETWORK_CONFIGS = {
@@ -30,7 +33,8 @@ const NETWORK_CONFIGS = {
     rpcUrl: 'https://mainnet.base.org',
     fallbackRpcUrl: 'https://base.llamarpc.com',
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    cdpNetwork: 'base-mainnet',
+    // CDP's network vocabulary calls Base mainnet 'base', not 'base-mainnet'.
+    cdpNetwork: 'base',
     testnetNotice: '',
     isTestnet: false,
   },
@@ -47,19 +51,11 @@ const APP_CONSTANTS = {
   // Gas Configuration (conservative defaults)
   gas: {
     defaultLimit: 21000,
-    paymaster: {
-      callGasLimit: 30000,
-      verificationGasLimit: 30000,
-      preVerificationGas: 21000,
-      maxFeePerGas: 1500000000, // 1.5 gwei
-      maxPriorityFeePerGas: 1500000000, // 1.5 gwei
-    },
   },
 
   // API Configuration
   api: {
     baseUrl: '/api',
-    paymasterUrl: '/api/paymaster',
   },
 
   // Storage Configuration (hardcoded for consistency)
@@ -128,23 +124,6 @@ export const config = {
       name: NETWORK_CONFIGS.mainnet.name,
       displayName: NETWORK_CONFIGS.mainnet.displayName,
     },
-    default: currentNetwork.name,
-  },
-
-  // Legacy RPC configuration (for backward compatibility)
-  rpc: {
-    baseSepoliaUrl: NETWORK_CONFIGS.testnet.rpcUrl,
-    baseSepoliaFallbackUrl: NETWORK_CONFIGS.testnet.fallbackRpcUrl,
-  },
-
-  // Legacy contract configuration (for backward compatibility)
-  contracts: {
-    usdc: currentNetwork.usdcContract,
-  },
-
-  // Legacy CDP configuration (for backward compatibility)
-  cdp: {
-    network: currentNetwork.cdpNetwork,
   },
 } as const;
 
@@ -162,15 +141,6 @@ export const configUtils = {
   },
 
   /**
-   * Get network config by chain ID
-   */
-  getNetworkByChainId: (chainId: number) => {
-    if (chainId === NETWORK_CONFIGS.testnet.chainId) return NETWORK_CONFIGS.testnet;
-    if (chainId === NETWORK_CONFIGS.mainnet.chainId) return NETWORK_CONFIGS.mainnet;
-    return null;
-  },
-
-  /**
    * Get network name by chain ID
    */
   getNetworkNameById: (chainId: number) => {
@@ -182,69 +152,12 @@ export const configUtils = {
    * Convert gas limit to hex string
    */
   gasToHex: (gasLimit: number) => '0x' + gasLimit.toString(16),
-
-  /**
-   * Check if paymaster is supported for chain
-   */
-  isPaymasterSupported: (chainId: number) => {
-    return chainId === config.chains.baseSepolia.id || chainId === config.chains.baseMainnet.id;
-  },
-
-  /**
-   * Get full API endpoint URL
-   */
-  getApiEndpoint: (endpoint: string) => `${config.api.baseUrl}${endpoint}`,
-
-  /**
-   * Check if current network is testnet
-   */
-  isTestnet: () => config.network.isTestnet,
-
-  /**
-   * Check if current network is mainnet
-   */
-  isMainnet: () => !config.network.isTestnet,
-
-  /**
-   * Get contract address for current network
-   */
-  getCurrentUSDCContract: () => config.network.usdcContract,
-
-  /**
-   * Get RPC URL for current network
-   */
-  getCurrentRpcUrl: () => config.network.rpcUrl,
-
-  /**
-   * Get fallback RPC URL for current network
-   */
-  getCurrentFallbackRpcUrl: () => config.network.fallbackRpcUrl,
 };
 
 /**
  * Type-safe environment variable checker
  */
 export const envChecker = {
-  /**
-   * Check if required environment variables are set
-   */
-  checkRequired: () => {
-    const missing: string[] = [];
-
-    if (!process.env.NEXT_PUBLIC_TAMBO_API_KEY) {
-      missing.push('NEXT_PUBLIC_TAMBO_API_KEY');
-    }
-
-    if (!config.payment.recipient) {
-      missing.push('NEXT_PUBLIC_PAYMENT_RECIPIENT');
-    }
-
-    return {
-      isValid: missing.length === 0,
-      missing,
-    };
-  },
-
   /**
    * Check if CDP environment variables are configured
    */
@@ -255,53 +168,4 @@ export const envChecker = {
       process.env.CDP_WALLET_SECRET
     );
   },
-
-  /**
-   * Get current network mode
-   */
-  getNetworkMode: () => NETWORK_MODE,
-
-  /**
-   * Check if running in production mode
-   */
-  isProduction: () => NETWORK_MODE === 'mainnet',
-
-  /**
-   * Check if running in development mode
-   */
-  isDevelopment: () => NETWORK_MODE === 'testnet',
 };
-
-/**
- * Network switching utilities
- */
-export const networkUtils = {
-  /**
-   * Get configuration for a specific network
-   */
-  getNetworkConfig: (mode: 'testnet' | 'mainnet') => NETWORK_CONFIGS[mode],
-
-  /**
-   * Get all available networks
-   */
-  getAllNetworks: () => NETWORK_CONFIGS,
-
-  /**
-   * Check if a chain ID is supported
-   */
-  isSupportedChainId: (chainId: number) => {
-    return chainId === NETWORK_CONFIGS.testnet.chainId ||
-           chainId === NETWORK_CONFIGS.mainnet.chainId;
-  },
-
-  /**
-   * Get network mode by chain ID
-   */
-  getNetworkModeByChainId: (chainId: number): 'testnet' | 'mainnet' | null => {
-    if (chainId === NETWORK_CONFIGS.testnet.chainId) return 'testnet';
-    if (chainId === NETWORK_CONFIGS.mainnet.chainId) return 'mainnet';
-    return null;
-  },
-};
-
-export default config;

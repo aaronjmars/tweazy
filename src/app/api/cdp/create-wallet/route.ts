@@ -18,17 +18,14 @@ export async function POST() {
       return NextResponse.json(walletInfo);
     }
 
-    // Import CDP SDK
     const { CdpClient } = await import('@coinbase/cdp-sdk');
 
-    // Initialize CDP client for Base Sepolia
     const cdp = new CdpClient({
       apiKeyId: process.env.CDP_API_KEY_NAME!,
       apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY!,
       walletSecret: process.env.CDP_WALLET_SECRET!,
     });
 
-    // Create a new EVM account on Base Sepolia
     const account = await cdp.evm.createAccount();
 
     const walletInfo = {
@@ -38,15 +35,15 @@ export async function POST() {
     };
 
     return NextResponse.json(walletInfo);
-  } catch {
-    // Fallback to mock wallet if CDP fails
-    const address = mockEvmAddress();
-    const walletInfo = {
-      id: address,
-      address,
-      network: config.network.cdpNetwork,
-    };
-
-    return NextResponse.json(walletInfo);
+  } catch (error) {
+    // Never fabricate a wallet address here: the client persists it and the user
+    // would fund an account nobody holds the key to.
+    return NextResponse.json(
+      {
+        error: 'Failed to create CDP wallet',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 502 }
+    );
   }
 }

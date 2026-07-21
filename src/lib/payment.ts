@@ -1,7 +1,7 @@
-import { parseUnits, formatUnits, isAddress, getAddress, encodeFunctionData } from 'viem';
+import { parseUnits, formatUnits, isAddress, getAddress } from 'viem';
 import { writeContract, readContract, waitForTransactionReceipt, switchChain } from 'wagmi/actions';
-import { wagmiConfig, getPaymasterUrl, isPaymasterSupported } from './wagmiConfig';
-import { config, configUtils } from './config';
+import { wagmiConfig } from './wagmiConfig';
+import { config } from './config';
 import { cdpWalletService, CDPWalletInfo } from './cdp-wallet';
 import { smartWalletService, SmartWalletInfo } from './smart-wallet';
 
@@ -63,71 +63,6 @@ export interface PaymentContext {
   walletInfo?: CDPWalletInfo;
   smartWalletInfo?: SmartWalletInfo;
   userAddress?: string;
-  usePaymaster?: boolean; // Whether to use paymaster for gas sponsorship
-}
-
-export interface PaymasterUserOperation {
-  sender: string;
-  nonce: string;
-  callData: string;
-  callGasLimit?: string;
-  verificationGasLimit?: string;
-  preVerificationGas?: string;
-  maxFeePerGas?: string;
-  maxPriorityFeePerGas?: string;
-  paymasterAndData?: string;
-}
-
-export interface PaymasterSponsorResponse {
-  gasLimits: {
-    callGasLimit: string;
-    verificationGasLimit: string;
-    preVerificationGas: string;
-    maxFeePerGas: string;
-    maxPriorityFeePerGas: string;
-  };
-  paymasterAndData: string;
-}
-
-/**
- * Request paymaster sponsorship for a user operation
- */
-export async function requestPaymasterSponsorship(
-  partialUserOp: Partial<PaymasterUserOperation>
-): Promise<PaymasterSponsorResponse> {
-  try {
-    const response = await fetch(getPaymasterUrl(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ partialUserOp }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Paymaster sponsorship failed');
-    }
-
-    return await response.json();
-  } catch (error) {
-    throw error;
-  }
-}
-
-/**
- * Build call data for USDC transfer
- */
-export function buildUSDCTransferCallData(recipient: string, amount: string): string {
-  const decimals = config.payment.usdcDecimals;
-  const amountInUnits = parseUnits(amount, decimals);
-  const normalizedRecipient = getAddress(recipient);
-
-  return encodeFunctionData({
-    abi: ERC20_ABI,
-    functionName: 'transfer',
-    args: [normalizedRecipient, amountInUnits],
-  });
 }
 
 /**
@@ -149,7 +84,7 @@ export async function checkUSDCBalance(address: string): Promise<string> {
     }
 
     const balance = await readContract(wagmiConfig, {
-      address: config.network.usdcContract as `0x${string}`,
+      address: config.network.usdcContract,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [normalizedAddress],
@@ -158,9 +93,9 @@ export async function checkUSDCBalance(address: string): Promise<string> {
 
     // USDC decimals configurable
     const decimals = config.payment.usdcDecimals;
-    return formatUnits(balance as bigint, decimals);
-  } catch {
-    throw new Error('Failed to check USDC balance');
+    return formatUnits(balance, decimals);
+  } catch (error) {
+    throw new Error('Failed to check USDC balance', { cause: error });
   }
 }
 
@@ -192,7 +127,7 @@ export async function transferUSDC(
 
     // Execute the transfer
     const hash = await writeContract(wagmiConfig, {
-      address: config.network.usdcContract as `0x${string}`,
+      address: config.network.usdcContract,
       abi: ERC20_ABI,
       functionName: 'transfer',
       args: [normalizedRecipient, amountInUnits],
@@ -225,24 +160,6 @@ export async function transferUSDC(
 }
 
 /**
- * Validate if an address has sufficient USDC balance
- */
-export async function validateSufficientBalance(
-  address: string,
-  requiredAmount: string
-): Promise<boolean> {
-  try {
-    const balance = await checkUSDCBalance(address);
-    const balanceNum = parseFloat(balance);
-    const requiredNum = parseFloat(requiredAmount);
-    
-    return balanceNum >= requiredNum;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Transfer USDC using CDP wallet
  */
 export async function transferUSDCWithCDP(
@@ -262,72 +179,7 @@ export async function transferUSDCWithCDP(
 }
 
 /**
- * Transfer USDC with paymaster sponsorship (for Smart Wallets)
- * This function attempts to get gas sponsorship from paymaster while still requiring USDC payment
- */
-export async function transferUSDCWithPaymaster(
-  userAddress: string,
-  recipient: string,
-  amount: string
-): Promise<PaymentResult> {
-  try {
-
-    // Validate inputs
-    if (!isAddress(recipient)) {
-      throw new Error('Invalid recipient address format');
-    }
-    if (!isAddress(userAddress)) {
-      throw new Error('Invalid user address format');
-    }
-
-    // Check if paymaster is supported for this chain
-    if (!isPaymasterSupported(config.network.chainId)) {
-      return await transferUSDC(recipient, amount);
-    }
-
-    // Build the call data for USDC transfer
-    const callData = buildUSDCTransferCallData(recipient, amount);
-
-    // Create partial user operation for paymaster
-    const partialUserOp: Partial<PaymasterUserOperation> = {
-      sender: userAddress,
-      nonce: '0x0', // In production, this should be fetched from the smart account
-      callData,
-      callGasLimit: configUtils.gasToHex(config.gas.paymaster.callGasLimit),
-      verificationGasLimit: configUtils.gasToHex(config.gas.paymaster.verificationGasLimit),
-      preVerificationGas: configUtils.gasToHex(config.gas.paymaster.preVerificationGas),
-      maxFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxFeePerGas),
-      maxPriorityFeePerGas: configUtils.gasToHex(config.gas.paymaster.maxPriorityFeePerGas),
-    };
-
-    try {
-      // Request paymaster sponsorship
-      await requestPaymasterSponsorship(partialUserOp);
-
-      // In a full implementation, we would now send the sponsored UserOperation to a bundler
-      // For now, we'll proceed with the regular transaction but sponsorship was obtained
-
-    } catch {
-      // Paymaster sponsorship failed, falling back to regular transaction with user-paid gas
-    }
-
-    // Execute the USDC transfer (user still pays USDC, but gas could be sponsored)
-    const result = await transferUSDC(recipient, amount);
-
-    if (result.success) {
-      // USDC transfer completed successfully
-    }
-
-    return result;
-
-  } catch {
-    // Fall back to regular transaction if anything fails
-    return await transferUSDC(recipient, amount);
-  }
-}
-
-/**
- * Universal payment function that handles both MetaMask and CDP wallets with paymaster support
+ * Universal payment function that handles both MetaMask and CDP wallets
  */
 export async function makePayment(
   paymentDetails: PaymentDetails,
@@ -335,27 +187,16 @@ export async function makePayment(
 ): Promise<PaymentResult> {
   switch (paymentContext.walletType) {
     case 'metamask':
-      // MetaMask doesn't support paymaster, use regular transaction
       return await transferUSDC(paymentDetails.recipient, paymentDetails.amount);
 
     case 'cdp':
       // Handle both regular CDP wallets and smart wallets
       if (paymentContext.smartWalletInfo) {
-        // For smart wallets, try paymaster first if enabled
-        if (paymentContext.usePaymaster && paymentContext.userAddress) {
-          return await transferUSDCWithPaymaster(
-            paymentContext.userAddress,
-            paymentDetails.recipient,
-            paymentDetails.amount
-          );
-        } else {
-          // Use smart wallet service without paymaster
-          return await smartWalletService.transferUSDC(
-            paymentContext.smartWalletInfo,
-            paymentDetails.recipient,
-            paymentDetails.amount
-          );
-        }
+        return await smartWalletService.transferUSDC(
+          paymentContext.smartWalletInfo,
+          paymentDetails.recipient,
+          paymentDetails.amount
+        );
       } else if (paymentContext.walletInfo?.id) {
         // Use regular CDP wallet
         return await transferUSDCWithCDP(
@@ -401,24 +242,6 @@ export async function checkBalance(paymentContext: PaymentContext): Promise<stri
     
     default:
       throw new Error('Unsupported wallet type');
-  }
-}
-
-/**
- * Validate sufficient balance for both wallet types
- */
-export async function validateSufficientBalanceUniversal(
-  paymentContext: PaymentContext,
-  requiredAmount: string
-): Promise<boolean> {
-  try {
-    const balance = await checkBalance(paymentContext);
-    const balanceNum = parseFloat(balance);
-    const requiredNum = parseFloat(requiredAmount);
-    
-    return balanceNum >= requiredNum;
-  } catch {
-    return false;
   }
 }
 

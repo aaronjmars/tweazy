@@ -30,11 +30,17 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Faucets only exist on testnets; there is nothing to call on Base mainnet.
+    if (config.network.cdpNetwork !== 'base-sepolia') {
+      return NextResponse.json(
+        { error: `No faucet is available on ${config.network.displayName}` },
+        { status: 501 }
+      );
+    }
+
     try {
-      // Import CDP SDK
       const { CdpClient } = await import('@coinbase/cdp-sdk');
 
-      // Initialize CDP client
       const cdp = new CdpClient({
         apiKeyId: process.env.CDP_API_KEY_NAME!,
         apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY!,
@@ -44,7 +50,7 @@ export async function POST(request: NextRequest) {
       // Request ETH from configured network faucet
       const faucetResponse = await cdp.evm.requestFaucet({
         address: walletAddress,
-        network: config.network.cdpNetwork as 'base-sepolia',
+        network: config.network.cdpNetwork,
         token: 'eth',
       });
 
@@ -55,14 +61,16 @@ export async function POST(request: NextRequest) {
         network: config.network.cdpNetwork,
       });
 
-    } catch {
-      // Fallback to mock funding
-      return NextResponse.json({
-        success: true,
-        message: 'Wallet funded successfully (fallback)',
-        transactionHash: mockTxHash(),
-        note: 'Fallback funding due to CDP error'
-      });
+    } catch (error) {
+      // A fabricated tx hash here reads as a successful faucet call that never happened.
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Faucet request failed',
+          details: error instanceof Error ? error.message : 'Unknown error',
+        },
+        { status: 502 }
+      );
     }
   } catch {
     return NextResponse.json(

@@ -5,21 +5,9 @@ import { useTamboComponentState } from "@tambo-ai/react";
 import * as React from "react";
 import { z } from "zod";
 
-// Define option type for individual options in the multi-select
-export type DataCardItem = {
-  id: string;
-  label: string;
-  value: string;
-  description?: string;
-  url?: string;
-};
-
-// Define the component state type
 export type DataCardState = {
   selectedValues: string[];
 };
-
-// Define the component props schema with Zod
 export const dataCardSchema = z.object({
   title: z.string().describe("Title displayed above the data cards"),
   options: z
@@ -40,8 +28,6 @@ export const dataCardSchema = z.object({
     )
     .describe("Array of selectable cards to display"),
 });
-
-// Define the props type based on the Zod schema
 export type DataCardProps = z.infer<typeof dataCardSchema> &
   React.HTMLAttributes<HTMLDivElement>;
 
@@ -53,32 +39,22 @@ export type DataCardProps = z.infer<typeof dataCardSchema> &
  */
 export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
   ({ title, options, className, ...props }, ref) => {
-    // Initialize Tambo component state
     const [state, setState] = useTamboComponentState<DataCardState>(
       `data-card`,
       { selectedValues: [] }
     );
-
-    // Handle option selection
     const handleToggleCard = (value: string) => {
       if (!state) return;
 
       const selectedValues = [...state.selectedValues];
       const index = selectedValues.indexOf(value);
-
-      // Toggle selection
       if (index > -1) {
-        // Remove if already selected
         selectedValues.splice(index, 1);
       } else {
         selectedValues.push(value);
       }
-
-      // Update component state
       setState({ selectedValues });
     };
-
-    // Handle navigation to URL
     const handleNavigate = (url?: string) => {
       if (url) {
         window.open(url, "_blank");
@@ -173,5 +149,3 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
 );
 
 DataCard.displayName = "DataCard";
-
-export default DataCard;

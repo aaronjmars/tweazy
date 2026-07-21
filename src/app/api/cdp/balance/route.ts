@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAddress } from 'viem';
+import { formatUnits, isAddress } from 'viem';
 import { config, envChecker } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
@@ -26,10 +26,8 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Import CDP SDK
       const { CdpClient } = await import('@coinbase/cdp-sdk');
 
-      // Initialize CDP client
       const cdp = new CdpClient({
         apiKeyId: process.env.CDP_API_KEY_NAME!,
         apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY!,
@@ -37,24 +35,32 @@ export async function POST(request: NextRequest) {
       });
 
       // Get token balances for the wallet on configured network
-      const balances = await cdp.evm.listTokenBalances({
+      const { balances } = await cdp.evm.listTokenBalances({
         address: walletId,
-        network: config.network.cdpNetwork as 'base-sepolia',
+        network: config.network.cdpNetwork,
       });
 
       // Find USDC balance (configurable USDC contract address)
-      const usdcAddress = config.contracts.usdc;
-      const tokenBalances = Array.isArray(balances) ? balances : (balances as { data?: unknown[] }).data || [];
-      const usdcBalance = tokenBalances.find(
-        (token: { contractAddress?: string; amount?: string }) => token.contractAddress?.toLowerCase() === usdcAddress.toLowerCase()
+      const usdcAddress = config.network.usdcContract;
+      const usdcBalance = balances.find(
+        (b) => b.token.contractAddress.toLowerCase() === usdcAddress.toLowerCase()
       );
 
-      const balance = usdcBalance ? usdcBalance.amount : '0';
+      const balance = usdcBalance
+        ? formatUnits(usdcBalance.amount.amount, usdcBalance.amount.decimals)
+        : '0';
 
       return NextResponse.json({ balance });
-    } catch {
-      // Fallback to mock balance
-      return NextResponse.json({ balance: config.testing.mockWalletBalance });
+    } catch (error) {
+      // Reporting a fabricated balance here would let the UI claim funds the user
+      // does not have, and the payment would then fail on-chain.
+      return NextResponse.json(
+        {
+          error: 'Failed to read balance from CDP',
+          details: error instanceof Error ? error.message : 'Unknown error',
+        },
+        { status: 502 }
+      );
     }
   } catch {
     return NextResponse.json(

@@ -4,7 +4,6 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, R
 import { useAccount, useChainId, useConnect } from 'wagmi';
 import { switchChain } from 'wagmi/actions';
 import { wagmiConfig } from '@/lib/wagmiConfig';
-// Removed unused chain imports - chains are now configured dynamically in wagmiConfig
 import { WalletSelector } from './WalletSelector';
 import { CDPWalletInfo, CDPWalletStorage, fundTestnetWallet } from '@/lib/cdp-wallet';
 import { SmartWalletInfo, SmartWalletStorage, smartWalletService } from '@/lib/smart-wallet';
@@ -176,13 +175,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         }
         
         // Trigger the wallet connection
-        try {
-          await connect({ connector: injectedConnector });
-        } catch (connectError) {
-          // If connect throws or fails, handle it
-          console.error('Connection error:', connectError);
-          throw connectError;
-        }
+        await connect({ connector: injectedConnector });
 
         // The wallet connection will be handled by the useAccount hook
         // We'll set the wallet type and hide selector after successful connection

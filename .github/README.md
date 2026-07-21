@@ -239,7 +239,6 @@ src/
 │   ├── payment.ts        # Universal payment handling
 │   ├── smart-wallet.ts   # Smart wallet integration
 │   ├── cdp-wallet.ts     # Coinbase CDP integration
-│   ├── x402.ts           # HTTP 402 handling
 │   └── tambo.ts          # AI component registry
 └── styles/               # Global styles and Tailwind
 ```

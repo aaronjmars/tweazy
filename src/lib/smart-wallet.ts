@@ -3,7 +3,7 @@
  * @description Coinbase Smart Wallet service with passkey authentication
  */
 
-import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk';
+import { createCoinbaseWalletSDK, type ProviderInterface } from '@coinbase/wallet-sdk';
 import { formatUnits, getAddress, isAddress, parseUnits } from 'viem';
 import { config, configUtils } from './config';
 
@@ -27,18 +27,14 @@ const SMART_WALLET_CONFIG = {
   }
 };
 
-interface EthereumProvider {
-  request: (args: { method: string; params?: unknown }) => Promise<unknown>;
-}
-
 class SmartWalletService {
   private sdk: ReturnType<typeof createCoinbaseWalletSDK> | null = null;
-  private provider: EthereumProvider | null = null;
+  private provider: ProviderInterface | null = null;
 
   private initializeSDK() {
     if (!this.sdk) {
       this.sdk = createCoinbaseWalletSDK(SMART_WALLET_CONFIG);
-      this.provider = this.sdk.getProvider() as EthereumProvider;
+      this.provider = this.sdk.getProvider();
     }
     return { sdk: this.sdk, provider: this.provider };
   }
@@ -95,7 +91,7 @@ class SmartWalletService {
   async getBalance(walletInfo: SmartWalletInfo): Promise<string> {
     try {
       // Check if the wallet address is the same as USDC contract (this shouldn't happen)
-      const usdcContract = config.contracts.usdc;
+      const usdcContract = config.network.usdcContract;
       if (walletInfo.address.toLowerCase() === usdcContract.toLowerCase()) {
         // ERROR: Smart wallet address is the same as USDC contract address!
         // This indicates a problem with wallet creation/connection
@@ -126,11 +122,9 @@ class SmartWalletService {
 
         if (data.result && data.result !== '0x' && data.result !== '0x0') {
           return formatUnits(BigInt(data.result), decimals);
-        } else {
-          // Direct RPC returned zero balance or empty result
         }
       } catch {
-        // Direct RPC call failed
+        // Fall through to the wallet provider path below.
       }
 
       // Fallback to wallet provider method
@@ -183,7 +177,7 @@ class SmartWalletService {
         throw new Error('Failed to initialize smart wallet provider');
       }
 
-      const usdcContract = config.contracts.usdc;
+      const usdcContract = config.network.usdcContract;
       const decimals = config.payment.usdcDecimals;
       const amountWei = parseUnits(amount, decimals);
 
@@ -222,8 +216,10 @@ class SmartWalletService {
           params: [{ eth_accounts: {} }]
         });
       }
+    } finally {
+      // Not all providers implement wallet_revokePermissions; the local session
+      // must be cleared either way.
       SmartWalletStorage.clearWalletSession();
-    } catch {
     }
   }
 
@@ -277,8 +273,3 @@ class SmartWalletStorage {
 // Create singleton instance
 export const smartWalletService = new SmartWalletService();
 export { SmartWalletStorage };
-
-// Helper to check if smart wallet is available
-export function isSmartWalletAvailable(): boolean {
-  return typeof window !== 'undefined' && 'navigator' in window && 'credentials' in navigator;
-}

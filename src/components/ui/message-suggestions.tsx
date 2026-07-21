@@ -180,7 +180,7 @@ const MessageSuggestions = React.forwardRef<
           if (!isNaN(keyNum) && keyNum > 0 && keyNum <= suggestions.length) {
             event.preventDefault();
             const suggestionIndex = keyNum - 1;
-            accept({ suggestion: suggestions[suggestionIndex] as Suggestion });
+            accept({ suggestion: suggestions[suggestionIndex] });
           }
         }
       };
