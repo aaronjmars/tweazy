@@ -94,8 +94,8 @@ export async function checkUSDCBalance(address: string): Promise<string> {
     // USDC decimals configurable
     const decimals = config.payment.usdcDecimals;
     return formatUnits(balance, decimals);
-  } catch {
-    throw new Error('Failed to check USDC balance');
+  } catch (error) {
+    throw new Error('Failed to check USDC balance', { cause: error });
   }
 }
 
@@ -242,24 +242,6 @@ export async function checkBalance(paymentContext: PaymentContext): Promise<stri
     
     default:
       throw new Error('Unsupported wallet type');
-  }
-}
-
-/**
- * Validate sufficient balance for both wallet types
- */
-export async function validateSufficientBalanceUniversal(
-  paymentContext: PaymentContext,
-  requiredAmount: string
-): Promise<boolean> {
-  try {
-    const balance = await checkBalance(paymentContext);
-    const balanceNum = parseFloat(balance);
-    const requiredNum = parseFloat(requiredAmount);
-    
-    return balanceNum >= requiredNum;
-  } catch {
-    return false;
   }
 }
 

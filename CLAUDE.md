@@ -42,7 +42,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `POST /api/cdp/create-wallet` - Create CDP Smart Wallet
 - `POST /api/cdp/balance` - Check USDC balance
-- `POST /api/cdp/transfer` - Execute USDC payments with gas sponsorship
+- `POST /api/cdp/transfer` - Not implemented; returns 501 (503 when CDP is unconfigured).
+  Mock transfers are available only behind `TWEAZY_ALLOW_MOCK_PAYMENT=1`.
 - `POST /api/cdp/fund-wallet` - Fund wallet with testnet tokens
 - `POST /api/paymaster` - Handle paymaster gas sponsorship
 

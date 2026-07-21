@@ -5,8 +5,11 @@
  * Secrets are kept in environment variables only
  */
 
-// Network mode from environment (defaults to testnet for safety)
-const NETWORK_MODE = (process.env.NEXT_PUBLIC_NETWORK_MODE || 'testnet') as 'testnet' | 'mainnet';
+// Network mode from environment (defaults to testnet for safety).
+// A cast here would let a typo'd value index NETWORK_CONFIGS as undefined and take
+// the whole app down; anything that isn't exactly 'mainnet' falls back to testnet.
+const NETWORK_MODE: 'testnet' | 'mainnet' =
+  process.env.NEXT_PUBLIC_NETWORK_MODE === 'mainnet' ? 'mainnet' : 'testnet';
 
 // Network-specific configurations
 const NETWORK_CONFIGS = {

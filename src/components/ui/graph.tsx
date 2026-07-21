@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useTambo, useTamboMessageContext } from "@tambo-ai/react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import * as React from "react";
 import * as RechartsCore from "recharts";
 import { z } from "zod";
@@ -52,8 +52,7 @@ export type GraphDataType = z.infer<typeof graphDataSchema>;
 
 // Extend the GraphProps with additional tambo properties
 export interface GraphProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "data" | "title" | "size">,
-    Omit<VariantProps<typeof graphVariants>, "size" | "variant"> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "data" | "title" | "size"> {
   /** Data object containing chart configuration and values */
   data?: GraphDataType;
   /** Optional title for the chart */
