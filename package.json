@@ -10,9 +10,12 @@
     "lint": "eslint .",
     "init": "npx tambo init"
   },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
-    "@coinbase/cdp-sdk": "latest",
-    "@coinbase/wallet-sdk": "latest",
+    "@coinbase/cdp-sdk": "^1.52.0",
+    "@coinbase/wallet-sdk": "^4.3.7",
     "@radix-ui/react-slot": "^1.3.0",
     "@tailwindcss/oxide": "^4.3.3",
     "@tambo-ai/react": "^0.26.3",
