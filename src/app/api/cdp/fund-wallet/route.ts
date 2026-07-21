@@ -30,6 +30,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Faucets only exist on testnets; there is nothing to call on Base mainnet.
+    if (config.network.cdpNetwork !== 'base-sepolia') {
+      return NextResponse.json(
+        { error: `No faucet is available on ${config.network.displayName}` },
+        { status: 501 }
+      );
+    }
+
     try {
       // Import CDP SDK
       const { CdpClient } = await import('@coinbase/cdp-sdk');
@@ -44,7 +52,7 @@ export async function POST(request: NextRequest) {
       // Request ETH from configured network faucet
       const faucetResponse = await cdp.evm.requestFaucet({
         address: walletAddress,
-        network: config.network.cdpNetwork as 'base-sepolia',
+        network: config.network.cdpNetwork,
         token: 'eth',
       });
 

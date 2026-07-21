@@ -3,7 +3,7 @@
  * @description Coinbase Smart Wallet service with passkey authentication
  */
 
-import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk';
+import { createCoinbaseWalletSDK, type ProviderInterface } from '@coinbase/wallet-sdk';
 import { formatUnits, getAddress, isAddress, parseUnits } from 'viem';
 import { config, configUtils } from './config';
 
@@ -27,18 +27,14 @@ const SMART_WALLET_CONFIG = {
   }
 };
 
-interface EthereumProvider {
-  request: (args: { method: string; params?: unknown }) => Promise<unknown>;
-}
-
 class SmartWalletService {
   private sdk: ReturnType<typeof createCoinbaseWalletSDK> | null = null;
-  private provider: EthereumProvider | null = null;
+  private provider: ProviderInterface | null = null;
 
   private initializeSDK() {
     if (!this.sdk) {
       this.sdk = createCoinbaseWalletSDK(SMART_WALLET_CONFIG);
-      this.provider = this.sdk.getProvider() as EthereumProvider;
+      this.provider = this.sdk.getProvider();
     }
     return { sdk: this.sdk, provider: this.provider };
   }

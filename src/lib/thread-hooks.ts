@@ -16,8 +16,7 @@ export function useMergedRef<T>(...refs: React.Ref<T>[]) {
         if (typeof ref === "function") {
           ref(element);
         } else {
-          // This cast is safe because we're just updating the .current property
-          (ref as React.MutableRefObject<T>).current = element;
+          ref.current = element;
         }
       }
     },

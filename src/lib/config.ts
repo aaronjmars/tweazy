@@ -30,7 +30,8 @@ const NETWORK_CONFIGS = {
     rpcUrl: 'https://mainnet.base.org',
     fallbackRpcUrl: 'https://base.llamarpc.com',
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    cdpNetwork: 'base-mainnet',
+    // CDP's network vocabulary calls Base mainnet 'base', not 'base-mainnet'.
+    cdpNetwork: 'base',
     testnetNotice: '',
     isTestnet: false,
   },

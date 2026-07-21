@@ -84,7 +84,7 @@ export async function checkUSDCBalance(address: string): Promise<string> {
     }
 
     const balance = await readContract(wagmiConfig, {
-      address: config.network.usdcContract as `0x${string}`,
+      address: config.network.usdcContract,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [normalizedAddress],
@@ -93,7 +93,7 @@ export async function checkUSDCBalance(address: string): Promise<string> {
 
     // USDC decimals configurable
     const decimals = config.payment.usdcDecimals;
-    return formatUnits(balance as bigint, decimals);
+    return formatUnits(balance, decimals);
   } catch {
     throw new Error('Failed to check USDC balance');
   }
@@ -127,7 +127,7 @@ export async function transferUSDC(
 
     // Execute the transfer
     const hash = await writeContract(wagmiConfig, {
-      address: config.network.usdcContract as `0x${string}`,
+      address: config.network.usdcContract,
       abi: ERC20_ABI,
       functionName: 'transfer',
       args: [normalizedRecipient, amountInUnits],

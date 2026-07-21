@@ -70,7 +70,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     setSubmitError(error);
   }, []);
 
-  const handleEnhancedSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleEnhancedSubmit = useCallback(async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     if (!value.trim()) {
@@ -135,7 +135,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (displayValue.trim()) {
-        handleEnhancedSubmit(e as unknown as React.FormEvent);
+        handleEnhancedSubmit(e);
       }
     }
   };
