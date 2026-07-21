@@ -18,17 +18,14 @@ export async function POST() {
       return NextResponse.json(walletInfo);
     }
 
-    // Import CDP SDK
     const { CdpClient } = await import('@coinbase/cdp-sdk');
 
-    // Initialize CDP client for Base Sepolia
     const cdp = new CdpClient({
       apiKeyId: process.env.CDP_API_KEY_NAME!,
       apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY!,
       walletSecret: process.env.CDP_WALLET_SECRET!,
     });
 
-    // Create a new EVM account on Base Sepolia
     const account = await cdp.evm.createAccount();
 
     const walletInfo = {

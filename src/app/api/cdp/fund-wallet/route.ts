@@ -39,10 +39,8 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Import CDP SDK
       const { CdpClient } = await import('@coinbase/cdp-sdk');
 
-      // Initialize CDP client
       const cdp = new CdpClient({
         apiKeyId: process.env.CDP_API_KEY_NAME!,
         apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY!,

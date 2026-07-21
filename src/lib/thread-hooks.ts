@@ -118,9 +118,7 @@ export function getSafeContent(
       .map((item) => (item && item.type === "text" ? (item.text ?? "") : ""))
       .join("");
   }
-  // Handle potential edge cases or unknown types
-  // console.warn("getSafeContent encountered unknown content type:", content);
-  return "Invalid content format"; // Or handle differently
+  return "Invalid content format";
 }
 
 /**

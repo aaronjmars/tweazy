@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { useAccount } from 'wagmi';
 import { PaymentDetails, PaymentResult, PaymentContext, checkBalance, validateSufficientBalanceUniversal, makePayment } from '@/lib/payment';
 
 export interface PaymentState {
@@ -22,8 +21,6 @@ export interface UsePaymentReturn {
  * Hook for handling USDC payments on Sepolia
  */
 export function usePayment(): UsePaymentReturn {
-  const { } = useAccount();
-  
   const [state, setState] = useState<PaymentState>({
     isProcessing: false,
     error: null,

@@ -34,8 +34,6 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     }
   }, [value]);
 
-  // Component mounted
-
   const handlePaymentRequired = useCallback(async (details: PaymentDetails): Promise<boolean> => {
     setPaymentDetails(details);
     setShowPaymentModal(true);
