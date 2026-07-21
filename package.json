@@ -11,7 +11,7 @@
     "init": "npx tambo init"
   },
   "dependencies": {
-    "@coinbase/cdp-sdk": "latest",
+    "@coinbase/cdp-sdk": "~1.52.0",
     "@coinbase/wallet-sdk": "latest",
     "@radix-ui/react-slot": "^1.3.0",
     "@tailwindcss/oxide": "^4.3.3",
