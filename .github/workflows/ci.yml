@@ -19,10 +19,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # Read the version from .nvmrc so CI and local dev stay on the same npm
+      # major. npm 10 (Node 20/22) records optional peer deps in the lockfile
+      # and npm 11 (Node 24+) omits them, so a mismatch makes `npm ci` fail
+      # with "Missing: <pkg> from lock file" after any local `npm install`.
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
