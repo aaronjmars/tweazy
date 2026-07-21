@@ -52,9 +52,16 @@ export async function POST(request: NextRequest) {
       const balance = usdcBalance ? usdcBalance.amount : '0';
 
       return NextResponse.json({ balance });
-    } catch {
-      // Fallback to mock balance
-      return NextResponse.json({ balance: config.testing.mockWalletBalance });
+    } catch (error) {
+      // Reporting a fabricated balance here would let the UI claim funds the user
+      // does not have, and the payment would then fail on-chain.
+      return NextResponse.json(
+        {
+          error: 'Failed to read balance from CDP',
+          details: error instanceof Error ? error.message : 'Unknown error',
+        },
+        { status: 502 }
+      );
     }
   } catch {
     return NextResponse.json(

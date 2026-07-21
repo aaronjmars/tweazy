@@ -55,14 +55,16 @@ export async function POST(request: NextRequest) {
         network: config.network.cdpNetwork,
       });
 
-    } catch {
-      // Fallback to mock funding
-      return NextResponse.json({
-        success: true,
-        message: 'Wallet funded successfully (fallback)',
-        transactionHash: mockTxHash(),
-        note: 'Fallback funding due to CDP error'
-      });
+    } catch (error) {
+      // A fabricated tx hash here reads as a successful faucet call that never happened.
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Faucet request failed',
+          details: error instanceof Error ? error.message : 'Unknown error',
+        },
+        { status: 502 }
+      );
     }
   } catch {
     return NextResponse.json(

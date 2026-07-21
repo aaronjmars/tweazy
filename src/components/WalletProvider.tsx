@@ -176,13 +176,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         }
         
         // Trigger the wallet connection
-        try {
-          await connect({ connector: injectedConnector });
-        } catch (connectError) {
-          // If connect throws or fails, handle it
-          console.error('Connection error:', connectError);
-          throw connectError;
-        }
+        await connect({ connector: injectedConnector });
 
         // The wallet connection will be handled by the useAccount hook
         // We'll set the wallet type and hide selector after successful connection

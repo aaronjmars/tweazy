@@ -126,11 +126,9 @@ class SmartWalletService {
 
         if (data.result && data.result !== '0x' && data.result !== '0x0') {
           return formatUnits(BigInt(data.result), decimals);
-        } else {
-          // Direct RPC returned zero balance or empty result
         }
       } catch {
-        // Direct RPC call failed
+        // Fall through to the wallet provider path below.
       }
 
       // Fallback to wallet provider method
@@ -222,8 +220,10 @@ class SmartWalletService {
           params: [{ eth_accounts: {} }]
         });
       }
+    } finally {
+      // Not all providers implement wallet_revokePermissions; the local session
+      // must be cleared either way.
       SmartWalletStorage.clearWalletSession();
-    } catch {
     }
   }
 

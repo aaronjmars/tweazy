@@ -38,15 +38,15 @@ export async function POST() {
     };
 
     return NextResponse.json(walletInfo);
-  } catch {
-    // Fallback to mock wallet if CDP fails
-    const address = mockEvmAddress();
-    const walletInfo = {
-      id: address,
-      address,
-      network: config.network.cdpNetwork,
-    };
-
-    return NextResponse.json(walletInfo);
+  } catch (error) {
+    // Never fabricate a wallet address here: the client persists it and the user
+    // would fund an account nobody holds the key to.
+    return NextResponse.json(
+      {
+        error: 'Failed to create CDP wallet',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 502 }
+    );
   }
 }
