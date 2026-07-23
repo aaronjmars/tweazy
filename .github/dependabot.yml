@@ -10,6 +10,13 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # Pinned to ~1.52.0 (#56): 1.53+ pulls in unresolvable @x402/* imports
+      # that break the Next.js/Turbopack build. Allow patch bumps only.
+      - dependency-name: "@coinbase/cdp-sdk"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
