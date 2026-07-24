@@ -54,6 +54,8 @@
     "postcss": "^8.5.16",
     "uuid": "^11.1.1",
     "axios": "^1.18.1",
-    "brace-expansion@1.x": "^1.1.16"
+    "brace-expansion@1.x": "^1.1.16",
+    "sharp": "^0.35.0",
+    "@hono/node-server": "^2.0.5"
   }
 }
