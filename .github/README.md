@@ -1,7 +1,28 @@
-# Tweazy - The best way to read tweets onchain / Powered by x402, MCP & CDP Smart Wallets
+<p align="center">
+  <img src="../docs/assets/hero-animated.svg" alt="Tweazy — the best way to read tweets onchain. Pay-per-query AI powered by x402, MCP and CDP Smart Wallets: 0.01 USDC per query on Base." width="100%" />
+</p>
 
-The best way to monetize AI applications & MCP, using x402, MCP & CDP Smart Wallets.
-Users pay **0.01 USDC** per MCP query, showcasing how to monetize AI services with seamless Web3 payments.
+<p align="center">
+  <strong>Star us&nbsp;❤️&nbsp;→</strong>&nbsp;&nbsp;
+  <a href="https://github.com/aaronjmars/tweazy/stargazers"><img src="../docs/assets/btn-star.svg" alt="Star Tweazy on GitHub" height="34" align="absmiddle"></a>&nbsp;&nbsp;
+  <a href="https://www.youtube.com/watch?v=DNMeMPvgTQk"><img src="../docs/assets/btn-demo.svg" alt="Watch the Tweazy demo" height="34" align="absmiddle"></a>&nbsp;&nbsp;
+  <a href="https://x.com/aaronjmars"><img src="../docs/assets/btn-x.svg" alt="@aaronjmars on X" height="34" align="absmiddle"></a>
+</p>
+
+<p align="center">
+  <strong>The best way to read tweets onchain.</strong><br>
+  A pay-per-use AI app - users pay 0.01 USDC per MCP query via x402, with CDP Smart Wallets, passkeys, and gas sponsorship on Base.
+</p>
+
+<div align="center">
+
+[![stars](https://img.shields.io/github/stars/aaronjmars/tweazy?style=flat-square&label=stars&color=F4EFE1&labelColor=0d0c0a&logo=github&logoColor=F4EFE1)](https://github.com/aaronjmars/tweazy/stargazers)
+[![forks](https://img.shields.io/github/forks/aaronjmars/tweazy?style=flat-square&label=forks&color=F4EFE1&labelColor=0d0c0a&logo=github&logoColor=F4EFE1)](https://github.com/aaronjmars/tweazy/network/members)
+[![x402](https://img.shields.io/badge/paywall-x402-F4EFE1?style=flat-square&labelColor=0d0c0a)](https://github.com/coinbase/x402)
+[![Base](https://img.shields.io/badge/network-Base-F4EFE1?style=flat-square&labelColor=0d0c0a)](https://base.org)
+[![license](https://img.shields.io/badge/license-MIT-F4EFE1?style=flat-square&labelColor=0d0c0a)](../LICENSE)
+
+</div>
 
 ## 📺 See it in Action
 

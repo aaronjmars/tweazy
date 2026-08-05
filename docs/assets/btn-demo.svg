@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="112" height="40" viewBox="0 0 112 40" role="img" aria-label="Watch demo">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1a15"/>
+      <stop offset="1" stop-color="#0d0c0a"/>
+    </linearGradient>
+    <style>
+      @keyframes ring{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+      .rg{transform-box:fill-box;transform-origin:center;animation:ring 2.2s ease-out infinite}
+      @keyframes pp{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+      .pp{transform-box:fill-box;transform-origin:center;animation:pp 2.2s ease-in-out infinite}
+    </style>
+  </defs>
+  <rect x="0.5" y="0.5" width="111" height="39" rx="19.5" fill="url(#g)" stroke="#F4EFE1" stroke-opacity="0.5"/>
+  <rect x="2" y="1.5" width="108" height="15" rx="12" fill="#F4EFE1" opacity="0.05"/>
+  <circle class="rg" cx="25" cy="20" r="8" fill="none" stroke="#F4EFE1" stroke-width="1.4"/>
+  <g class="pp">
+    <circle cx="25" cy="20" r="8.5" fill="none" stroke="#F4EFE1" stroke-width="1.5"/>
+    <path d="M22.6 16.4l6 3.6-6 3.6z" fill="#F4EFE1"/>
+  </g>
+  <text x="42" y="25.5" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#F4EFE1">Demo</text>
+</svg>
