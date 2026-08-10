@@ -21,7 +21,7 @@
     "@tambo-ai/react": "^0.26.3",
     "@tanstack/react-query": "^5.101.4",
     "class-variance-authority": "^0.7.1",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.13",
     "highlight.js": "^11.11.1",
     "json-stringify-pretty-compact": "^4.0.0",
     "lucide-react": "^1.28.0",
