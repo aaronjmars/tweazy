@@ -539,3 +539,7 @@ NEXT_PUBLIC_DEBUG=true
 This project demonstrates the future of **monetized AI applications** with seamless Web3 payments. Fork it, customize it, and build the next generation of payment-gated AI services!
 
 **Happy coding!** 🎉
+
+---
+
+Built by [Aaron Elijah Mars](https://aaronjmars.com), founder of Aeon and MiroShark · [@aaronjmars](https://github.com/aaronjmars)
