@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "init": "npx tambo init",
     "format": "biome format --write .",
-    "format:check": "biome format ."
+    "format:check": "biome ci ."
   },
   "engines": {
     "node": ">=24"
