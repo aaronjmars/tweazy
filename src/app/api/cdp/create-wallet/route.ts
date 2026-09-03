@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { config, envChecker } from '@/lib/config';
-import { mockEvmAddress } from '@/lib/utils';
+import { NextResponse } from "next/server";
+import { config, envChecker } from "@/lib/config";
+import { mockEvmAddress } from "@/lib/utils";
 
 export async function POST() {
   try {
@@ -18,7 +18,7 @@ export async function POST() {
       return NextResponse.json(walletInfo);
     }
 
-    const { CdpClient } = await import('@coinbase/cdp-sdk');
+    const { CdpClient } = await import("@coinbase/cdp-sdk");
 
     const cdp = new CdpClient({
       apiKeyId: process.env.CDP_API_KEY_NAME!,
@@ -40,10 +40,10 @@ export async function POST() {
     // would fund an account nobody holds the key to.
     return NextResponse.json(
       {
-        error: 'Failed to create CDP wallet',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        error: "Failed to create CDP wallet",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 502 }
+      { status: 502 },
     );
   }
 }

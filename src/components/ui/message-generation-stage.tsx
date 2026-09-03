@@ -11,8 +11,7 @@ import { Loader2Icon } from "lucide-react";
  * @property {boolean} showLabel - Whether to show the label
  */
 
-export interface GenerationStageProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface GenerationStageProps extends React.HTMLAttributes<HTMLDivElement> {
   showLabel?: boolean;
 }
 
@@ -40,8 +39,7 @@ export function MessageGenerationStage({
     ERROR: "Error",
   };
 
-  const label =
-    stageLabels[stage] || `${stage.charAt(0).toUpperCase() + stage.slice(1)}`;
+  const label = stageLabels[stage] || `${stage.charAt(0).toUpperCase() + stage.slice(1)}`;
 
   return (
     <div

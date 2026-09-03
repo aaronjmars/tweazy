@@ -23,17 +23,17 @@ function WalletInfo() {
     isOnCorrectChain,
     switchToCorrectChain,
     balance,
-    refreshBalance
+    refreshBalance,
   } = useWallet();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  
+
   // MetaMask wallet info
   const { address: metamaskAddress } = useAccount();
   const { data: metamaskBalanceRaw } = useReadContract({
     address: config.network.usdcContract,
     abi: erc20Abi,
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     args: metamaskAddress ? [metamaskAddress] : undefined,
     query: { enabled: !!metamaskAddress },
   });
@@ -43,52 +43,58 @@ function WalletInfo() {
     try {
       await refreshBalance();
     } catch (error) {
-      console.error('Failed to refresh balance:', error);
+      console.error("Failed to refresh balance:", error);
     } finally {
       setIsRefreshing(false);
     }
   }, [refreshBalance, walletType]);
 
   const copyAddress = useCallback(async () => {
-    const address = walletType === 'metamask' 
-      ? metamaskAddress 
-      : smartWalletInfo?.address || cdpWalletInfo?.address;
+    const address =
+      walletType === "metamask"
+        ? metamaskAddress
+        : smartWalletInfo?.address || cdpWalletInfo?.address;
     if (address) {
       try {
         await navigator.clipboard.writeText(address);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
-      } catch {
-      }
+      } catch {}
     }
   }, [walletType, metamaskAddress, cdpWalletInfo?.address, smartWalletInfo?.address]);
 
-  const displayBalance = walletType === 'metamask'
-    ? (metamaskBalanceRaw !== undefined ? formatUnits(metamaskBalanceRaw, config.payment.usdcDecimals) : '0')
-    : balance || '0';
+  const displayBalance =
+    walletType === "metamask"
+      ? metamaskBalanceRaw !== undefined
+        ? formatUnits(metamaskBalanceRaw, config.payment.usdcDecimals)
+        : "0"
+      : balance || "0";
 
-  const displayAddress = walletType === 'metamask' 
-    ? metamaskAddress 
-    : smartWalletInfo?.address || cdpWalletInfo?.address;
+  const displayAddress =
+    walletType === "metamask"
+      ? metamaskAddress
+      : smartWalletInfo?.address || cdpWalletInfo?.address;
 
   return (
     <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
       <ThemeToggle />
-      <div className={`flex items-center gap-3 bg-card/95 backdrop-blur-sm rounded-lg px-4 py-2 border shadow-sm ${
-        walletType === 'metamask' && !isOnCorrectChain ? 'border-destructive/50' : ''
-      }`}>
+      <div
+        className={`flex items-center gap-3 bg-card/95 backdrop-blur-sm rounded-lg px-4 py-2 border shadow-sm ${
+          walletType === "metamask" && !isOnCorrectChain ? "border-destructive/50" : ""
+        }`}
+      >
         <div className="flex items-center gap-2">
           <Wallet className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-foreground">
-            {walletType === 'metamask'
-              ? 'Non-Custodial Wallet'
+            {walletType === "metamask"
+              ? "Non-Custodial Wallet"
               : smartWalletInfo
-                ? 'Smart Wallet'
-                : 'CDP Wallet'}
+                ? "Smart Wallet"
+                : "CDP Wallet"}
           </span>
-          {walletType === 'metamask' && !isOnCorrectChain && (
-            <div 
-              className="cursor-pointer" 
+          {walletType === "metamask" && !isOnCorrectChain && (
+            <div
+              className="cursor-pointer"
               title="Wrong network - click to switch to Base Sepolia"
               onClick={switchToCorrectChain}
             >
@@ -96,7 +102,7 @@ function WalletInfo() {
             </div>
           )}
         </div>
-        
+
         {displayAddress && (
           <div className="flex items-center gap-2 border-l pl-3">
             <button
@@ -115,10 +121,12 @@ function WalletInfo() {
             </button>
           </div>
         )}
-        
+
         <div className="flex items-center gap-2 border-l pl-3">
           <DollarSign className="h-3 w-3 text-primary" />
-          <span className={`text-sm font-mono text-foreground transition-opacity ${isRefreshing ? 'opacity-50' : ''}`}>
+          <span
+            className={`text-sm font-mono text-foreground transition-opacity ${isRefreshing ? "opacity-50" : ""}`}
+          >
             {parseFloat(displayBalance).toFixed(2)} USDC
           </span>
           <Button
@@ -129,11 +137,13 @@ function WalletInfo() {
             className="h-6 w-6 p-0 hover:bg-muted"
             title={isRefreshing ? "Refreshing..." : "Refresh balance"}
           >
-            <RefreshCw className={`h-3 w-3 transition-transform ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
+            <RefreshCw
+              className={`h-3 w-3 transition-transform ${isRefreshing ? "animate-spin text-primary" : ""}`}
+            />
           </Button>
         </div>
       </div>
-      
+
       <Button
         variant="outline"
         size="sm"
@@ -159,10 +169,7 @@ function MainApp() {
     <div className="h-screen flex flex-col overflow-hidden relative bg-background">
       <WalletInfo />
 
-      <TamboProvider
-        apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-        components={components}
-      >
+      <TamboProvider apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!} components={components}>
         <TamboMcpProvider mcpServers={mcpServers}>
           <div className="w-full max-w-4xl mx-auto h-full">
             <MessageThreadFull contextKey={contextKey} />

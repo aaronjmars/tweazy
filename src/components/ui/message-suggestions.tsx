@@ -32,8 +32,7 @@ interface MessageSuggestionsContextValue {
  * React Context for sharing suggestion data and functions among sub-components.
  * @internal
  */
-const MessageSuggestionsContext =
-  React.createContext<MessageSuggestionsContextValue | null>(null);
+const MessageSuggestionsContext = React.createContext<MessageSuggestionsContextValue | null>(null);
 
 /**
  * Hook to access the message suggestions context.
@@ -44,9 +43,7 @@ const MessageSuggestionsContext =
 const useMessageSuggestionsContext = () => {
   const context = React.useContext(MessageSuggestionsContext);
   if (!context) {
-    throw new Error(
-      "MessageSuggestions sub-components must be used within a MessageSuggestions",
-    );
+    throw new Error("MessageSuggestions sub-components must be used within a MessageSuggestions");
   }
   return context;
 };
@@ -55,8 +52,7 @@ const useMessageSuggestionsContext = () => {
  * Props for the MessageSuggestions component.
  * Extends standard HTMLDivElement attributes.
  */
-export interface MessageSuggestionsProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface MessageSuggestionsProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Maximum number of suggestions to display (default: 3) */
   maxSuggestions?: number;
   /** The child elements to render within the container. */
@@ -77,20 +73,8 @@ export interface MessageSuggestionsProps
  * </MessageSuggestions>
  * ```
  */
-const MessageSuggestions = React.forwardRef<
-  HTMLDivElement,
-  MessageSuggestionsProps
->(
-  (
-    {
-      children,
-      className,
-      maxSuggestions = 3,
-      initialSuggestions = [],
-      ...props
-    },
-    ref,
-  ) => {
+const MessageSuggestions = React.forwardRef<HTMLDivElement, MessageSuggestionsProps>(
+  ({ children, className, maxSuggestions = 3, initialSuggestions = [], ...props }, ref) => {
     const { thread } = useTambo();
     const {
       suggestions: generatedSuggestions,
@@ -107,15 +91,9 @@ const MessageSuggestions = React.forwardRef<
       }
       // Otherwise use generated suggestions
       return generatedSuggestions;
-    }, [
-      thread?.messages?.length,
-      generatedSuggestions,
-      initialSuggestions,
-      maxSuggestions,
-    ]);
+    }, [thread?.messages?.length, generatedSuggestions, initialSuggestions, maxSuggestions]);
 
-    const isMac =
-      typeof navigator !== "undefined" && navigator.platform.startsWith("Mac");
+    const isMac = typeof navigator !== "undefined" && navigator.platform.startsWith("Mac");
 
     // Track the last AI message ID to detect new messages
     const lastAiMessageIdRef = useRef<string | null>(null);
@@ -131,15 +109,7 @@ const MessageSuggestions = React.forwardRef<
         thread,
         isMac,
       }),
-      [
-        suggestions,
-        selectedSuggestionId,
-        accept,
-        isGenerating,
-        error,
-        thread,
-        isMac,
-      ],
+      [suggestions, selectedSuggestionId, accept, isGenerating, error, thread, isMac],
     );
 
     // Find the last AI message
@@ -219,8 +189,7 @@ MessageSuggestions.displayName = "MessageSuggestions";
  * Props for the MessageSuggestionsStatus component.
  * Extends standard HTMLDivElement attributes.
  */
-export type MessageSuggestionsStatusProps =
-  React.HTMLAttributes<HTMLDivElement>;
+export type MessageSuggestionsStatusProps = React.HTMLAttributes<HTMLDivElement>;
 
 /**
  * Displays loading, error, or generation stage information.
@@ -234,48 +203,47 @@ export type MessageSuggestionsStatusProps =
  * </MessageSuggestions>
  * ```
  */
-const MessageSuggestionsStatus = React.forwardRef<
-  HTMLDivElement,
-  MessageSuggestionsStatusProps
->(({ className, ...props }, ref) => {
-  const { error, isGenerating, thread } = useMessageSuggestionsContext();
+const MessageSuggestionsStatus = React.forwardRef<HTMLDivElement, MessageSuggestionsStatusProps>(
+  ({ className, ...props }, ref) => {
+    const { error, isGenerating, thread } = useMessageSuggestionsContext();
 
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "p-2 rounded-md text-sm",
-        !error &&
-          !isGenerating &&
-          (!thread?.generationStage || thread.generationStage === "COMPLETE")
-          ? "p-0 min-h-0 mb-0"
-          : "",
-        className,
-      )}
-      data-slot="message-suggestions-status"
-      {...props}
-    >
-      {/* Error state */}
-      {error && (
-        <div className="p-2 rounded-md text-sm bg-red-50 text-red-500">
-          <p>{error.message}</p>
-        </div>
-      )}
-
-      {/* Always render a container for generation stage to prevent layout shifts */}
-      <div className="generation-stage-container">
-        {thread?.generationStage && thread.generationStage !== "COMPLETE" ? (
-          <MessageGenerationStage />
-        ) : isGenerating ? (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2Icon className="h-4 w-4 animate-spin" />
-            <p>Generating suggestions...</p>
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "p-2 rounded-md text-sm",
+          !error &&
+            !isGenerating &&
+            (!thread?.generationStage || thread.generationStage === "COMPLETE")
+            ? "p-0 min-h-0 mb-0"
+            : "",
+          className,
+        )}
+        data-slot="message-suggestions-status"
+        {...props}
+      >
+        {/* Error state */}
+        {error && (
+          <div className="p-2 rounded-md text-sm bg-red-50 text-red-500">
+            <p>{error.message}</p>
           </div>
-        ) : null}
+        )}
+
+        {/* Always render a container for generation stage to prevent layout shifts */}
+        <div className="generation-stage-container">
+          {thread?.generationStage && thread.generationStage !== "COMPLETE" ? (
+            <MessageGenerationStage />
+          ) : isGenerating ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+              <p>Generating suggestions...</p>
+            </div>
+          ) : null}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 MessageSuggestionsStatus.displayName = "MessageSuggestions.Status";
 
 /**
@@ -296,75 +264,72 @@ export type MessageSuggestionsListProps = React.HTMLAttributes<HTMLDivElement>;
  * </MessageSuggestions>
  * ```
  */
-const MessageSuggestionsList = React.forwardRef<
-  HTMLDivElement,
-  MessageSuggestionsListProps
->(({ className, ...props }, ref) => {
-  const { suggestions, selectedSuggestionId, accept, isGenerating, isMac } =
-    useMessageSuggestionsContext();
+const MessageSuggestionsList = React.forwardRef<HTMLDivElement, MessageSuggestionsListProps>(
+  ({ className, ...props }, ref) => {
+    const { suggestions, selectedSuggestionId, accept, isGenerating, isMac } =
+      useMessageSuggestionsContext();
 
-  const modKey = isMac ? "⌘" : "Ctrl";
-  const altKey = isMac ? "⌥" : "Alt";
+    const modKey = isMac ? "⌘" : "Ctrl";
+    const altKey = isMac ? "⌥" : "Alt";
 
-  // Create placeholder suggestions when there are no real suggestions
-  const placeholders = Array(3).fill(null);
+    // Create placeholder suggestions when there are no real suggestions
+    const placeholders = Array(3).fill(null);
 
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "flex space-x-2 overflow-x-auto pb-2 rounded-md min-h-[2.5rem]",
-        isGenerating ? "opacity-70" : "",
-        className,
-      )}
-      data-slot="message-suggestions-list"
-      {...props}
-    >
-      {suggestions.length > 0
-        ? suggestions.map((suggestion, index) => (
-            <Tooltip
-              key={suggestion.id}
-              content={
-                <span suppressHydrationWarning>
-                  {modKey}+{altKey}+{index + 1}
-                </span>
-              }
-              side="top"
-            >
-              <button
-                className={cn(
-                  "py-2 px-2.5 rounded-2xl text-xs transition-colors",
-                  "border border-flat",
-                  isGenerating
-                    ? "bg-muted/50 text-muted-foreground"
-                    : selectedSuggestionId === suggestion.id
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-background hover:bg-accent hover:text-accent-foreground",
-                )}
-                onClick={async () =>
-                  !isGenerating && (await accept({ suggestion }))
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "flex space-x-2 overflow-x-auto pb-2 rounded-md min-h-[2.5rem]",
+          isGenerating ? "opacity-70" : "",
+          className,
+        )}
+        data-slot="message-suggestions-list"
+        {...props}
+      >
+        {suggestions.length > 0
+          ? suggestions.map((suggestion, index) => (
+              <Tooltip
+                key={suggestion.id}
+                content={
+                  <span suppressHydrationWarning>
+                    {modKey}+{altKey}+{index + 1}
+                  </span>
                 }
-                disabled={isGenerating}
-                data-suggestion-id={suggestion.id}
-                data-suggestion-index={index}
+                side="top"
               >
-                <span className="font-medium">{suggestion.title}</span>
-              </button>
-            </Tooltip>
-          ))
-        : // Render placeholder buttons when no suggestions are available
-          placeholders.map((_, index) => (
-            <div
-              key={`placeholder-${index}`}
-              className="py-2 px-2.5 rounded-2xl text-xs border border-flat bg-muted/20 text-transparent animate-pulse"
-              data-placeholder-index={index}
-            >
-              <span className="invisible">Placeholder</span>
-            </div>
-          ))}
-    </div>
-  );
-});
+                <button
+                  className={cn(
+                    "py-2 px-2.5 rounded-2xl text-xs transition-colors",
+                    "border border-flat",
+                    isGenerating
+                      ? "bg-muted/50 text-muted-foreground"
+                      : selectedSuggestionId === suggestion.id
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-background hover:bg-accent hover:text-accent-foreground",
+                  )}
+                  onClick={async () => !isGenerating && (await accept({ suggestion }))}
+                  disabled={isGenerating}
+                  data-suggestion-id={suggestion.id}
+                  data-suggestion-index={index}
+                >
+                  <span className="font-medium">{suggestion.title}</span>
+                </button>
+              </Tooltip>
+            ))
+          : // Render placeholder buttons when no suggestions are available
+            placeholders.map((_, index) => (
+              <div
+                key={`placeholder-${index}`}
+                className="py-2 px-2.5 rounded-2xl text-xs border border-flat bg-muted/20 text-transparent animate-pulse"
+                data-placeholder-index={index}
+              >
+                <span className="invisible">Placeholder</span>
+              </div>
+            ))}
+      </div>
+    );
+  },
+);
 MessageSuggestionsList.displayName = "MessageSuggestions.List";
 
 export { MessageSuggestions, MessageSuggestionsStatus, MessageSuggestionsList };

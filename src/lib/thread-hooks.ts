@@ -29,9 +29,7 @@ export function useMergedRef<T>(...refs: React.Ref<T>[]) {
  * @param elementRef - Reference to the component to compare position with
  * @returns Object containing hasCanvasSpace and canvasIsOnLeft
  */
-export function useCanvasDetection(
-  elementRef: React.RefObject<HTMLElement | null>,
-) {
+export function useCanvasDetection(elementRef: React.RefObject<HTMLElement | null>) {
   const [hasCanvasSpace, setHasCanvasSpace] = useState(false);
   const [canvasIsOnLeft, setCanvasIsOnLeft] = useState(false);
 
@@ -79,11 +77,7 @@ export function hasRightClass(className?: string): boolean {
  * @param canvasIsOnLeft - Whether the canvas is on the left
  * @returns Object with isLeftPanel and historyPosition values
  */
-export function usePositioning(
-  className?: string,
-  canvasIsOnLeft = false,
-  hasCanvasSpace = false,
-) {
+export function usePositioning(className?: string, canvasIsOnLeft = false, hasCanvasSpace = false) {
   const isRightClass = hasRightClass(className);
   const isLeftPanel = !isRightClass;
 
@@ -114,9 +108,7 @@ export function getSafeContent(
   if (React.isValidElement(content)) return content; // Pass elements through
   if (Array.isArray(content)) {
     // Filter out non-text items and join text
-    return content
-      .map((item) => (item && item.type === "text" ? (item.text ?? "") : ""))
-      .join("");
+    return content.map((item) => (item && item.type === "text" ? (item.text ?? "") : "")).join("");
   }
   return "Invalid content format";
 }

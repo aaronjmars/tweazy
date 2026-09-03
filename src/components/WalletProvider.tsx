@@ -1,14 +1,22 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { useAccount, useChainId, useConnect } from 'wagmi';
-import { switchChain } from 'wagmi/actions';
-import { wagmiConfig } from '@/lib/wagmiConfig';
-import { WalletSelector } from './WalletSelector';
-import { CDPWalletInfo, CDPWalletStorage, fundTestnetWallet } from '@/lib/cdp-wallet';
-import { SmartWalletInfo, SmartWalletStorage, smartWalletService } from '@/lib/smart-wallet';
-import { WalletType, PaymentContext, checkBalance } from '@/lib/payment';
-import { config } from '@/lib/config';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from "react";
+import { useAccount, useChainId, useConnect } from "wagmi";
+import { switchChain } from "wagmi/actions";
+import { wagmiConfig } from "@/lib/wagmiConfig";
+import { WalletSelector } from "./WalletSelector";
+import { CDPWalletInfo, CDPWalletStorage, fundTestnetWallet } from "@/lib/cdp-wallet";
+import { SmartWalletInfo, SmartWalletStorage, smartWalletService } from "@/lib/smart-wallet";
+import { WalletType, PaymentContext, checkBalance } from "@/lib/payment";
+import { config } from "@/lib/config";
 
 interface WalletContextType {
   walletType: WalletType | null;
@@ -34,7 +42,7 @@ const WalletContext = createContext<WalletContextType | null>(null);
 export const useWallet = () => {
   const context = useContext(WalletContext);
   if (!context) {
-    throw new Error('useWallet must be used within a WalletProvider');
+    throw new Error("useWallet must be used within a WalletProvider");
   }
   return context;
 };
@@ -57,7 +65,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const { address: metamaskAddress, isConnected } = useAccount();
   const chainId = useChainId();
   const { connect, connectors } = useConnect();
-  
+
   // Check if user is on the correct chain based on network mode
   const targetChainId = config.network.chainId;
   const isOnCorrectChain = chainId === targetChainId;
@@ -68,16 +76,16 @@ export function WalletProvider({ children }: WalletProviderProps) {
     const savedCdpWallet = CDPWalletStorage.getWalletSession();
     const savedSmartWallet = SmartWalletStorage.getWalletSession();
 
-    if (savedWalletType === 'cdp' && savedCdpWallet) {
-      setWalletType('cdp');
+    if (savedWalletType === "cdp" && savedCdpWallet) {
+      setWalletType("cdp");
       setCdpWalletInfo(savedCdpWallet);
       setShowWalletSelector(false);
-    } else if (savedWalletType === 'smart' && savedSmartWallet) {
-      setWalletType('cdp'); // Use cdp type for smart wallets
+    } else if (savedWalletType === "smart" && savedSmartWallet) {
+      setWalletType("cdp"); // Use cdp type for smart wallets
       setSmartWalletInfo(savedSmartWallet);
       setShowWalletSelector(false);
-    } else if (savedWalletType === 'metamask' && isConnected) {
-      setWalletType('metamask');
+    } else if (savedWalletType === "metamask" && isConnected) {
+      setWalletType("metamask");
       setShowWalletSelector(false);
     }
   }, [isConnected]);
@@ -88,29 +96,29 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
     try {
       // Call server-side API to create CDP wallet
-      const response = await fetch('/api/cdp/create-wallet', {
-        method: 'POST',
+      const response = await fetch("/api/cdp/create-wallet", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create CDP wallet');
+        throw new Error("Failed to create CDP wallet");
       }
 
       const walletInfo: CDPWalletInfo = await response.json();
       setCdpWalletInfo(walletInfo);
       CDPWalletStorage.saveWalletSession(walletInfo);
-      
+
       // Attempt to fund the wallet for testing
       await fundTestnetWallet(walletInfo.address);
-      
-      setWalletType('cdp');
-      localStorage.setItem(config.storage.walletTypeKey, 'cdp');
+
+      setWalletType("cdp");
+      localStorage.setItem(config.storage.walletTypeKey, "cdp");
       setShowWalletSelector(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create CDP wallet');
+      setError(err instanceof Error ? err.message : "Failed to create CDP wallet");
     } finally {
       setIsLoading(false);
     }
@@ -123,12 +131,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
     try {
       const walletInfo = await smartWalletService.connectWithPasskey();
       setSmartWalletInfo(walletInfo);
-      
-      setWalletType('cdp'); // Use cdp type for smart wallets
-      localStorage.setItem(config.storage.walletTypeKey, 'smart');
+
+      setWalletType("cdp"); // Use cdp type for smart wallets
+      localStorage.setItem(config.storage.walletTypeKey, "smart");
       setShowWalletSelector(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to connect smart wallet');
+      setError(err instanceof Error ? err.message : "Failed to connect smart wallet");
     } finally {
       setIsLoading(false);
     }
@@ -139,19 +147,19 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/cdp/fund-wallet', {
-        method: 'POST',
+      const response = await fetch("/api/cdp/fund-wallet", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ walletAddress: cdpWalletInfo.address }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fund wallet');
+        throw new Error("Failed to fund wallet");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fund wallet');
+      setError(err instanceof Error ? err.message : "Failed to fund wallet");
     } finally {
       setIsLoading(false);
     }
@@ -160,30 +168,32 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const handleWalletSelect = async (selectedWalletType: WalletType) => {
     setError(null);
 
-    if (selectedWalletType === 'cdp') {
+    if (selectedWalletType === "cdp") {
       await createCDPWallet();
-    } else if (selectedWalletType === 'metamask') {
+    } else if (selectedWalletType === "metamask") {
       setIsLoading(true);
       try {
-          const injectedConnector = connectors.find(connector => 
-          connector.type === 'injected' ||
-          connector.id.includes('injected')
-        ) || connectors[0]; // Fallback to first available connector
-        
+        const injectedConnector =
+          connectors.find(
+            (connector) => connector.type === "injected" || connector.id.includes("injected"),
+          ) || connectors[0]; // Fallback to first available connector
+
         if (!injectedConnector) {
-          throw new Error('No wallet connector found. Please install a Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.).');
+          throw new Error(
+            "No wallet connector found. Please install a Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.).",
+          );
         }
-        
+
         // Trigger the wallet connection
         await connect({ connector: injectedConnector });
 
         // The wallet connection will be handled by the useAccount hook
         // We'll set the wallet type and hide selector after successful connection
-        setWalletType('metamask');
-        localStorage.setItem(config.storage.walletTypeKey, 'metamask');
+        setWalletType("metamask");
+        localStorage.setItem(config.storage.walletTypeKey, "metamask");
         setShowWalletSelector(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to connect to wallet');
+        setError(err instanceof Error ? err.message : "Failed to connect to wallet");
       } finally {
         setIsLoading(false);
       }
@@ -196,18 +206,20 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   // Determine if wallet is ready for payments
   const isWalletReady = Boolean(
-    (walletType === 'metamask' && isConnected && metamaskAddress && isOnCorrectChain) ||
-    (walletType === 'cdp' && (cdpWalletInfo || smartWalletInfo))
+    (walletType === "metamask" && isConnected && metamaskAddress && isOnCorrectChain) ||
+      (walletType === "cdp" && (cdpWalletInfo || smartWalletInfo)),
   );
 
   // Create payment context
   const paymentContext: PaymentContext | null = useMemo(() => {
-    return isWalletReady ? {
-      walletType: walletType!,
-      walletInfo: cdpWalletInfo || undefined,
-      smartWalletInfo: smartWalletInfo || undefined,
-      userAddress: metamaskAddress || undefined,
-    } : null;
+    return isWalletReady
+      ? {
+          walletType: walletType!,
+          walletInfo: cdpWalletInfo || undefined,
+          smartWalletInfo: smartWalletInfo || undefined,
+          userAddress: metamaskAddress || undefined,
+        }
+      : null;
   }, [isWalletReady, walletType, cdpWalletInfo, smartWalletInfo, metamaskAddress]);
 
   const refreshBalance = useCallback(async () => {
@@ -218,7 +230,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       setBalance(currentBalance);
       setLastBalanceUpdate(new Date());
     } catch (err) {
-      console.error('Failed to refresh balance:', err);
+      console.error("Failed to refresh balance:", err);
     }
   }, [paymentContext]);
 
@@ -237,7 +249,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
   };
 
   const switchToCorrectChain = async (): Promise<boolean> => {
-    if (walletType !== 'metamask' || !isConnected) {
+    if (walletType !== "metamask" || !isConnected) {
       return false;
     }
 
@@ -248,18 +260,18 @@ export function WalletProvider({ children }: WalletProviderProps) {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       await switchChain(wagmiConfig, { chainId: config.network.chainId });
       return true;
     } catch {
-      setError(`Failed to switch to ${config.network.displayName} network. Please switch manually in your non-custodial wallet.`);
+      setError(
+        `Failed to switch to ${config.network.displayName} network. Please switch manually in your non-custodial wallet.`,
+      );
       return false;
     } finally {
       setIsLoading(false);
     }
   };
-
-
 
   // Auto-refresh balance every minute and when wallet becomes ready
   useEffect(() => {
@@ -278,11 +290,16 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   // Show wallet selector if no wallet is selected
   if (showWalletSelector || !walletType) {
-    return <WalletSelector onWalletSelect={handleWalletSelect} onSmartWalletSelect={handleSmartWalletSelect} />;
+    return (
+      <WalletSelector
+        onWalletSelect={handleWalletSelect}
+        onSmartWalletSelect={handleSmartWalletSelect}
+      />
+    );
   }
 
   // Show wallet connection message for MetaMask if not connected
-  if (walletType === 'metamask' && !isConnected) {
+  if (walletType === "metamask" && !isConnected) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
         <div className="text-center space-y-4">
@@ -300,13 +317,14 @@ export function WalletProvider({ children }: WalletProviderProps) {
   }
 
   // Show chain switching message for MetaMask if on wrong chain
-  if (walletType === 'metamask' && isConnected && !isOnCorrectChain) {
+  if (walletType === "metamask" && isConnected && !isOnCorrectChain) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
         <div className="text-center space-y-4 max-w-md">
           <h1 className="text-2xl font-bold">Switch Network</h1>
           <p className="text-muted-foreground">
-            Please switch to {config.network.displayName} network to continue. Current network is not supported.
+            Please switch to {config.network.displayName} network to continue. Current network is
+            not supported.
           </p>
           {error && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -319,7 +337,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
               disabled={isLoading}
               className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
             >
-              {isLoading ? 'Switching...' : `Switch to ${config.network.displayName}`}
+              {isLoading ? "Switching..." : `Switch to ${config.network.displayName}`}
             </button>
             <button
               onClick={switchWallet}

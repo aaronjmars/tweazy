@@ -1,23 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { isAddress } from 'viem';
-import { config, envChecker } from '@/lib/config';
-import { mockTxHash } from '@/lib/utils';
+import { NextRequest, NextResponse } from "next/server";
+import { isAddress } from "viem";
+import { config, envChecker } from "@/lib/config";
+import { mockTxHash } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
   try {
     const { walletAddress } = await request.json();
 
     if (!walletAddress) {
-      return NextResponse.json(
-        { error: 'Wallet address is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Wallet address is required" }, { status: 400 });
     }
 
-    if (typeof walletAddress !== 'string' || !isAddress(walletAddress)) {
+    if (typeof walletAddress !== "string" || !isAddress(walletAddress)) {
       return NextResponse.json(
-        { error: 'Wallet address must be a valid EVM address' },
-        { status: 400 }
+        { error: "Wallet address must be a valid EVM address" },
+        { status: 400 },
       );
     }
 
@@ -25,21 +22,21 @@ export async function POST(request: NextRequest) {
     if (!envChecker.isCDPConfigured()) {
       return NextResponse.json({
         success: true,
-        message: 'Wallet funded successfully (mock)',
+        message: "Wallet funded successfully (mock)",
         transactionHash: mockTxHash(),
       });
     }
 
     // Faucets only exist on testnets; there is nothing to call on Base mainnet.
-    if (config.network.cdpNetwork !== 'base-sepolia') {
+    if (config.network.cdpNetwork !== "base-sepolia") {
       return NextResponse.json(
         { error: `No faucet is available on ${config.network.displayName}` },
-        { status: 501 }
+        { status: 501 },
       );
     }
 
     try {
-      const { CdpClient } = await import('@coinbase/cdp-sdk');
+      const { CdpClient } = await import("@coinbase/cdp-sdk");
 
       const cdp = new CdpClient({
         apiKeyId: process.env.CDP_API_KEY_NAME!,
@@ -51,7 +48,7 @@ export async function POST(request: NextRequest) {
       const faucetResponse = await cdp.evm.requestFaucet({
         address: walletAddress,
         network: config.network.cdpNetwork,
-        token: 'eth',
+        token: "eth",
       });
 
       return NextResponse.json({
@@ -60,22 +57,18 @@ export async function POST(request: NextRequest) {
         transactionHash: faucetResponse.transactionHash,
         network: config.network.cdpNetwork,
       });
-
     } catch (error) {
       // A fabricated tx hash here reads as a successful faucet call that never happened.
       return NextResponse.json(
         {
           success: false,
-          error: 'Faucet request failed',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          error: "Faucet request failed",
+          details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 502 }
+        { status: 502 },
       );
     }
   } catch {
-    return NextResponse.json(
-      { error: 'Failed to fund wallet' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fund wallet" }, { status: 500 });
   }
 }

@@ -29,22 +29,14 @@ export const graphDataSchema = z.object({
 });
 
 export const graphSchema = z.object({
-  data: graphDataSchema.describe(
-    "Data object containing chart configuration and values",
-  ),
+  data: graphDataSchema.describe("Data object containing chart configuration and values"),
   title: z.string().describe("Title for the chart"),
-  showLegend: z
-    .boolean()
-    .optional()
-    .describe("Whether to show the legend (default: true)"),
+  showLegend: z.boolean().optional().describe("Whether to show the legend (default: true)"),
   variant: z
     .enum(["default", "solid", "bordered"])
     .optional()
     .describe("Visual style variant of the graph"),
-  size: z
-    .enum(["default", "sm", "lg"])
-    .optional()
-    .describe("Size of the graph"),
+  size: z.enum(["default", "sm", "lg"]).optional().describe("Size of the graph"),
 });
 
 // Define the base type from the Zod schema
@@ -65,30 +57,24 @@ export interface GraphProps
   size?: "default" | "sm" | "lg";
 }
 
-const graphVariants = cva(
-  "w-full rounded-lg overflow-hidden transition-all duration-200",
-  {
-    variants: {
-      variant: {
-        default: "bg-background",
-        solid: [
-          "shadow-lg shadow-zinc-900/10 dark:shadow-zinc-900/20",
-          "bg-muted",
-        ].join(" "),
-        bordered: ["border-2", "border-border"].join(" "),
-      },
-      size: {
-        default: "h-64",
-        sm: "h-48",
-        lg: "h-96",
-      },
+const graphVariants = cva("w-full rounded-lg overflow-hidden transition-all duration-200", {
+  variants: {
+    variant: {
+      default: "bg-background",
+      solid: ["shadow-lg shadow-zinc-900/10 dark:shadow-zinc-900/20", "bg-muted"].join(" "),
+      bordered: ["border-2", "border-border"].join(" "),
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
+    size: {
+      default: "h-64",
+      sm: "h-48",
+      lg: "h-96",
     },
   },
-);
+  defaultVariants: {
+    variant: "default",
+    size: "default",
+  },
+});
 
 const defaultColors = [
   "hsl(220, 100%, 62%)", // Blue
@@ -119,18 +105,7 @@ const defaultColors = [
  * ```
  */
 export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      data,
-      title,
-      showLegend = true,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, variant, size, data, title, showLegend = true, ...props }, ref) => {
     // Get thread state
     const { thread } = useTambo();
     const { messageId } = useTamboMessageContext();
@@ -141,9 +116,7 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
 
     const generationStage = thread?.generationStage;
     const isGenerating =
-      generationStage &&
-      generationStage !== "COMPLETE" &&
-      generationStage !== "ERROR";
+      generationStage && generationStage !== "COMPLETE" && generationStage !== "ERROR";
 
     const dataIsValid =
       data?.labels &&
@@ -155,11 +128,7 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
     // For latest message, only show loading state while generating
     if (!dataIsValid || (isLatestMessage && isGenerating)) {
       return (
-        <div
-          ref={ref}
-          className={cn(graphVariants({ variant, size }), className)}
-          {...props}
-        >
+        <div ref={ref} className={cn(graphVariants({ variant, size }), className)} {...props}>
           <div className="p-4 h-full flex items-center justify-center">
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <div className="flex items-center gap-1 h-4">
@@ -191,17 +160,11 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
         console.error("Invalid graph data structure (post-generation):", data);
         // Render a specific error for invalid structure after completion
         return (
-          <div
-            ref={ref}
-            className={cn(graphVariants({ variant, size }), className)}
-            {...props}
-          >
+          <div ref={ref} className={cn(graphVariants({ variant, size }), className)} {...props}>
             <div className="p-4 h-full flex items-center justify-center">
               <div className="text-destructive text-center">
                 <p className="font-medium">Invalid Graph Data</p>
-                <p className="text-sm mt-1">
-                  The final data structure is invalid.
-                </p>
+                <p className="text-sm mt-1">The final data structure is invalid.</p>
               </div>
             </div>
           </div>
@@ -211,9 +174,7 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
       // Transform data for Recharts (only if structure is valid post-generation)
       const chartData = data.labels.map((label, index) => ({
         name: label,
-        ...Object.fromEntries(
-          data.datasets.map((dataset) => [dataset.label, dataset.data[index]]),
-        ),
+        ...Object.fromEntries(data.datasets.map((dataset) => [dataset.label, dataset.data[index]])),
       }));
 
       const renderChart = () => {
@@ -274,10 +235,7 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
                   <RechartsCore.Bar
                     key={dataset.label}
                     dataKey={dataset.label}
-                    fill={
-                      dataset.color ??
-                      defaultColors[index % defaultColors.length]
-                    }
+                    fill={dataset.color ?? defaultColors[index % defaultColors.length]}
                     radius={[4, 4, 0, 0]}
                   />
                 ))}
@@ -328,10 +286,7 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
                     key={dataset.label}
                     type="monotone"
                     dataKey={dataset.label}
-                    stroke={
-                      dataset.color ??
-                      defaultColors[index % defaultColors.length]
-                    }
+                    stroke={dataset.color ?? defaultColors[index % defaultColors.length]}
                     dot={false}
                   />
                 ))}
@@ -359,9 +314,7 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
                   data={pieDataset.data.map((value, index) => ({
                     name: data.labels[index],
                     value,
-                    fill:
-                      pieDataset.color ??
-                      defaultColors[index % defaultColors.length],
+                    fill: pieDataset.color ?? defaultColors[index % defaultColors.length],
                   }))}
                   dataKey="value"
                   nameKey="name"
@@ -399,17 +352,9 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
       };
 
       return (
-        <div
-          ref={ref}
-          className={cn(graphVariants({ variant, size }), className)}
-          {...props}
-        >
+        <div ref={ref} className={cn(graphVariants({ variant, size }), className)} {...props}>
           <div className="p-4 h-full">
-            {title && (
-              <h3 className="text-lg font-medium mb-4 text-foreground">
-                {title}
-              </h3>
-            )}
+            {title && <h3 className="text-lg font-medium mb-4 text-foreground">{title}</h3>}
             <div className="w-full h-[calc(100%-2rem)]">
               <RechartsCore.ResponsiveContainer width="100%" height="100%">
                 {renderChart()}
@@ -421,16 +366,12 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
     } catch (error) {
       console.error("Error rendering chart:", error);
       return (
-        <div
-          className={cn(graphVariants({ variant, size }), className)}
-          {...props}
-        >
+        <div className={cn(graphVariants({ variant, size }), className)} {...props}>
           <div className="p-4 flex items-center justify-center h-full">
             <div className="text-destructive text-center">
               <p className="font-medium">Error loading chart</p>
               <p className="text-sm mt-1">
-                An error occurred while transforming data. Please try again
-                later.
+                An error occurred while transforming data. Please try again later.
               </p>
             </div>
           </div>

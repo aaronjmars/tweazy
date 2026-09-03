@@ -76,8 +76,7 @@ const useMessageContext = () => {
  * Props for the Message component.
  * Extends standard HTMLDivElement attributes.
  */
-export interface MessageProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "content"> {
+export interface MessageProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "content"> {
   /** The role of the message sender ('user' or 'assistant'). */
   role: "user" | "assistant";
   /** The full Tambo thread message object. */
@@ -103,10 +102,7 @@ export interface MessageProps
  * ```
  */
 const Message = React.forwardRef<HTMLDivElement, MessageProps>(
-  (
-    { children, className, role, variant, isLoading, message, ...props },
-    ref,
-  ) => {
+  ({ children, className, role, variant, isLoading, message, ...props }, ref) => {
     const contextValue = React.useMemo(
       () => ({ role, variant, isLoading, message }),
       [role, variant, isLoading, message],
@@ -164,10 +160,7 @@ LoadingIndicator.displayName = "LoadingIndicator";
  * @param {boolean | undefined} isLoading - Whether the tool call is currently in progress
  * @returns {string | null} The formatted status message or null if not a tool call
  */
-function getToolStatusMessage(
-  message: TamboThreadMessage,
-  isLoading: boolean | undefined,
-) {
+function getToolStatusMessage(message: TamboThreadMessage, isLoading: boolean | undefined) {
   const isToolCall = message.actionType === "tool_call";
   if (!isToolCall) return null;
 
@@ -184,8 +177,7 @@ function getToolStatusMessage(
  * Props for the MessageContent component.
  * Extends standard HTMLDivElement attributes.
  */
-export interface MessageContentProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "content"> {
+export interface MessageContentProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "content"> {
   /** Optional override for the message content. If not provided, uses the content from the message object in the context. */
   content?: string | { type: string; text?: string }[];
   /** Optional flag to render as Markdown. Default is true. */
@@ -197,10 +189,7 @@ export interface MessageContentProps
  * @component MessageContent
  */
 const MessageContent = React.forwardRef<HTMLDivElement, MessageContentProps>(
-  (
-    { className, children, content: contentProp, markdown = true, ...props },
-    ref,
-  ) => {
+  ({ className, children, content: contentProp, markdown = true, ...props }, ref) => {
     const [isToolcallExpanded, setIsToolcallExpanded] = useState(false);
     const { message, isLoading } = useMessageContext();
     const contentToRender = children ?? contentProp ?? message.content;
@@ -242,9 +231,7 @@ const MessageContent = React.forwardRef<HTMLDivElement, MessageContentProps>(
             data-slot="message-content-text"
           >
             {!contentToRender ? (
-              <span className="text-muted-foreground italic">
-                Empty message
-              </span>
+              <span className="text-muted-foreground italic">Empty message</span>
             ) : React.isValidElement(contentToRender) ? (
               contentToRender
             ) : markdown ? (
@@ -287,15 +274,11 @@ const MessageContent = React.forwardRef<HTMLDivElement, MessageContentProps>(
                 id={toolDetailsId}
                 className={cn(
                   "flex flex-col gap-1 pl-4 overflow-hidden transition-[max-height,opacity] duration-300",
-                  isToolcallExpanded
-                    ? "max-h-96 opacity-100"
-                    : "max-h-0 opacity-0",
+                  isToolcallExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
                 )}
               >
                 <span>tool: {message.toolCallRequest?.toolName}</span>
-                <span>
-                  parameters: {stringify(message.toolCallRequest?.parameters)}
-                </span>
+                <span>parameters: {stringify(message.toolCallRequest?.parameters)}</span>
               </div>
             </div>
           </div>
@@ -310,8 +293,7 @@ MessageContent.displayName = "MessageContent";
  * Props for the MessageRenderedComponentArea component.
  * Extends standard HTMLDivElement attributes.
  */
-export type MessageRenderedComponentAreaProps =
-  React.HTMLAttributes<HTMLDivElement>;
+export type MessageRenderedComponentAreaProps = React.HTMLAttributes<HTMLDivElement>;
 
 /**
  * Displays the `renderedComponent` associated with an assistant message.
@@ -388,10 +370,4 @@ const MessageRenderedComponentArea = React.forwardRef<
 MessageRenderedComponentArea.displayName = "Message.RenderedComponentArea";
 
 // --- Exports ---
-export {
-  LoadingIndicator,
-  Message,
-  MessageContent,
-  MessageRenderedComponentArea,
-  messageVariants,
-};
+export { LoadingIndicator, Message, MessageContent, MessageRenderedComponentArea, messageVariants };

@@ -1,13 +1,13 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 function randomHex(byteLength: number): `0x${string}` {
-    const bytes = Array.from({ length: byteLength }, () => Math.floor(Math.random() * 256));
-    return ("0x" + bytes.map((b) => b.toString(16).padStart(2, "0")).join("")) as `0x${string}`;
+  const bytes = Array.from({ length: byteLength }, () => Math.floor(Math.random() * 256));
+  return ("0x" + bytes.map((b) => b.toString(16).padStart(2, "0")).join("")) as `0x${string}`;
 }
 
 /**
@@ -17,7 +17,7 @@ function randomHex(byteLength: number): `0x${string}` {
  * length-aware UI don't reject the mock.
  */
 export function mockTxHash(): `0x${string}` {
-    return randomHex(32);
+  return randomHex(32);
 }
 
 /**
@@ -27,5 +27,5 @@ export function mockTxHash(): `0x${string}` {
  * account address is used as the wallet id.
  */
 export function mockEvmAddress(): `0x${string}` {
-    return randomHex(20);
+  return randomHex(20);
 }

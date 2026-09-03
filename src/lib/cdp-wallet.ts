@@ -3,7 +3,7 @@
  * @description Coinbase CDP wallet service for creating and managing wallets
  */
 
-import { config } from './config';
+import { config } from "./config";
 
 export interface CDPWalletInfo {
   id: string;
@@ -15,56 +15,66 @@ export interface CDPWalletInfo {
 export interface CDPWalletService {
   createWallet(): Promise<CDPWalletInfo>;
   getBalance(walletId: string): Promise<string>;
-  transferUSDC(walletId: string, recipient: string, amount: string): Promise<{ success: boolean; transactionHash?: string; error?: string; }>;
+  transferUSDC(
+    walletId: string,
+    recipient: string,
+    amount: string,
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }>;
 }
 
 class CDPWalletServiceImpl implements CDPWalletService {
   async createWallet(): Promise<CDPWalletInfo> {
     try {
       const response = await fetch(`${config.api.baseUrl}/cdp/create-wallet`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create CDP wallet');
+        throw new Error("Failed to create CDP wallet");
       }
 
       return await response.json();
     } catch (error) {
-      throw new Error(`Failed to create CDP wallet: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to create CDP wallet: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
   async getBalance(walletId: string): Promise<string> {
     try {
       const response = await fetch(`${config.api.baseUrl}/cdp/balance`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ walletId }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get balance');
+        throw new Error("Failed to get balance");
       }
 
       const { balance } = await response.json();
       return balance;
     } catch {
-      return '0';
+      return "0";
     }
   }
 
-  async transferUSDC(walletId: string, recipient: string, amount: string): Promise<{ success: boolean; transactionHash?: string; error?: string; }> {
+  async transferUSDC(
+    walletId: string,
+    recipient: string,
+    amount: string,
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
     try {
       const response = await fetch(`${config.api.baseUrl}/cdp/transfer`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ walletId, recipient, amount }),
       });
@@ -73,7 +83,7 @@ class CDPWalletServiceImpl implements CDPWalletService {
         const error = await response.json();
         return {
           success: false,
-          error: error.error || 'Transfer failed',
+          error: error.error || "Transfer failed",
         };
       }
 
@@ -81,7 +91,7 @@ class CDPWalletServiceImpl implements CDPWalletService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Transfer failed',
+        error: error instanceof Error ? error.message : "Transfer failed",
       };
     }
   }
@@ -94,13 +104,13 @@ class CDPWalletStorage {
   }
 
   static saveWalletSession(walletInfo: CDPWalletInfo): void {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(walletInfo));
     }
   }
 
   static getWalletSession(): CDPWalletInfo | null {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         try {
@@ -114,7 +124,7 @@ class CDPWalletStorage {
   }
 
   static clearWalletSession(): void {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.removeItem(this.STORAGE_KEY);
     }
   }
@@ -128,9 +138,9 @@ export { CDPWalletStorage };
 export async function fundTestnetWallet(walletAddress: string): Promise<boolean> {
   try {
     const response = await fetch(`${config.api.baseUrl}/cdp/fund-wallet`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ walletAddress }),
     });

@@ -1,14 +1,14 @@
-import { PaymentContext } from '@/lib/payment';
+import { PaymentContext } from "@/lib/payment";
 
 /**
  * Generates a random session ID for anonymous users
  */
 function generateAnonymousSessionId(): string {
   // Generate a random string using crypto.getRandomValues for better randomness
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+  if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
     const array = new Uint8Array(16);
     window.crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join("");
   }
 
   // Fallback for server-side or older browsers
@@ -21,12 +21,12 @@ function generateAnonymousSessionId(): string {
  * but gets a new ID when they open a new tab/window or restart the browser
  */
 function getAnonymousSessionId(): string {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     // Server-side: generate a new ID each time
     return generateAnonymousSessionId();
   }
 
-  const storageKey = 'tambo-anonymous-session-id';
+  const storageKey = "tambo-anonymous-session-id";
   let sessionId = sessionStorage.getItem(storageKey);
 
   if (!sessionId) {
@@ -44,7 +44,7 @@ function getAnonymousSessionId(): string {
 export function generateUserContextKey(
   paymentContext: PaymentContext | null,
   isWalletReady: boolean,
-  baseKey: string = 'tambo-template'
+  baseKey: string = "tambo-template",
 ): string {
   if (!isWalletReady || !paymentContext) {
     // Generate unique session ID for anonymous users
@@ -53,9 +53,10 @@ export function generateUserContextKey(
   }
 
   // Use wallet address as unique identifier
-  const userAddress = paymentContext.userAddress ||
-                     paymentContext.walletInfo?.address ||
-                     paymentContext.smartWalletInfo?.address;
+  const userAddress =
+    paymentContext.userAddress ||
+    paymentContext.walletInfo?.address ||
+    paymentContext.smartWalletInfo?.address;
 
   if (userAddress) {
     return `${baseKey}-${userAddress.toLowerCase()}`;
