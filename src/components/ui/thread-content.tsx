@@ -29,8 +29,7 @@ interface ThreadContentContextValue {
  * React Context for sharing thread data among sub-components.
  * @internal
  */
-const ThreadContentContext =
-  React.createContext<ThreadContentContextValue | null>(null);
+const ThreadContentContext = React.createContext<ThreadContentContextValue | null>(null);
 
 /**
  * Hook to access the thread content context.
@@ -41,9 +40,7 @@ const ThreadContentContext =
 const useThreadContentContext = () => {
   const context = React.useContext(ThreadContentContext);
   if (!context) {
-    throw new Error(
-      "ThreadContent sub-components must be used within a ThreadContent",
-    );
+    throw new Error("ThreadContent sub-components must be used within a ThreadContent");
   }
   return context;
 };
@@ -52,8 +49,7 @@ const useThreadContentContext = () => {
  * Props for the ThreadContent component.
  * Extends standard HTMLDivElement attributes.
  */
-export interface ThreadContentProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface ThreadContentProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Optional styling variant for the message container */
   variant?: VariantProps<typeof messageVariants>["variant"];
   /** The child elements to render within the container. */
@@ -119,64 +115,61 @@ export type ThreadContentMessagesProps = React.HTMLAttributes<HTMLDivElement>;
  * </ThreadContent>
  * ```
  */
-const ThreadContentMessages = React.forwardRef<
-  HTMLDivElement,
-  ThreadContentMessagesProps
->(({ className, ...props }, ref) => {
-  const { messages, isGenerating, variant } = useThreadContentContext();
+const ThreadContentMessages = React.forwardRef<HTMLDivElement, ThreadContentMessagesProps>(
+  ({ className, ...props }, ref) => {
+    const { messages, isGenerating, variant } = useThreadContentContext();
 
-  return (
-    <div
-      ref={ref}
-      className={cn("flex flex-col gap-4", className)}
-      data-slot="thread-content-messages"
-      {...props}
-    >
-      {messages.map((message, index) => {
-        return (
-          <div
-            key={
-              message.id ??
-              `${message.role}-${
-                message.createdAt ?? Date.now()
-              }-${message.content?.toString().substring(0, 10)}`
-            }
-            data-slot="thread-content-item"
-          >
-            <Message
-              role={message.role === "assistant" ? "assistant" : "user"}
-              message={message}
-              variant={variant}
-              isLoading={isGenerating && index === messages.length - 1}
-              className={cn(
-                "flex w-full",
-                message.role === "assistant"
-                  ? "justify-start"
-                  : "justify-end",
-              )}
+    return (
+      <div
+        ref={ref}
+        className={cn("flex flex-col gap-4", className)}
+        data-slot="thread-content-messages"
+        {...props}
+      >
+        {messages.map((message, index) => {
+          return (
+            <div
+              key={
+                message.id ??
+                `${message.role}-${
+                  message.createdAt ?? Date.now()
+                }-${message.content?.toString().substring(0, 10)}`
+              }
+              data-slot="thread-content-item"
             >
-              <div
+              <Message
+                role={message.role === "assistant" ? "assistant" : "user"}
+                message={message}
+                variant={variant}
+                isLoading={isGenerating && index === messages.length - 1}
                 className={cn(
-                  "flex flex-col",
-                  message.role === "assistant" ? "w-full" : "max-w-3xl",
+                  "flex w-full",
+                  message.role === "assistant" ? "justify-start" : "justify-end",
                 )}
               >
-                <MessageContent
-                  className={
-                    message.role === "assistant"
-                      ? "text-primary font-sans"
-                      : "text-primary bg-container hover:bg-backdrop font-sans"
-                  }
-                />
-                <MessageRenderedComponentArea className="w-full" />
-              </div>
-            </Message>
-          </div>
-        );
-      })}
-    </div>
-  );
-});
+                <div
+                  className={cn(
+                    "flex flex-col",
+                    message.role === "assistant" ? "w-full" : "max-w-3xl",
+                  )}
+                >
+                  <MessageContent
+                    className={
+                      message.role === "assistant"
+                        ? "text-primary font-sans"
+                        : "text-primary bg-container hover:bg-backdrop font-sans"
+                    }
+                  />
+                  <MessageRenderedComponentArea className="w-full" />
+                </div>
+              </Message>
+            </div>
+          );
+        })}
+      </div>
+    );
+  },
+);
 ThreadContentMessages.displayName = "ThreadContent.Messages";
 
 export { ThreadContent, ThreadContentMessages };

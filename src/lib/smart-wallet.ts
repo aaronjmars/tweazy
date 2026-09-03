@@ -3,9 +3,9 @@
  * @description Coinbase Smart Wallet service with passkey authentication
  */
 
-import { createCoinbaseWalletSDK, type ProviderInterface } from '@coinbase/wallet-sdk';
-import { formatUnits, getAddress, isAddress, parseUnits } from 'viem';
-import { config, configUtils } from './config';
+import { createCoinbaseWalletSDK, type ProviderInterface } from "@coinbase/wallet-sdk";
+import { formatUnits, getAddress, isAddress, parseUnits } from "viem";
+import { config, configUtils } from "./config";
 
 // Extended wallet info for smart wallets
 export interface SmartWalletInfo {
@@ -23,8 +23,8 @@ const SMART_WALLET_CONFIG = {
   appLogoUrl: config.app.logoUrl,
   appChainIds: [config.network.chainId],
   smartWallet: {
-    enabled: true
-  }
+    enabled: true,
+  },
 };
 
 class SmartWalletService {
@@ -43,31 +43,31 @@ class SmartWalletService {
     try {
       // Clear any existing stored wallet data first
       SmartWalletStorage.clearWalletSession();
-      
+
       const { provider } = this.initializeSDK();
-      
+
       if (!provider) {
-        throw new Error('Failed to initialize smart wallet provider');
+        throw new Error("Failed to initialize smart wallet provider");
       }
 
       // Try to connect with passkey
-      const accounts = await provider.request({
-        method: 'eth_requestAccounts'
-      }) as string[];
+      const accounts = (await provider.request({
+        method: "eth_requestAccounts",
+      })) as string[];
 
       if (!accounts || accounts.length === 0) {
-        throw new Error('No accounts returned from smart wallet');
+        throw new Error("No accounts returned from smart wallet");
       }
 
       const address = accounts[0];
-      
+
       // Validate the address
-      if (!address || address.length !== 42 || !address.startsWith('0x')) {
-        throw new Error('Invalid address returned from smart wallet provider');
+      if (!address || address.length !== 42 || !address.startsWith("0x")) {
+        throw new Error("Invalid address returned from smart wallet provider");
       }
-      
+
       // Get network info
-      const chainId = await provider.request({ method: 'eth_chainId' }) as string;
+      const chainId = (await provider.request({ method: "eth_chainId" })) as string;
       const network = this.getNetworkName(chainId);
 
       // Create wallet info
@@ -76,15 +76,17 @@ class SmartWalletService {
         address,
         network,
         isSmartWallet: true,
-        passkeyId: address // Use address as passkey identifier for now
+        passkeyId: address, // Use address as passkey identifier for now
       };
 
       // Save to storage
       SmartWalletStorage.saveWalletSession(walletInfo);
-      
+
       return walletInfo;
     } catch (error) {
-      throw new Error(`Failed to connect smart wallet: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to connect smart wallet: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
@@ -95,32 +97,35 @@ class SmartWalletService {
       if (walletInfo.address.toLowerCase() === usdcContract.toLowerCase()) {
         // ERROR: Smart wallet address is the same as USDC contract address!
         // This indicates a problem with wallet creation/connection
-        return '0';
+        return "0";
       }
-      
+
       const decimals = config.payment.usdcDecimals;
 
       // Try using direct RPC call to current network instead of wallet provider
       try {
         const response = await fetch(config.network.fallbackRpcUrl, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            jsonrpc: '2.0',
-            method: 'eth_call',
-            params: [{
-              to: usdcContract,
-              data: '0x70a08231' + walletInfo.address.slice(2).toLowerCase().padStart(64, '0')
-            }, 'latest'],
-            id: 1
-          })
+            jsonrpc: "2.0",
+            method: "eth_call",
+            params: [
+              {
+                to: usdcContract,
+                data: "0x70a08231" + walletInfo.address.slice(2).toLowerCase().padStart(64, "0"),
+              },
+              "latest",
+            ],
+            id: 1,
+          }),
         });
 
         const data = await response.json();
 
-        if (data.result && data.result !== '0x' && data.result !== '0x0') {
+        if (data.result && data.result !== "0x" && data.result !== "0x0") {
           return formatUnits(BigInt(data.result), decimals);
         }
       } catch {
@@ -131,42 +136,45 @@ class SmartWalletService {
       const { provider } = this.initializeSDK();
 
       if (!provider) {
-        throw new Error('Failed to initialize smart wallet provider');
+        throw new Error("Failed to initialize smart wallet provider");
       }
 
       // ERC-20 balanceOf function signature
-      const walletAddressHex = walletInfo.address.slice(2).toLowerCase().padStart(64, '0');
-      const balanceOfData = '0x70a08231' + walletAddressHex;
+      const walletAddressHex = walletInfo.address.slice(2).toLowerCase().padStart(64, "0");
+      const balanceOfData = "0x70a08231" + walletAddressHex;
 
-      const balance = await provider.request({
-        method: 'eth_call',
-        params: [{
-          to: usdcContract,
-          data: balanceOfData
-        }, 'latest']
-      }) as string;
+      const balance = (await provider.request({
+        method: "eth_call",
+        params: [
+          {
+            to: usdcContract,
+            data: balanceOfData,
+          },
+          "latest",
+        ],
+      })) as string;
 
       // Convert from wei to USDC (6 decimals)
-      if (!balance || balance === '0x' || balance === '0x0') {
-        return '0';
+      if (!balance || balance === "0x" || balance === "0x0") {
+        return "0";
       }
 
       return formatUnits(BigInt(balance), decimals);
     } catch {
-      return '0';
+      return "0";
     }
   }
 
   async transferUSDC(
     walletInfo: SmartWalletInfo,
     recipient: string,
-    amount: string
-  ): Promise<{ success: boolean; transactionHash?: string; error?: string; }> {
+    amount: string,
+  ): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
     try {
       if (!isAddress(recipient)) {
         return {
           success: false,
-          error: 'Invalid recipient address format'
+          error: "Invalid recipient address format",
         };
       }
       const normalizedRecipient = getAddress(recipient);
@@ -174,7 +182,7 @@ class SmartWalletService {
       const { provider } = this.initializeSDK();
 
       if (!provider) {
-        throw new Error('Failed to initialize smart wallet provider');
+        throw new Error("Failed to initialize smart wallet provider");
       }
 
       const usdcContract = config.network.usdcContract;
@@ -182,28 +190,31 @@ class SmartWalletService {
       const amountWei = parseUnits(amount, decimals);
 
       // ERC-20 transfer function signature
-      const transferData = '0xa9059cbb' +
-        normalizedRecipient.slice(2).toLowerCase().padStart(64, '0') +
-        amountWei.toString(16).padStart(64, '0');
+      const transferData =
+        "0xa9059cbb" +
+        normalizedRecipient.slice(2).toLowerCase().padStart(64, "0") +
+        amountWei.toString(16).padStart(64, "0");
 
-      const txHash = await provider.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          from: walletInfo.address,
-          to: usdcContract,
-          data: transferData,
-          gas: configUtils.gasToHex(config.gas.defaultLimit),
-        }]
-      }) as string;
+      const txHash = (await provider.request({
+        method: "eth_sendTransaction",
+        params: [
+          {
+            from: walletInfo.address,
+            to: usdcContract,
+            data: transferData,
+            gas: configUtils.gasToHex(config.gas.defaultLimit),
+          },
+        ],
+      })) as string;
 
       return {
         success: true,
-        transactionHash: txHash
+        transactionHash: txHash,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Transfer failed'
+        error: error instanceof Error ? error.message : "Transfer failed",
       };
     }
   }
@@ -212,8 +223,8 @@ class SmartWalletService {
     try {
       if (this.provider) {
         await this.provider.request({
-          method: 'wallet_revokePermissions',
-          params: [{ eth_accounts: {} }]
+          method: "wallet_revokePermissions",
+          params: [{ eth_accounts: {} }],
         });
       }
     } finally {
@@ -244,13 +255,13 @@ class SmartWalletStorage {
   }
 
   static saveWalletSession(walletInfo: SmartWalletInfo): void {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(walletInfo));
     }
   }
 
   static getWalletSession(): SmartWalletInfo | null {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         try {
@@ -264,7 +275,7 @@ class SmartWalletStorage {
   }
 
   static clearWalletSession(): void {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.removeItem(this.STORAGE_KEY);
     }
   }

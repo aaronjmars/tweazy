@@ -51,13 +51,7 @@ const looksLikeCode = (text: string): boolean => {
 /**
  * Header component for code blocks with language display and copy functionality
  */
-const CodeHeader = ({
-  language,
-  code,
-}: {
-  language?: string;
-  code?: string;
-}) => {
+const CodeHeader = ({ language, code }: { language?: string; code?: string }) => {
   const [copied, setCopied] = React.useState(false);
 
   const copyToClipboard = () => {
@@ -75,11 +69,7 @@ const CodeHeader = ({
         className="p-1 rounded-md hover:bg-backdrop transition-colors cursor-pointer"
         title="Copy code"
       >
-        {!copied ? (
-          <Copy className="h-4 w-4" />
-        ) : (
-          <Check className="h-4 w-4 text-green-500" />
-        )}
+        {!copied ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4 text-green-500" />}
       </button>
     </div>
   );
@@ -109,11 +99,7 @@ export const createMarkdownComponents = (): Components => ({
       return (
         <div className="relative border border-border rounded-md bg-muted max-w-[80ch] text-sm my-4">
           <CodeHeader language={match[1]} code={content} />
-          <div
-            className={cn(
-              "overflow-x-auto rounded-b-md bg-background"
-            )}
-          >
+          <div className={cn("overflow-x-auto rounded-b-md bg-background")}>
             <pre className="p-4 whitespace-pre">
               <code
                 className={className}
@@ -128,10 +114,7 @@ export const createMarkdownComponents = (): Components => ({
     }
 
     return (
-      <code
-        className={cn("bg-muted px-1.5 py-0.5 rounded text-sm", className)}
-        {...props}
-      >
+      <code className={cn("bg-muted px-1.5 py-0.5 rounded text-sm", className)} {...props}>
         {children}
       </code>
     );
@@ -146,33 +129,25 @@ export const createMarkdownComponents = (): Components => ({
    * Heading 1 component with large text and proper spacing
    * Used for main section headers
    */
-  h1: ({ children }) => (
-    <h1 className="text-2xl font-bold mb-4 mt-6">{children}</h1>
-  ),
+  h1: ({ children }) => <h1 className="text-2xl font-bold mb-4 mt-6">{children}</h1>,
 
   /**
    * Heading 2 component for subsection headers
    * Slightly smaller than h1 with adjusted spacing
    */
-  h2: ({ children }) => (
-    <h2 className="text-xl font-bold mb-3 mt-5">{children}</h2>
-  ),
+  h2: ({ children }) => <h2 className="text-xl font-bold mb-3 mt-5">{children}</h2>,
 
   /**
    * Heading 3 component for minor sections
    * Used for smaller subdivisions within h2 sections
    */
-  h3: ({ children }) => (
-    <h3 className="text-lg font-bold mb-2 mt-4">{children}</h3>
-  ),
+  h3: ({ children }) => <h3 className="text-lg font-bold mb-2 mt-4">{children}</h3>,
 
   /**
    * Heading 4 component for the smallest section divisions
    * Maintains consistent text size with adjusted spacing
    */
-  h4: ({ children }) => (
-    <h4 className="text-base font-bold mb-2 mt-3">{children}</h4>
-  ),
+  h4: ({ children }) => <h4 className="text-base font-bold mb-2 mt-3">{children}</h4>,
 
   /**
    * Unordered list component with disc-style bullets
@@ -197,9 +172,7 @@ export const createMarkdownComponents = (): Components => ({
    * Features a left border and italic text with proper spacing
    */
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-muted pl-4 italic my-4">
-      {children}
-    </blockquote>
+    <blockquote className="border-l-4 border-muted pl-4 italic my-4">{children}</blockquote>
   ),
 
   /**
@@ -240,16 +213,12 @@ export const createMarkdownComponents = (): Components => ({
    * Features bold text and distinct background
    */
   th: ({ children }) => (
-    <th className="border border-border px-4 py-2 bg-muted font-semibold">
-      {children}
-    </th>
+    <th className="border border-border px-4 py-2 bg-muted font-semibold">{children}</th>
   ),
 
   /**
    * Table data cell component
    * Consistent styling with header cells
    */
-  td: ({ children }) => (
-    <td className="border border-border px-4 py-2">{children}</td>
-  ),
+  td: ({ children }) => <td className="border border-border px-4 py-2">{children}</td>,
 });

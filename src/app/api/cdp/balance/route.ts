@@ -1,23 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { formatUnits, isAddress } from 'viem';
-import { config, envChecker } from '@/lib/config';
+import { NextRequest, NextResponse } from "next/server";
+import { formatUnits, isAddress } from "viem";
+import { config, envChecker } from "@/lib/config";
 
 export async function POST(request: NextRequest) {
   try {
     const { walletId } = await request.json();
 
     if (!walletId) {
-      return NextResponse.json(
-        { error: 'Wallet ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Wallet ID is required" }, { status: 400 });
     }
 
-    if (typeof walletId !== 'string' || !isAddress(walletId)) {
-      return NextResponse.json(
-        { error: 'Wallet ID must be a valid EVM address' },
-        { status: 400 }
-      );
+    if (typeof walletId !== "string" || !isAddress(walletId)) {
+      return NextResponse.json({ error: "Wallet ID must be a valid EVM address" }, { status: 400 });
     }
 
     // Check if CDP credentials are configured
@@ -26,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const { CdpClient } = await import('@coinbase/cdp-sdk');
+      const { CdpClient } = await import("@coinbase/cdp-sdk");
 
       const cdp = new CdpClient({
         apiKeyId: process.env.CDP_API_KEY_NAME!,
@@ -43,12 +37,12 @@ export async function POST(request: NextRequest) {
       // Find USDC balance (configurable USDC contract address)
       const usdcAddress = config.network.usdcContract;
       const usdcBalance = balances.find(
-        (b) => b.token.contractAddress.toLowerCase() === usdcAddress.toLowerCase()
+        (b) => b.token.contractAddress.toLowerCase() === usdcAddress.toLowerCase(),
       );
 
       const balance = usdcBalance
         ? formatUnits(usdcBalance.amount.amount, usdcBalance.amount.decimals)
-        : '0';
+        : "0";
 
       return NextResponse.json({ balance });
     } catch (error) {
@@ -56,16 +50,13 @@ export async function POST(request: NextRequest) {
       // does not have, and the payment would then fail on-chain.
       return NextResponse.json(
         {
-          error: 'Failed to read balance from CDP',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          error: "Failed to read balance from CDP",
+          details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 502 }
+        { status: 502 },
       );
     }
   } catch {
-    return NextResponse.json(
-      { error: 'Failed to get balance' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to get balance" }, { status: 500 });
   }
 }

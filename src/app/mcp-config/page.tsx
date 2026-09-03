@@ -12,13 +12,10 @@ const McpConfigPage = () => {
       ? JSON.parse(localStorage.getItem(MCP_SERVERS_STORAGE_KEY) || "[]")
       : [];
 
-  const [mcpServers, setMcpServers] =
-    useState<McpServerInfo[]>(initialMcpServers);
+  const [mcpServers, setMcpServers] = useState<McpServerInfo[]>(initialMcpServers);
   const [serverUrl, setServerUrl] = useState("");
   const [serverName, setServerName] = useState("");
-  const [transportType, setTransportType] = useState<MCPTransport>(
-    MCPTransport.HTTP,
-  );
+  const [transportType, setTransportType] = useState<MCPTransport>(MCPTransport.HTTP);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Persist servers to localStorage whenever the list changes
@@ -34,7 +31,6 @@ const McpConfigPage = () => {
   const addServer = (e: React.FormEvent) => {
     e.preventDefault();
     if (serverUrl.trim()) {
-
       const serverConfig = {
         url: serverUrl.trim(),
         transport: transportType,
@@ -83,18 +79,15 @@ const McpConfigPage = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">
-            Model Context Protocol Servers
-          </h2>
+          <h2 className="text-lg font-semibold mb-4">Model Context Protocol Servers</h2>
           <p className="text-muted-foreground mb-4">
-            Configure client-side MCP servers to extend the capabilities of your
-            Tambo application. These servers will be connected{" "}
-            <i>from the browser</i> and exposed as tools to Tambo.
+            Configure client-side MCP servers to extend the capabilities of your Tambo application.
+            These servers will be connected <i>from the browser</i> and exposed as tools to Tambo.
           </p>
 
           <p className="text-muted-foreground mb-4">
-            For more information about MCP and the difference between
-            client-side and server-side MCP servers, see the{" "}
+            For more information about MCP and the difference between client-side and server-side
+            MCP servers, see the{" "}
             <a
               href="https://tambo.co/docs/concepts/model-context-protocol"
               target="_blank"
@@ -123,10 +116,7 @@ const McpConfigPage = () => {
             </div>
 
             <div className="flex flex-col space-y-2 mt-3">
-              <label
-                htmlFor="server-name"
-                className="font-medium"
-              >
+              <label htmlFor="server-name" className="font-medium">
                 Server Name (optional)
               </label>
               <input
@@ -140,18 +130,13 @@ const McpConfigPage = () => {
             </div>
 
             <div className="flex flex-col space-y-2 mt-3">
-              <label
-                htmlFor="transport-type"
-                className="font-medium"
-              >
+              <label htmlFor="transport-type" className="font-medium">
                 Transport Type
               </label>
               <select
                 id="transport-type"
                 value={transportType}
-                onChange={(e) =>
-                  setTransportType(e.target.value as MCPTransport)
-                }
+                onChange={(e) => setTransportType(e.target.value as MCPTransport)}
                 className="px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
               >
                 <option value={MCPTransport.SSE}>SSE</option>
@@ -180,10 +165,7 @@ const McpConfigPage = () => {
                 {mcpServers.map((server, index) => {
                   const serverInfo = getServerInfo(server);
                   return (
-                    <li
-                      key={index}
-                      className="flex items-center justify-between p-3"
-                    >
+                    <li key={index} className="flex items-center justify-between p-3">
                       <div className="flex-1">
                         <div className="flex items-center">
                           <span className="text-green-600 mr-2">●</span>
@@ -191,9 +173,7 @@ const McpConfigPage = () => {
                         </div>
                         {(serverInfo.name || typeof server !== "string") && (
                           <div className="text-sm text-muted-foreground ml-5 mt-1">
-                            {serverInfo.name && (
-                              <div>Name: {serverInfo.name}</div>
-                            )}
+                            {serverInfo.name && <div>Name: {serverInfo.name}</div>}
                             <div>Transport: {serverInfo.transport}</div>
                           </div>
                         )}
@@ -228,9 +208,9 @@ const McpConfigPage = () => {
             >
               Model Context Protocol (MCP)
             </a>{" "}
-            is a standard that allows applications to communicate with external
-            tools and services. By configuring MCP servers, your Tambo
-            application will be able to make calls to these tools.
+            is a standard that allows applications to communicate with external tools and services.
+            By configuring MCP servers, your Tambo application will be able to make calls to these
+            tools.
           </p>
         </div>
       </div>

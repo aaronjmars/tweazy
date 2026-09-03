@@ -8,44 +8,44 @@
 // Network mode from environment (defaults to testnet for safety).
 // A cast here would let a typo'd value index NETWORK_CONFIGS as undefined and take
 // the whole app down; anything that isn't exactly 'mainnet' falls back to testnet.
-const NETWORK_MODE: 'testnet' | 'mainnet' =
-  process.env.NEXT_PUBLIC_NETWORK_MODE === 'mainnet' ? 'mainnet' : 'testnet';
+const NETWORK_MODE: "testnet" | "mainnet" =
+  process.env.NEXT_PUBLIC_NETWORK_MODE === "mainnet" ? "mainnet" : "testnet";
 
 // Network-specific configurations
 const NETWORK_CONFIGS = {
   testnet: {
     // Base Sepolia (Testnet)
     chainId: 84532,
-    name: 'base-sepolia',
-    displayName: 'Base Sepolia',
-    rpcUrl: 'https://sepolia.base.org',
-    fallbackRpcUrl: 'https://sepolia.base.org',
-    usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
-    cdpNetwork: 'base-sepolia',
-    testnetNotice: 'Base Sepolia testnet only • No real funds required • Secure & Private',
+    name: "base-sepolia",
+    displayName: "Base Sepolia",
+    rpcUrl: "https://sepolia.base.org",
+    fallbackRpcUrl: "https://sepolia.base.org",
+    usdcContract: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    cdpNetwork: "base-sepolia",
+    testnetNotice: "Base Sepolia testnet only • No real funds required • Secure & Private",
     isTestnet: true,
   },
   mainnet: {
     // Base Mainnet (Production)
     chainId: 8453,
-    name: 'base-mainnet',
-    displayName: 'Base Mainnet',
-    rpcUrl: 'https://mainnet.base.org',
-    fallbackRpcUrl: 'https://base.llamarpc.com',
-    usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    name: "base-mainnet",
+    displayName: "Base Mainnet",
+    rpcUrl: "https://mainnet.base.org",
+    fallbackRpcUrl: "https://base.llamarpc.com",
+    usdcContract: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     // CDP's network vocabulary calls Base mainnet 'base', not 'base-mainnet'.
-    cdpNetwork: 'base',
-    testnetNotice: '',
+    cdpNetwork: "base",
+    testnetNotice: "",
     isTestnet: false,
   },
 } as const;
 
 const APP_CONSTANTS = {
-  name: 'Tweazy',
-  logoUrl: 'https://tweazy.wtf/icon.png',
+  name: "Tweazy",
+  logoUrl: "https://tweazy.wtf/icon.png",
 
   // Payment Configuration
-  defaultPaymentAmount: '0.01',
+  defaultPaymentAmount: "0.01",
   usdcDecimals: 6,
 
   // Gas Configuration (conservative defaults)
@@ -55,19 +55,19 @@ const APP_CONSTANTS = {
 
   // API Configuration
   api: {
-    baseUrl: '/api',
+    baseUrl: "/api",
   },
 
   // Storage Configuration (hardcoded for consistency)
   storage: {
-    walletTypeKey: 'wallet_type',
-    cdpWalletKey: 'cdp_wallet_session',
-    smartWalletKey: 'smart_wallet_session',
+    walletTypeKey: "wallet_type",
+    cdpWalletKey: "cdp_wallet_session",
+    smartWalletKey: "smart_wallet_session",
   },
 
   // Testing Configuration
   testing: {
-    mockWalletBalance: '100.0',
+    mockWalletBalance: "100.0",
   },
 } as const;
 
@@ -94,7 +94,7 @@ export const config = {
   payment: {
     defaultAmount: APP_CONSTANTS.defaultPaymentAmount,
     usdcDecimals: APP_CONSTANTS.usdcDecimals,
-    recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || '', // Required secret
+    recipient: process.env.NEXT_PUBLIC_PAYMENT_RECIPIENT || "", // Required secret
   },
 
   // Gas Configuration
@@ -145,13 +145,13 @@ export const configUtils = {
    */
   getNetworkNameById: (chainId: number) => {
     const chain = configUtils.getChainById(chainId);
-    return chain?.name || 'unknown';
+    return chain?.name || "unknown";
   },
 
   /**
    * Convert gas limit to hex string
    */
-  gasToHex: (gasLimit: number) => '0x' + gasLimit.toString(16),
+  gasToHex: (gasLimit: number) => "0x" + gasLimit.toString(16),
 };
 
 /**

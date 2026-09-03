@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "init": "npx tambo init"
+    "init": "npx tambo init",
+    "format": "biome format --write .",
+    "format:check": "biome ci ."
   },
   "engines": {
     "node": ">=24"
@@ -37,6 +39,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.12",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.4.0",
     "@types/react": "^19",

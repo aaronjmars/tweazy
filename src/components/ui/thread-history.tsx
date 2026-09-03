@@ -1,17 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  type TamboThread,
-  useTamboThread,
-  useTamboThreadList,
-} from "@tambo-ai/react";
-import {
-  PlusIcon,
-  SearchIcon,
-  ArrowLeftToLine,
-  ArrowRightToLine,
-} from "lucide-react";
+import { type TamboThread, useTamboThread, useTamboThreadList } from "@tambo-ai/react";
+import { PlusIcon, SearchIcon, ArrowLeftToLine, ArrowRightToLine } from "lucide-react";
 import React, { useMemo } from "react";
 
 /**
@@ -34,15 +25,12 @@ interface ThreadHistoryContextValue {
   position?: "left" | "right";
 }
 
-const ThreadHistoryContext =
-  React.createContext<ThreadHistoryContextValue | null>(null);
+const ThreadHistoryContext = React.createContext<ThreadHistoryContextValue | null>(null);
 
 const useThreadHistoryContext = () => {
   const context = React.useContext(ThreadHistoryContext);
   if (!context) {
-    throw new Error(
-      "ThreadHistory components must be used within ThreadHistory",
-    );
+    throw new Error("ThreadHistory components must be used within ThreadHistory");
   }
   return context;
 };
@@ -75,26 +63,14 @@ const ThreadHistory = React.forwardRef<HTMLDivElement, ThreadHistoryProps>(
     const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
     const [shouldFocusSearch, setShouldFocusSearch] = React.useState(false);
 
-    const {
-      data: threads,
-      isLoading,
-      error,
-      refetch,
-    } = useTamboThreadList({ contextKey });
+    const { data: threads, isLoading, error, refetch } = useTamboThreadList({ contextKey });
 
-    const {
-      switchCurrentThread,
-      startNewThread,
-      thread: currentThread,
-    } = useTamboThread();
+    const { switchCurrentThread, startNewThread, thread: currentThread } = useTamboThread();
 
     // Update CSS variable when sidebar collapses/expands
     React.useEffect(() => {
       const sidebarWidth = isCollapsed ? "3rem" : "16rem";
-      document.documentElement.style.setProperty(
-        "--sidebar-width",
-        sidebarWidth,
-      );
+      document.documentElement.style.setProperty("--sidebar-width", sidebarWidth);
     }, [isCollapsed]);
 
     // Focus search input when expanded from collapsed state
@@ -149,11 +125,7 @@ const ThreadHistory = React.forwardRef<HTMLDivElement, ThreadHistoryProps>(
           )}
           {...props}
         >
-          <div
-            className={cn("flex flex-col h-full", isCollapsed ? "p-2" : "p-4")}
-          >
-            {children}
-          </div>
+          <div className={cn("flex flex-col h-full", isCollapsed ? "p-2" : "p-4")}>{children}</div>
         </div>
       </ThreadHistoryContext.Provider>
     );
@@ -164,50 +136,39 @@ ThreadHistory.displayName = "ThreadHistory";
 /**
  * Header component with title and collapse toggle
  */
-const ThreadHistoryHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  const {
-    isCollapsed,
-    setIsCollapsed,
-    position = "left",
-  } = useThreadHistoryContext();
+const ThreadHistoryHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    const { isCollapsed, setIsCollapsed, position = "left" } = useThreadHistoryContext();
 
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "flex items-center justify-between mb-4",
-        isCollapsed ? "p-1" : "p-2",
-        className,
-      )}
-      {...props}
-    >
-      {!isCollapsed && (
-        <h2 className="text-sm text-muted-foreground">Previous Chats</h2>
-      )}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+    return (
+      <div
+        ref={ref}
         className={cn(
-          "bg-container hover:bg-muted transition-colors p-1 hover:bg-backdrop rounded-md cursor-pointer",
-          position === "left" ? "ml-auto" : "",
+          "flex items-center justify-between mb-4",
+          isCollapsed ? "p-1" : "p-2",
+          className,
         )}
-        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        {...props}
       >
-        {isCollapsed ? (
-          <ArrowRightToLine
-            className={cn("h-4 w-4", position === "right" && "rotate-180")}
-          />
-        ) : (
-          <ArrowLeftToLine
-            className={cn("h-4 w-4", position === "right" && "rotate-180")}
-          />
-        )}
-      </button>
-    </div>
-  );
-});
+        {!isCollapsed && <h2 className="text-sm text-muted-foreground">Previous Chats</h2>}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={cn(
+            "bg-container hover:bg-muted transition-colors p-1 hover:bg-backdrop rounded-md cursor-pointer",
+            position === "left" ? "ml-auto" : "",
+          )}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? (
+            <ArrowRightToLine className={cn("h-4 w-4", position === "right" && "rotate-180")} />
+          ) : (
+            <ArrowLeftToLine className={cn("h-4 w-4", position === "right" && "rotate-180")} />
+          )}
+        </button>
+      </div>
+    );
+  },
+);
 ThreadHistoryHeader.displayName = "ThreadHistory.Header";
 
 /**
@@ -217,8 +178,7 @@ const ThreadHistoryNewButton = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(({ ...props }, ref) => {
-  const { isCollapsed, startNewThread, refetch, onThreadChange } =
-    useThreadHistoryContext();
+  const { isCollapsed, startNewThread, refetch, onThreadChange } = useThreadHistoryContext();
 
   const handleNewThread = React.useCallback(
     async (e?: React.MouseEvent) => {
@@ -268,182 +228,159 @@ ThreadHistoryNewButton.displayName = "ThreadHistory.NewButton";
 /**
  * Search input for filtering threads
  */
-const ThreadHistorySearch = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  const { isCollapsed, setIsCollapsed, searchQuery, setSearchQuery } =
-    useThreadHistoryContext();
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
+const ThreadHistorySearch = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    const { isCollapsed, setIsCollapsed, searchQuery, setSearchQuery } = useThreadHistoryContext();
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-  const expandOnSearch = () => {
-    if (isCollapsed) {
-      setIsCollapsed(false);
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 300); // Wait for animation
-    }
-  };
+    const expandOnSearch = () => {
+      if (isCollapsed) {
+        setIsCollapsed(false);
+        setTimeout(() => {
+          searchInputRef.current?.focus();
+        }, 300); // Wait for animation
+      }
+    };
 
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "mb-4",
-        isCollapsed ? "flex justify-center" : "relative",
-        className,
-      )}
-      {...props}
-    >
-      {isCollapsed ? (
-        <button
-          onClick={expandOnSearch}
-          className="p-1 hover:bg-backdrop rounded-md cursor-pointer transition-colors"
-          title="Search threads"
-        >
-          <SearchIcon className="h-4 w-4 text-muted-foreground" />
-        </button>
-      ) : (
-        <>
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+    return (
+      <div
+        ref={ref}
+        className={cn("mb-4", isCollapsed ? "flex justify-center" : "relative", className)}
+        {...props}
+      >
+        {isCollapsed ? (
+          <button
+            onClick={expandOnSearch}
+            className="p-1 hover:bg-backdrop rounded-md cursor-pointer transition-colors"
+            title="Search threads"
+          >
             <SearchIcon className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <input
-            ref={searchInputRef}
-            type="text"
-            className="pl-10 pr-4 py-2 w-full text-sm rounded-md bg-container border border-border focus:outline-none focus:ring-1 focus:ring-primary"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </>
-      )}
-    </div>
-  );
-});
+          </button>
+        ) : (
+          <>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <SearchIcon className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="pl-10 pr-4 py-2 w-full text-sm rounded-md bg-container border border-border focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </>
+        )}
+      </div>
+    );
+  },
+);
 ThreadHistorySearch.displayName = "ThreadHistory.Search";
 
 /**
  * List of thread items
  */
-const ThreadHistoryList = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  const {
-    threads,
-    isLoading,
-    error,
-    isCollapsed,
-    searchQuery,
-    currentThread,
-    switchCurrentThread,
-    onThreadChange,
-  } = useThreadHistoryContext();
+const ThreadHistoryList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    const {
+      threads,
+      isLoading,
+      error,
+      isCollapsed,
+      searchQuery,
+      currentThread,
+      switchCurrentThread,
+      onThreadChange,
+    } = useThreadHistoryContext();
 
-  // Filter threads based on search query
-  const filteredThreads = useMemo(() => {
-    // While collapsed we do not need the list, avoid extra work.
-    if (isCollapsed) return [];
+    // Filter threads based on search query
+    const filteredThreads = useMemo(() => {
+      // While collapsed we do not need the list, avoid extra work.
+      if (isCollapsed) return [];
 
-    if (!threads?.items) return [];
+      if (!threads?.items) return [];
 
-    const query = searchQuery.toLowerCase();
-    return threads.items.filter((thread) =>
-      thread.id.toLowerCase().includes(query),
-    );
-  }, [isCollapsed, threads, searchQuery]);
+      const query = searchQuery.toLowerCase();
+      return threads.items.filter((thread) => thread.id.toLowerCase().includes(query));
+    }, [isCollapsed, threads, searchQuery]);
 
-  const handleSwitchThread = async (threadId: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+    const handleSwitchThread = async (threadId: string, e?: React.MouseEvent) => {
+      if (e) e.stopPropagation();
 
-    try {
-      switchCurrentThread(threadId);
-      onThreadChange?.();
-    } catch (error) {
-      console.error("Failed to switch thread:", error);
-    }
-  };
+      try {
+        switchCurrentThread(threadId);
+        onThreadChange?.();
+      } catch (error) {
+        console.error("Failed to switch thread:", error);
+      }
+    };
 
-  // Content to show
-  let content;
-  if (isLoading) {
-    content = (
-      <div
-        ref={ref}
-        className={cn("text-sm text-muted-foreground p-2", className)}
-        {...props}
-      >
-        Loading threads...
-      </div>
-    );
-  } else if (error) {
-    content = (
-      <div
-        ref={ref}
-        className={cn("text-sm text-destructive p-2", className)}
-        {...props}
-      >
-        Error loading threads
-      </div>
-    );
-  } else if (filteredThreads.length === 0) {
-    content = (
-      <div
-        ref={ref}
-        className={cn("text-sm text-muted-foreground p-2", className)}
-        {...props}
-      >
-        {searchQuery ? "No matching threads" : "No previous threads"}
-      </div>
-    );
-  } else {
-    content = (
-      <div className="space-y-1">
-        {filteredThreads.map((thread) => (
-          <div
-            key={thread.id}
-            onClick={async () => await handleSwitchThread(thread.id)}
-            className={cn(
-              "p-2 rounded-md hover:bg-backdrop cursor-pointer",
-              currentThread?.id === thread.id ? "bg-muted" : "",
-            )}
-          >
-            <div className="text-sm">
-              <span className="font-medium">
-                {`Thread ${thread.id.substring(0, 8)}`}
-              </span>
-              <p className="text-xs text-muted-foreground truncate mt-1">
-                {new Date(thread.createdAt).toLocaleString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </p>
+    // Content to show
+    let content;
+    if (isLoading) {
+      content = (
+        <div ref={ref} className={cn("text-sm text-muted-foreground p-2", className)} {...props}>
+          Loading threads...
+        </div>
+      );
+    } else if (error) {
+      content = (
+        <div ref={ref} className={cn("text-sm text-destructive p-2", className)} {...props}>
+          Error loading threads
+        </div>
+      );
+    } else if (filteredThreads.length === 0) {
+      content = (
+        <div ref={ref} className={cn("text-sm text-muted-foreground p-2", className)} {...props}>
+          {searchQuery ? "No matching threads" : "No previous threads"}
+        </div>
+      );
+    } else {
+      content = (
+        <div className="space-y-1">
+          {filteredThreads.map((thread) => (
+            <div
+              key={thread.id}
+              onClick={async () => await handleSwitchThread(thread.id)}
+              className={cn(
+                "p-2 rounded-md hover:bg-backdrop cursor-pointer",
+                currentThread?.id === thread.id ? "bg-muted" : "",
+              )}
+            >
+              <div className="text-sm">
+                <span className="font-medium">{`Thread ${thread.id.substring(0, 8)}`}</span>
+                <p className="text-xs text-muted-foreground truncate mt-1">
+                  {new Date(thread.createdAt).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "overflow-y-auto flex-1 transition-all duration-300 ease-in-out",
+          isCollapsed
+            ? "opacity-0 max-h-0 overflow-hidden pointer-events-none"
+            : "opacity-100 max-h-full pointer-events-auto",
+          className,
+        )}
+        {...props}
+      >
+        {content}
       </div>
     );
-  }
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "overflow-y-auto flex-1 transition-all duration-300 ease-in-out",
-        isCollapsed
-          ? "opacity-0 max-h-0 overflow-hidden pointer-events-none"
-          : "opacity-100 max-h-full pointer-events-auto",
-        className,
-      )}
-      {...props}
-    >
-      {content}
-    </div>
-  );
-});
+  },
+);
 ThreadHistoryList.displayName = "ThreadHistory.List";
 
 export {

@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useTamboThreadInput } from '@tambo-ai/react';
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useTamboThreadInput } from "@tambo-ai/react";
 import { cn } from "@/lib/utils";
 import { ArrowUp } from "lucide-react";
-import { PaymentModal } from '@/components/PaymentModal';
-import { PaymentDetails } from '@/lib/payment';
-import { useWallet } from '@/components/WalletProvider';
-import { getAddress } from 'viem';
-import { config } from '@/lib/config';
+import { PaymentModal } from "@/components/PaymentModal";
+import { PaymentDetails } from "@/lib/payment";
+import { useWallet } from "@/components/WalletProvider";
+import { getAddress } from "viem";
+import { config } from "@/lib/config";
 
 export interface EnhancedMessageInputProps {
   contextKey?: string;
@@ -16,7 +16,8 @@ export interface EnhancedMessageInputProps {
 }
 
 export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageInputProps) {
-  const { walletType, paymentContext, isWalletReady, switchToCorrectChain, isOnCorrectChain } = useWallet();
+  const { walletType, paymentContext, isWalletReady, switchToCorrectChain, isOnCorrectChain } =
+    useWallet();
   const { value, setValue, submit, isPending, error } = useTamboThreadInput(contextKey);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -50,14 +51,14 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
           contextKey,
           streamResponse: true,
         });
-        setValue('');
+        setValue("");
         setPendingMessage(null);
         setTimeout(() => {
           textareaRef.current?.focus();
         }, 0);
       } catch {
         setDisplayValue(pendingMessage);
-        setSubmitError('Failed to send message after payment. Please try again.');
+        setSubmitError("Failed to send message after payment. Please try again.");
       }
     }
   }, [pendingMessage, setValue, submit, contextKey]);
@@ -68,60 +69,74 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
     setSubmitError(error);
   }, []);
 
-  const handleEnhancedSubmit = useCallback(async (e: React.SyntheticEvent) => {
-    e.preventDefault();
+  const handleEnhancedSubmit = useCallback(
+    async (e: React.SyntheticEvent) => {
+      e.preventDefault();
 
-    if (!value.trim()) {
-      return;
-    }
-
-    if (!isWalletReady) {
-      setSubmitError('Please connect your wallet to send messages');
-      return;
-    }
-
-    // For MetaMask, ensure we're on the correct chain
-    if (walletType === 'metamask' && !isOnCorrectChain) {
-      setSubmitError('Switching to Base Sepolia network...');
-      
-      const switched = await switchToCorrectChain();
-      if (!switched) {
-        setSubmitError('Please switch to Base Sepolia network in your non-custodial wallet to continue');
+      if (!value.trim()) {
         return;
       }
-    }
 
-    const recipient = config.payment.recipient;
+      if (!isWalletReady) {
+        setSubmitError("Please connect your wallet to send messages");
+        return;
+      }
 
-    if (!recipient) {
-      setSubmitError('Payment system not configured. Please set NEXT_PUBLIC_PAYMENT_RECIPIENT in your environment.');
-      return;
-    }
+      // For MetaMask, ensure we're on the correct chain
+      if (walletType === "metamask" && !isOnCorrectChain) {
+        setSubmitError("Switching to Base Sepolia network...");
 
-    // Clean the recipient address (remove any whitespace/newlines)
-    const cleanRecipient = recipient.trim();
-    
-    // Validate the recipient address format and normalize it
-    let normalizedRecipient: string;
-    try {
-      // Use getAddress to validate and normalize the address
-      normalizedRecipient = getAddress(cleanRecipient);
-    } catch {
-      setSubmitError('Payment recipient address is invalid. Please check configuration.');
-      return;
-    }
+        const switched = await switchToCorrectChain();
+        if (!switched) {
+          setSubmitError(
+            "Please switch to Base Sepolia network in your non-custodial wallet to continue",
+          );
+          return;
+        }
+      }
 
-    setSubmitError(null);
-    setPendingMessage(value);
+      const recipient = config.payment.recipient;
 
-    // Always require payment for every LLM query
-    const paymentDetails: PaymentDetails = {
-      amount: config.payment.defaultAmount,
-      recipient: normalizedRecipient,
-      description: 'LLM Query Payment - Required for an AI response',
-    };
-    await handlePaymentRequired(paymentDetails);
-  }, [value, isWalletReady, handlePaymentRequired, walletType, isOnCorrectChain, switchToCorrectChain]);
+      if (!recipient) {
+        setSubmitError(
+          "Payment system not configured. Please set NEXT_PUBLIC_PAYMENT_RECIPIENT in your environment.",
+        );
+        return;
+      }
+
+      // Clean the recipient address (remove any whitespace/newlines)
+      const cleanRecipient = recipient.trim();
+
+      // Validate the recipient address format and normalize it
+      let normalizedRecipient: string;
+      try {
+        // Use getAddress to validate and normalize the address
+        normalizedRecipient = getAddress(cleanRecipient);
+      } catch {
+        setSubmitError("Payment recipient address is invalid. Please check configuration.");
+        return;
+      }
+
+      setSubmitError(null);
+      setPendingMessage(value);
+
+      // Always require payment for every LLM query
+      const paymentDetails: PaymentDetails = {
+        amount: config.payment.defaultAmount,
+        recipient: normalizedRecipient,
+        description: "LLM Query Payment - Required for an AI response",
+      };
+      await handlePaymentRequired(paymentDetails);
+    },
+    [
+      value,
+      isWalletReady,
+      handlePaymentRequired,
+      walletType,
+      isOnCorrectChain,
+      switchToCorrectChain,
+    ],
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
@@ -152,7 +167,7 @@ export function EnhancedMessageInput({ contextKey, className }: EnhancedMessageI
             placeholder="Enter your message"
             aria-label="Chat Message Input"
           />
-          
+
           <div className="flex justify-end mt-2 p-1">
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center space-x-2">

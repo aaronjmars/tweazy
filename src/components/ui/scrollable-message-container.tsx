@@ -8,8 +8,7 @@ import { useEffect, useRef } from "react";
 /**
  * Props for the ScrollableMessageContainer component
  */
-export type ScrollableMessageContainerProps =
-  React.HTMLAttributes<HTMLDivElement>;
+export type ScrollableMessageContainerProps = React.HTMLAttributes<HTMLDivElement>;
 
 /**
  * A scrollable container for message content with auto-scroll functionality.
@@ -53,10 +52,7 @@ export const ScrollableMessageContainer = React.forwardRef<
   return (
     <div
       ref={scrollContainerRef}
-      className={cn(
-        "flex-1 overflow-y-auto",
-        className,
-      )}
+      className={cn("flex-1 overflow-y-auto", className)}
       data-slot="scrollable-message-container"
       {...props}
     >

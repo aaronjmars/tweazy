@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Wallet, Zap, Shield, Coins, Fingerprint } from 'lucide-react';
-import { config } from '@/lib/config';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Wallet, Zap, Shield, Coins, Fingerprint } from "lucide-react";
+import { config } from "@/lib/config";
 
 export interface WalletOption {
-  type: 'metamask' | 'cdp';
+  type: "metamask" | "cdp";
   name: string;
   description: string;
   icon: React.ReactNode;
@@ -18,44 +18,44 @@ export interface WalletOption {
 }
 
 interface WalletSelectorProps {
-  onWalletSelect: (walletType: 'metamask' | 'cdp') => void;
+  onWalletSelect: (walletType: "metamask" | "cdp") => void;
   onSmartWalletSelect?: () => void;
 }
 
 const walletOptions: WalletOption[] = [
   {
-    type: 'metamask',
-    name: 'Non-custodial Wallet',
-    description: 'Connect any Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.)',
+    type: "metamask",
+    name: "Non-custodial Wallet",
+    description: "Connect any Web3 wallet (MetaMask, Rabby, Coinbase Wallet, etc.)",
     icon: <Wallet className="h-10 w-10 text-orange-500" />,
-    features: ['Multi-wallet support', 'Browser extension', 'Full control'],
+    features: ["Multi-wallet support", "Browser extension", "Full control"],
     network: config.network.displayName,
   },
 ];
 
 export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSelectorProps) {
-  const [selectedWallet, setSelectedWallet] = useState<'metamask' | 'cdp' | 'smart' | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<"metamask" | "cdp" | "smart" | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  const handleWalletSelection = async (walletType: 'metamask' | 'cdp') => {
+  const handleWalletSelection = async (walletType: "metamask" | "cdp") => {
     setSelectedWallet(walletType);
     setIsConnecting(true);
-    
+
     // Add slight delay for visual feedback
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     onWalletSelect(walletType);
   };
 
   const handleSmartWalletSelection = async () => {
     if (!onSmartWalletSelect) return;
-    
-    setSelectedWallet('smart');
+
+    setSelectedWallet("smart");
     setIsConnecting(true);
-    
+
     // Add slight delay for visual feedback
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     onSmartWalletSelect();
   };
 
@@ -69,9 +69,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
               <Zap className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-foreground">
-            Tweazy 💥
-          </h1>
+          <h1 className="text-4xl font-bold text-foreground">Tweazy 💥</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Research on X using your favorite crypto wallet, with x402 & MCP
           </p>
@@ -83,9 +81,9 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
           {onSmartWalletSelect && (
             <Card
               className={`cursor-pointer transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 ${
-                selectedWallet === 'smart'
-                  ? 'ring-2 ring-blue-500 shadow-lg scale-[1.02]'
-                  : 'hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md hover:scale-[1.01]'
+                selectedWallet === "smart"
+                  ? "ring-2 ring-blue-500 shadow-lg scale-[1.02]"
+                  : "hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md hover:scale-[1.01]"
               }`}
               onClick={() => {
                 if (!isConnecting) {
@@ -95,18 +93,21 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
             >
               <CardHeader className="text-center space-y-4">
                 <div className="flex justify-center">
-                  <Badge variant="default" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none">
+                  <Badge
+                    variant="default"
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none"
+                  >
                     <Shield className="h-3 w-3 mr-1" />
                     Most Secure
                   </Badge>
                 </div>
-                
+
                 <div className="flex justify-center">
                   <div className="p-4 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 border">
                     <Fingerprint className="h-10 w-10 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <CardTitle className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     Smart Wallet
@@ -116,7 +117,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                   </CardDescription>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium">
@@ -124,14 +125,20 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                     <span>Network: {config.network.displayName}</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {['Passkey Auth', 'No Passwords', 'Biometric Security', 'Instant Setup'].map((feature, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
-                        {feature}
-                      </Badge>
-                    ))}
+                    {["Passkey Auth", "No Passwords", "Biometric Security", "Instant Setup"].map(
+                      (feature, index) => (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
+                        >
+                          {feature}
+                        </Badge>
+                      ),
+                    )}
                   </div>
                 </div>
-                
+
                 <Button
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-none"
                   disabled={isConnecting}
@@ -142,7 +149,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                     }
                   }}
                 >
-                  {isConnecting && selectedWallet === 'smart' ? (
+                  {isConnecting && selectedWallet === "smart" ? (
                     <div className="flex items-center gap-2">
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                       Connecting with Passkey...
@@ -164,9 +171,9 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
               key={option.type}
               className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
                 selectedWallet === option.type
-                  ? 'ring-2 ring-primary border-primary shadow-md'
-                  : 'hover:border-primary/50 hover:shadow-md'
-              } ${option.recommended ? 'border-primary/30 bg-card' : 'bg-card'}`}
+                  ? "ring-2 ring-primary border-primary shadow-md"
+                  : "hover:border-primary/50 hover:shadow-md"
+              } ${option.recommended ? "border-primary/30 bg-card" : "bg-card"}`}
               onClick={() => {
                 if (!isConnecting) {
                   handleWalletSelection(option.type);
@@ -176,19 +183,20 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
               <CardHeader className="text-center space-y-4">
                 {option.recommended && (
                   <div className="flex justify-center">
-                    <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">
+                    <Badge
+                      variant="default"
+                      className="bg-primary/10 text-primary border-primary/20"
+                    >
                       <Shield className="h-3 w-3 mr-1" />
                       Recommended
                     </Badge>
                   </div>
                 )}
-                
+
                 <div className="flex justify-center">
-                  <div className="p-4 rounded-xl bg-muted/50 border">
-                    {option.icon}
-                  </div>
+                  <div className="p-4 rounded-xl bg-muted/50 border">{option.icon}</div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <CardTitle className="text-xl">{option.name}</CardTitle>
                   <CardDescription className="text-sm leading-relaxed">
@@ -196,7 +204,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                   </CardDescription>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 {/* Features */}
                 <div className="space-y-2">
@@ -212,11 +220,11 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Action Button */}
                 <Button
                   className="w-full"
-                  variant={selectedWallet === option.type ? 'default' : 'outline'}
+                  variant={selectedWallet === option.type ? "default" : "outline"}
                   disabled={isConnecting}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -231,7 +239,7 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
                       Connecting...
                     </div>
                   ) : (
-                    'Connect Wallet'
+                    "Connect Wallet"
                   )}
                 </Button>
               </CardContent>
@@ -243,12 +251,14 @@ export function WalletSelector({ onWalletSelect, onSmartWalletSelect }: WalletSe
         <div className="text-center space-y-4">
           <div className="flex justify-center items-center gap-2 text-sm text-muted-foreground">
             <Shield className="h-4 w-4 text-primary" />
-            <span>{config.network.testnetNotice || `${config.network.displayName} • Secure & Private`}</span>
+            <span>
+              {config.network.testnetNotice || `${config.network.displayName} • Secure & Private`}
+            </span>
           </div>
           <div className="max-w-lg mx-auto p-4 rounded-lg bg-muted/30 border">
             <p className="text-xs text-muted-foreground">
-              Both wallet options use {config.network.displayName} and support USDC payments for AI inferences.
-              Smart Wallet offers enhanced security with biometric authentication.
+              Both wallet options use {config.network.displayName} and support USDC payments for AI
+              inferences. Smart Wallet offers enhanced security with biometric authentication.
             </p>
           </div>
         </div>

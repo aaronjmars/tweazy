@@ -16,20 +16,13 @@ export const dataCardSchema = z.object({
         id: z.string().describe("Unique identifier for this card"),
         label: z.string().describe("Display text for the card title"),
         value: z.string().describe("Value associated with this card"),
-        description: z
-          .string()
-          .optional()
-          .describe("Optional summary for the card"),
-        url: z
-          .string()
-          .optional()
-          .describe("Optional URL for the card to navigate to"),
-      })
+        description: z.string().optional().describe("Optional summary for the card"),
+        url: z.string().optional().describe("Optional URL for the card to navigate to"),
+      }),
     )
     .describe("Array of selectable cards to display"),
 });
-export type DataCardProps = z.infer<typeof dataCardSchema> &
-  React.HTMLAttributes<HTMLDivElement>;
+export type DataCardProps = z.infer<typeof dataCardSchema> & React.HTMLAttributes<HTMLDivElement>;
 
 /**
  * DataCard Component
@@ -39,10 +32,9 @@ export type DataCardProps = z.infer<typeof dataCardSchema> &
  */
 export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
   ({ title, options, className, ...props }, ref) => {
-    const [state, setState] = useTamboComponentState<DataCardState>(
-      `data-card`,
-      { selectedValues: [] }
-    );
+    const [state, setState] = useTamboComponentState<DataCardState>(`data-card`, {
+      selectedValues: [],
+    });
     const handleToggleCard = (value: string) => {
       if (!state) return;
 
@@ -64,7 +56,9 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
     return (
       <div ref={ref} className={cn("w-full", className)} {...props}>
         {title && (
-          <h2 className="text-lg font-medium text-foreground/80 dark:text-foreground/80 mb-3">{title}</h2>
+          <h2 className="text-lg font-medium text-foreground/80 dark:text-foreground/80 mb-3">
+            {title}
+          </h2>
         )}
 
         <div className="space-y-2">
@@ -78,7 +72,7 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
                   "group flex items-start p-1.5 rounded-md transition-colors",
                   state &&
                     state.selectedValues.includes(card.value) &&
-                    "bg-muted/50 dark:bg-muted/50"
+                    "bg-muted/50 dark:bg-muted/50",
                 )}
               >
                 <div
@@ -90,7 +84,7 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
                       "w-4 h-4 border rounded-sm flex items-center justify-center transition-colors",
                       state && state.selectedValues.includes(card.value)
                         ? "bg-blue-500 dark:bg-blue-600 border-blue-500 dark:border-blue-600 text-white dark:text-gray-100"
-                        : "border-border dark:border-border hover:border-foreground/30 dark:hover:border-foreground/30"
+                        : "border-border dark:border-border hover:border-foreground/30 dark:hover:border-foreground/30",
                     )}
                   >
                     {state && state.selectedValues.includes(card.value) && (
@@ -112,9 +106,7 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
                 <div
                   className="flex-1 cursor-pointer"
                   onClick={() =>
-                    card.url
-                      ? handleNavigate(card.url)
-                      : handleToggleCard(card.value)
+                    card.url ? handleNavigate(card.url) : handleToggleCard(card.value)
                   }
                 >
                   <h3
@@ -123,7 +115,7 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
                       "group-hover:text-blue-700 dark:group-hover:text-blue-500",
                       state &&
                         state.selectedValues.includes(card.value) &&
-                        "text-blue-700 dark:text-blue-500"
+                        "text-blue-700 dark:text-blue-500",
                     )}
                   >
                     {card.label}
@@ -145,7 +137,7 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 DataCard.displayName = "DataCard";
