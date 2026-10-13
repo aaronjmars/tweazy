@@ -8,9 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npm run format:check
+      # Standalone Biome binary, version read from package-lock.json, so the
+      # check needs no npm install. Same command as `npm run format:check`.
+      - uses: biomejs/setup-biome@v2
+      - run: biome ci .
