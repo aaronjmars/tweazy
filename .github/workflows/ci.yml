@@ -27,10 +27,34 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: npm
+
+      # Reuse the installed node_modules when the lockfile is unchanged and skip
+      # `npm ci` (18-23s even on a warm npm cache). No setup-node npm cache: on a
+      # hit it is a wasted restore. .nvmrc holds the Node major, so a Node bump
+      # changes the key and reinstalls.
+      - name: Cache node_modules
+        id: node-modules
+        uses: actions/cache@v6
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-nm-${{ hashFiles('.nvmrc') }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
+        if: steps.node-modules.outputs.cache-hit != 'true'
         run: npm ci
+
+      # Next's incremental build cache (https://nextjs.org/docs/app/guides/ci-build-caching).
+      # Rebuilds only what changed; falls back to the newest cache for this
+      # lockfile. Restore only: saved after Build, and from main alone, since a
+      # PR's cache is visible to that PR only.
+      - name: Restore Next build cache
+        id: next-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**', 'public/**', '*.ts', '*.mjs', '*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
 
       - name: Lint
         run: npm run lint
@@ -39,3 +63,10 @@ jobs:
       # optional at build time, so the production build runs without them.
       - name: Build
         run: npm run build
+
+      - name: Save Next build cache
+        if: github.ref == 'refs/heads/main' && steps.next-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .next/cache
+          key: ${{ steps.next-cache.outputs.cache-primary-key }}
